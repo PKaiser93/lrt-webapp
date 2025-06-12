@@ -17,17 +17,22 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const credentials = ref({ username: '', password: '' })
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const submit = async () => {
   try {
     await auth.login(credentials.value)
-    router.push('/home')
+    console.log('✅ Login erfolgreich')
+
+    // Redirect nach ursprünglicher Route oder Standard
+    const target = route.query.redirect || '/home'
+    router.push(target)
   } catch (err) {
     alert('❌ Login fehlgeschlagen.')
   }
