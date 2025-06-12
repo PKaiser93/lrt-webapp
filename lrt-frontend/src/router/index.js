@@ -8,9 +8,9 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import ComputerList from '../views/ComputerList.vue'
 import ComputerCreate from '../views/ComputerCreate.vue'
 import BetriebssystemList from '../views/BetriebssystemList.vue'
-import BetriebssystemCreate from '../views/BetriebssystemCreate.vue'
 import KategorieList from '../views/KategorieList.vue'
 import KategorieCreate from '../views/KategorieCreate.vue'
+import ComputerImport from '../views/ComputerImport.vue'
 
 const routes = [
     { path: '/', component: Welcome },
@@ -31,13 +31,33 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/computer/import',
+        component: ComputerImport,
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/betriebssystem',
         component: BetriebssystemList,
         meta: { requiresAuth: true }
     },
     {
         path: '/betriebssystem/neu',
-        component: BetriebssystemCreate,
+        component: () => import('../views/BetriebssystemForm.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/betriebssystem/:id',
+        name: 'BetriebssystemEdit',
+        component: () => import('../views/BetriebssystemForm.vue'),
+    },
+    {
+        path: '/betriebssystem/trash',
+        name: 'BetriebssystemTrash',
+        component: () => import('../views/BetriebssystemTrash.vue')
+    },
+    {
+        path: '/betriebssystem/import',
+        component: () => import('../views/BetriebssystemImport.vue'),
         meta: { requiresAuth: true }
     },
     {
@@ -49,6 +69,15 @@ const routes = [
         path: '/kategorie/neu',
         component: KategorieCreate,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/kategorie/import',
+        component: () => import('../views/KategorieImport.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/kategorie/trash',
+        component: () => import('../views/KategorieTrash.vue')
     },
     {
         path: '/admin',

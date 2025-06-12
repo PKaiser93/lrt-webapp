@@ -1,11 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const ctrl = require('../controllers/kategorieController');
+const express = require('express')
+const router = express.Router()
+const ctrl = require('../controllers/kategorieController')
 
-router.post('/', ctrl.createKategorie);
-router.patch('/:id', ctrl.updateKategorie);
-router.delete('/:id', ctrl.softDeleteKategorie);
-router.patch('/:id/restore', ctrl.restoreKategorie);
-router.get('/', ctrl.listKategorien);
+// ✍️ CRUD + Trash Routes
+router.post('/', ctrl.createKategorie)
+router.patch('/:id', ctrl.updateKategorie)
 
-module.exports = router;
+router.patch('/:id/restore', ctrl.restoreKategorie)
+
+// 🧠 Reguläre & gelöschte Abfragen
+router.get('/', ctrl.listKategorien) // -> listet NICHT-gelöschte
+router.get('/trash', ctrl.listTrashKategorien) // -> listet NUR gelöschte
+
+
+// 🧨 Hard Delete
+router.delete('/trash', ctrl.deleteTrash)
+router.delete('/:id', ctrl.softDeleteKategorie)
+
+module.exports = router

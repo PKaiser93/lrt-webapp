@@ -1,33 +1,40 @@
-const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const User = require('../models/User')
+
+console.log('🔁 User-Modell geladen:', typeof User)
 
 exports.login = async (req, res) => {
-    const { name, password } = req.body
-    const user = await User.findOne({ name })
+    const { username, password } = req.body
+    console.log('🔐 Loginversuch für:', username)
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Benutzername und Passwort erforderlich' })
+    }
+
+    const user = await User.findOne({ username })
+
+    // 🧪 Logging zur Diagnose:
+    console.log('📂 User gefunden:', user)
+    console.log('🔑 Eingabe-PW:', password)
+    console.log('🔒 DB-Hash:', user?.password)
 
     if (!user) return res.status(401).json({ error: 'Benutzer nicht gefunden' })
 
-    const valid = await bcrypt.compare(password, user.password)
-    if (!valid) return res.status(403).json({ error: 'Falsches Passwort' })
+    const match = await bcrypt.compare(password, user.password)
+    const test = await bcrypt.compare(password, user.password)
+    console.log('✅ bcrypt Ergebnis:', test)
+    if (!match) return res.status(401).json({ error: 'Falsches Passwort' })
 
-    const token = jwt.sign(
-        { id: user._id, name: user.name, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-    )
-
-    res.json({ token, user: { name: user.name, isAdmin: user.isAdmin } })
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' })
+    res.status(200).json({ token })
 }
 
-exports.register = async (req, res) => {
-    const { name, password, isAdmin } = req.body
-    const hashed = await bcrypt.hash(password, 10)
-    const newUser = new User({ name, password: hashed, isAdmin })
-    await newUser.save()
-    res.status(201).json({ message: 'Benutzer erstellt' })
-}
-
-exports.getProfile = (req, res) => {
-    res.json({ name: req.user.name, isAdmin: req.user.isAdmin })
+exports.me = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password')
+        res.status(200).json(user)
+    } catch (err) {
+        res.status(401).json({ error: 'Ungültiger Token oder Benutzer nicht gefunden' })
+    }
 }

@@ -1,85 +1,77 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-    <router-link class="navbar-brand" :to="homeLink">💻 LRT Verwaltung</router-link>
+  <nav class="navbar navbar-expand-lg topbar px-4 shadow-sm">
+    <router-link class="navbar-brand fw-bold text-white" :to="auth.isAuthenticated ? '/home' : '/'">
+      💻 LRT WebApp
+    </router-link>
 
-    <div class="collapse navbar-collapse justify-content-end">
-      <ul class="navbar-nav">
-        <template v-if="userStore.isAuthenticated">
-          <!-- Computer Dropdown -->
+    <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+      <ul class="navbar-nav align-items-center gap-2">
+        <template v-if="auth.isAuthenticated">
+          <!-- 💾 Computer -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="bi bi-pc-display-horizontal me-1"></i> Computer
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <router-link class="dropdown-item" to="/computer">
-                  <i class="bi bi-card-list me-1"></i> Computerliste
-                </router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/computer/neu">
-                  <i class="bi bi-plus-circle me-1"></i> Computer anlegen
-                </router-link>
-              </li>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">💾 Computer</a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><router-link class="dropdown-item" to="/computer/neu">🆕 Anlegen</router-link></li>
+              <li><router-link class="dropdown-item" to="/computer">📄 Liste</router-link></li>
+              <li><router-link class="dropdown-item" to="/computer/import">🧩 CSV-Import</router-link></li>
             </ul>
           </li>
 
-          <!-- Betriebssystem Dropdown -->
+          <!-- 🪟 Betriebssystem -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="bi bi-windows me-1"></i> Betriebssysteme
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <router-link class="dropdown-item" to="/betriebssystem">
-                  <i class="bi bi-card-list me-1"></i> OS-Liste
-                </router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/betriebssystem/neu">
-                  <i class="bi bi-plus-circle me-1"></i> OS anlegen
-                </router-link>
-              </li>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">🪟 OS</a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><router-link class="dropdown-item" to="/betriebssystem/neu">➕ Anlegen</router-link></li>
+              <li><router-link class="dropdown-item" to="/betriebssystem">📄 Liste</router-link></li>
+              <li><router-link class="dropdown-item" to="/betriebssystem/import">🧩 CSV-Import</router-link></li>
             </ul>
           </li>
 
-          <!-- Kategorie Dropdown -->
+          <!-- 🏷️ Kategorie -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="bi bi-tags me-1"></i> Kategorien
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <router-link class="dropdown-item" to="/kategorie">
-                  <i class="bi bi-card-list me-1"></i> Kategorienliste
-                </router-link>
-              </li>
-              <li>
-                <router-link class="dropdown-item" to="/kategorie/neu">
-                  <i class="bi bi-plus-circle me-1"></i> Kategorie anlegen
-                </router-link>
-              </li>
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">🏷️ Kategorie</a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><router-link class="dropdown-item" to="/kategorie/neu">➕ Anlegen</router-link></li>
+              <li><router-link class="dropdown-item" to="/kategorie">📄 Liste</router-link></li>
+              <li><router-link class="dropdown-item" to="/kategorie/import">🧩 CSV-Import</router-link></li>
             </ul>
           </li>
 
-          <!-- Admin Dashboard -->
-          <li class="nav-item" v-if="userStore.isAdmin">
-            <router-link class="nav-link" to="/admin">Dashboard</router-link>
+          <!-- 📊 Admin Dashboard -->
+          <li class="nav-item" v-if="auth.user?.isAdmin">
+            <router-link class="nav-link" to="/admin">📊 Dashboard</router-link>
           </li>
 
-          <!-- Benutzer Info -->
+          <!-- 👤 User -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-              Eingeloggt als {{ userStore.user.name }}
+              👤 {{ auth.user?.username }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#" @click.prevent="logout">Logout</a></li>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+              <li>
+                <button @click="auth.logout" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </button>
+              </li>
             </ul>
           </li>
         </template>
 
         <template v-else>
-          <li class="nav-item"><router-link class="nav-link" to="/login">Login</router-link></li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/login">
+              <i class="bi bi-box-arrow-in-right me-1"></i> Login
+            </router-link>
+          </li>
         </template>
       </ul>
     </div>
@@ -87,16 +79,43 @@
 </template>
 
 <script setup>
-import { useUserStore } from '../stores/user'
-import { useRouter } from 'vue-router'
-import { computed } from 'vue'
-
-const userStore = useUserStore()
-const router = useRouter()
-const homeLink = computed(() => userStore.isAuthenticated ? '/home' : '/')
-
-const logout = () => {
-  userStore.logout()
-  router.push('/')
-}
+import { useAuthStore } from '../stores/auth'
+const auth = useAuthStore()
 </script>
+
+<style scoped>
+.topbar {
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: #fff;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #2d3748;
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-nav .nav-link {
+  color: #f3f4f6 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+.dropdown-menu {
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+  font-size: 0.92rem;
+}
+
+.dropdown-item:hover {
+  background-color: #e2e8f0;
+  color: #111827;
+}
+</style>

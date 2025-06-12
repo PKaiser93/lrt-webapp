@@ -11,11 +11,16 @@
 
 <script setup>
 import FlatPickr from 'vue-flatpickr-component'
+import { German } from 'flatpickr/dist/l10n/de.js'
+import 'flatpickr/dist/flatpickr.min.css'
 import { computed } from 'vue'
 
 const props = defineProps({
   label: String,
-  modelValue: String
+  modelValue: {
+    type: [String, Number, Date, Array],
+    default: null
+  }
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -28,14 +33,6 @@ const model = computed({
 const config = {
   dateFormat: 'Y-m-d',
   allowInput: true,
-  locale: 'de' // Optional: deutsches Format
-}
-</script>
-
-<script>
-export default {
-  components: {
-    FlatPickr
-  }
+  locale: German // statt 'de'
 }
 </script>

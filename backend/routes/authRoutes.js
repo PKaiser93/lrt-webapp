@@ -1,10 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { login, register, getProfile} = require('../controllers/authController')
-const {verifyToken} = require("../middleware/tokenAuth");
+const auth = require('../controllers/authController')
+const verify = require('../middleware/verifyToken')
 
-router.post('/login', login)
-router.post('/register', register)
-router.get('/profile', verifyToken, getProfile)// Optional: kann entfernt/deaktiviert werden
+router.post('/login', auth.login)
+router.get('/me', verify, auth.me)
 
 module.exports = router

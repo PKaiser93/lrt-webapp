@@ -2,35 +2,29 @@ import { defineStore } from 'pinia'
 import http from '../api/http'
 
 export const useAuthStore = defineStore('auth', {
-    state: () => ({
-        user: JSON.parse(localStorage.getItem('user')) || null,
-        token: localStorage.getItem('token') || null
-    }),
-
+    state: () => ({ token: null, user: null }),
     actions: {
         async login(credentials) {
-            const { data } = await http.post('/auth/login', credentials)
-            this.token = data.token
-            this.user = data.user
-
-            localStorage.setItem('token', data.token)
-            localStorage.setItem('user', JSON.stringify(data.user))
-
-            http.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+            const response = await http.post('/auth/login', credentials)
+            this.token = response.data.token
+            this.init()
+            await this.fetchUser()
         },
-
+        async fetchUser() {
+            const res = await http.get('/auth/me')
+            this.user = res.data
+        },
         logout() {
-            this.user = null
             this.token = null
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            delete http.defaults.headers.common['Authorization']
+            this.user = null
+            delete http.defaults.headers.common.Authorization
         },
-
         init() {
             if (this.token) {
-                http.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+                http.defaults.headers.common.Authorization = `Bearer ${this.token}`
             }
         }
-    }
+    },
+    persist: true
 })
+

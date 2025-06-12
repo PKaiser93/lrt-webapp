@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
 const BetriebssystemSchema = new mongoose.Schema({
-    name: String,
+    name: { type: String, required: true },
     deleted: { type: Boolean, default: false }
-});
+})
 
-module.exports = mongoose.model('Betriebssystem', BetriebssystemSchema);
+module.exports = mongoose.model('Betriebssystem', BetriebssystemSchema, 'betriebssysteme')
