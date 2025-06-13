@@ -1,70 +1,27 @@
 <template>
-  <div class="container py-4">
-    <h2 class="mb-4">📁 <strong>Computer CSV-Import</strong></h2>
-
-    <!-- 📂 Datei auswählen -->
-    <div class="mb-4">
-      <label class="form-label fw-semibold">CSV-Datei auswählen</label>
-      <input
-          type="file"
-          class="form-control"
-          accept=".csv"
-          @change="handleFileUpload"
-      />
-    </div>
-
-    <!-- 🧠 Feld-Mapping -->
-    <div v-if="headers.length">
-      <h4 class="mt-5 mb-3">🔁 <strong>Feld-Mapping</strong></h4>
-      <div class="table-responsive shadow-sm rounded">
-        <table class="table table-bordered align-middle bg-white">
-          <thead class="table-light">
-          <tr><th>🧾 CSV-Spalte</th><th>🎯 Ziel-Feld</th></tr>
-          </thead>
-          <tbody>
-          <tr v-for="(header, index) in headers" :key="index">
-            <td>{{ header }}</td>
-            <td>
-              <select v-model="mapping[header]" class="form-select">
-                <option disabled value="">– wählen –</option>
-                <option
-                    v-for="key in Object.keys(systemFields)"
-                    :key="key"
-                    :value="key"
-                >
-                  {{ systemFields[key] }}
-                </option>
-              </select>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 👁️ Vorschau -->
-    <div v-if="rows.length" class="mt-5">
-      <h4 class="mb-3">👁️ <strong>Vorschau</strong> (erste 5 Zeilen)</h4>
-      <div class="table-responsive rounded shadow-sm">
-        <table class="table table-hover table-striped table-sm bg-white">
-          <thead class="table-light">
-          <tr>
-            <th v-for="key in Object.values(mapping).filter(Boolean)" :key="key">{{ systemFields[key] || key }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="(row, i) in mappedPreview.slice(0, 5)" :key="i">
-            <td v-for="key in Object.values(mapping).filter(Boolean)" :key="key">{{ row[key] }}</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 🚀 Importieren -->
-      <div class="text-end mt-3">
-        <button class="btn btn-success shadow" @click="importData">
-          <i class="bi bi-cloud-upload me-2"></i>
-          Importieren ({{ mappedPreview.length }} Einträge)
+  <div>
+    <h2>📄 CSV-Import</h2>
+    <input type="file" @change="onFileChange" accept=".csv"/>
+    <div v-if="rows.length">
+      <h4>Vorschau ({{ previewCount }} Zeilen)</h4>
+      <table>
+        <thead>
+        <tr>
+          <th v-for="h in headers" :key="h">{{ h }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(row, idx) in previewRows" :key="idx">
+          <td v-for="h in headers" :key="h">{{ row[h] }}</td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="mt-3">
+        <button v-if="!confirmed" @click="confirmPreview" class="btn btn-primary">
+          ✅ Diese Daten importieren?
+        </button>
+        <button v-else @click="doImport" :disabled="importing" class="btn btn-success">
+          🚀 Import ausführen <span v-if="importing">...</span>
         </button>
       </div>
     </div>
@@ -73,60 +30,63 @@
 
 <script setup>
 import Papa from 'papaparse'
-import { ref, computed } from 'vue'
-import { showToast } from '../utils/toast'
+import { computed, ref } from 'vue'
 import http from '../api/http'
+import { showToast } from '../utils/toast'
 
-const rows = ref([])
 const headers = ref([])
-const mapping = ref({})
+const rows = ref([])
+const previewCount = 10
+const confirmed = ref(false)
+const importing = ref(false)
 
-const systemFields = {
-  marke: 'Marke', typ: 'Typ', seriennummer: 'Seriennummer', cpu: 'CPU', ram: 'RAM',
-  hddssd: 'HDD/SSD', grafikkarte: 'Grafikkarte', chipsatz: 'Chipsatz', tpm: 'TPM',
-  bios: 'BIOS', remote: 'Remote', betriebssystem: 'Betriebssystem', version: 'Version',
-  abstraktionsebene: 'Abstraktionsebene', dnsName: 'DNS-Name', ipAdresse: 'IP-Adresse',
-  macAdresse: 'MAC-Adresse', dhcp: 'DHCP', benutzer: 'Benutzer', idmKennung: 'IdM-Kennung',
-  betreuer: 'Betreuer', artDerArbeit: 'Art der Arbeit', startdatum: 'Startdatum',
-  abgabe: 'Abgabe', raumnummer: 'Raumnummer', kategorie: 'Kategorie',
-  laufendeNummer: 'Laufende Nummer', studPCs: 'StudPCs',
-  inventarnummer: 'Inventarnummer', fauInventarnummer: 'FAU-Inventarnummer',
-  beschaffungsjahr: 'Beschaffungsjahr', wannErsetzen: 'Wann ersetzen',
-  studienzuschuss: 'Studienzuschuss', info: 'Info', todo: 'ToDo', ablauf: 'Ablauf'
-}
-
-const handleFileUpload = (event) => {
-  const file = event.target.files[0]
+const onFileChange = e => {
+  const file = e.target.files[0]
   if (!file) return
-
   Papa.parse(file, {
     header: true,
     skipEmptyLines: true,
-    complete: (result) => {
+    complete: result => {
       headers.value = result.meta.fields
       rows.value = result.data
-      mapping.value = Object.fromEntries(headers.value.map(h => [h, '']))
+      confirmed.value = false
     }
   })
 }
 
-const mappedPreview = computed(() =>
-    rows.value.map(row => {
-      const mapped = {}
-      for (const [csvKey, systemKey] of Object.entries(mapping.value)) {
-        if (systemKey) mapped[systemKey] = row[csvKey]
-      }
-      return mapped
-    })
-)
+const previewRows = computed(() => rows.value.slice(0, previewCount))
 
-const importData = async () => {
+const confirmPreview = async () => {
+  // Starte Dryrun gegen das Backend, um Validierung und Mapping zu sehen
   try {
-    await http.post('/computer/bulk', mappedPreview.value)
-    showToast('✅ Import erfolgreich')
-  } catch (e) {
-    console.error(e)
-    showToast('❌ Fehler beim Import', 'danger')
+    const res = await http.post('/csv/import?dryrun=true', { rows: rows.value })
+    if (res.data && res.data.preview) {
+      // Option: Zeige Backend-Preview/Validierung statt der lokalen CSV
+      showToast(`Vorschau OK – insgesamt ${res.data.total} Zeilen gefunden.`, 'info')
+      confirmed.value = true
+    } else {
+      showToast('Fehler in der Vorschau/Validierung', 'danger')
+    }
+  } catch (err) {
+    showToast(err?.response?.data?.error || 'Fehler beim Dryrun', 'danger')
+  }
+}
+
+const doImport = async () => {
+  importing.value = true
+  try {
+    const BATCH_SIZE = 1000
+    for (let i = 0; i < rows.value.length; i += BATCH_SIZE) {
+      const batch = rows.value.slice(i, i + BATCH_SIZE)
+      await http.post('/csv/import', { rows: batch })
+    }
+    showToast('Import erfolgreich!', 'success')
+    rows.value = []
+    confirmed.value = false
+  } catch (err) {
+    showToast(err?.response?.data?.error || 'Fehler beim Import', 'danger')
+  } finally {
+    importing.value = false
   }
 }
 </script>

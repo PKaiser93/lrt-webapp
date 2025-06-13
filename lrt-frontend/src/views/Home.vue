@@ -1,6 +1,6 @@
 <template>
   <div class="welcome-wrapper container d-flex flex-column align-items-center justify-content-center text-center py-5 animate-fadein">
-    <h1 class="display-4 fw-bold mb-3">🖥️ LRT Computerverwaltung 2025</h1>
+    <h1 class="display-4 fw-bold mb-3">🖥️ LRT Computerverwaltung</h1>
 
     <StatusBadge class="mb-3" />
 
@@ -12,6 +12,9 @@
     </p>
 
     <div class="d-flex gap-3 mt-4">
+      <router-link to="/computer" class="btn btn-outline-secondary btn-lg shadow">
+        🖥️ Computer Liste
+      </router-link>
       <router-link to="/admin" class="btn btn-outline-secondary btn-lg shadow">
         📊 Admin-Dashboard
       </router-link>

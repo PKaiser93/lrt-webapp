@@ -1,12 +1,21 @@
 const express = require('express')
 const router = express.Router()
 const auth = require('../controllers/authController')
-const verify = require('../middleware/verifyToken')
+const { verifyToken, requireAdmin } = require('../middleware/verifyToken')
 
-router.get('/', auth.listUsers)         // 👈 Benutzer abrufen
-router.post('/register', auth.register) // 👈 Benutzer erstellen
-router.delete('/:id', auth.deleteUser)  // 👈 Benutzer löschen
+// Alle Benutzer abrufen (nur Admins!)
+router.get('/', verifyToken, requireAdmin, auth.listUsers)
+
+// Benutzer erstellen
+router.post('/register', auth.register)
+
+// Benutzer löschen (nur Admins!)
+router.delete('/:id', verifyToken, requireAdmin, auth.deleteUser)
+
+// Login
 router.post('/login', auth.login)
-router.get('/me', verify, auth.me)
+
+// Eigene Daten
+router.get('/me', verifyToken, auth.me)
 
 module.exports = router

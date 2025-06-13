@@ -4,13 +4,29 @@
     <form @submit.prevent="submit">
       <div class="mb-3">
         <label class="form-label">Benutzername</label>
-        <input v-model="credentials.username" class="form-control" />
+        <input
+            v-model="credentials.username"
+            class="form-control"
+            required
+            autocomplete="username"
+        />
       </div>
       <div class="mb-3">
         <label class="form-label">Passwort</label>
-        <input type="password" v-model="credentials.password" class="form-control" />
+        <input
+            type="password"
+            v-model="credentials.password"
+            class="form-control"
+            required
+            autocomplete="current-password"
+        />
       </div>
-      <button class="btn btn-primary w-100">▶️ Login</button>
+      <button class="btn btn-primary w-100" :disabled="loading">
+        <span v-if="loading">Lade...</span>
+        <span v-else>▶️ Login</span>
+      </button>
+      <!-- Fehleranzeige -->
+      <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
     </form>
   </div>
 </template>
@@ -24,17 +40,24 @@ const credentials = ref({ username: '', password: '' })
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const error = ref('')
+const loading = ref(false)
 
 const submit = async () => {
+  error.value = ''
+  loading.value = true
   try {
     await auth.login(credentials.value)
-    console.log('✅ Login erfolgreich')
-
     // Redirect nach ursprünglicher Route oder Standard
     const target = route.query.redirect || '/home'
     router.push(target)
   } catch (err) {
-    alert('❌ Login fehlgeschlagen.')
+    error.value =
+        err?.response?.data?.error ||
+        err?.message ||
+        '❌ Login fehlgeschlagen.'
+  } finally {
+    loading.value = false
   }
 }
 </script>

@@ -8,7 +8,7 @@ const ComputerSchema = new mongoose.Schema({
     typ: String,
     seriennummer: String,
     cpu: String,
-    ram: String,
+    ram: Number,
     hddssd: String,
     grafikkarte: String,
     chipsatz: String,
