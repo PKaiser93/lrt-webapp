@@ -35,6 +35,8 @@ app.use('/api/betriebssystem', require('./routes/betriebssystemRoutes'))
 app.use('/api/dashboard', require('./routes/dashboardRoutes'))
 app.use('/api/csv', require('./routes/csvRoutes'))
 app.use('/api/auth', require('./routes/authRoutes'))
+app.use('/api/studenten', require('./routes/studentenRoutes'));
+
 
 // 🛡️ Globale Fehlerbehandlungs-Middleware
 app.use((err, req, res, next) => {

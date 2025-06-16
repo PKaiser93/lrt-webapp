@@ -1,9 +1,13 @@
-// routes/csvImport.js
+// routes/csvRoutes.js
 
 const express = require('express');
 const router = express.Router();
-const csvCtrl = require('../controllers/csvImportController');
+const csvImportController = require('../controllers/csvImportController');
 
-router.post('/import', csvCtrl.importCSV);
+// Datei-Upload & Vorschau
+router.post('/upload', csvImportController.uploadCSV);
+
+// Import-Logik mit Duplikatentscheidung
+router.post('/import', csvImportController.importCSV);
 
 module.exports = router;

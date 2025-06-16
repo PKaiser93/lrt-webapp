@@ -6,7 +6,7 @@ const ComputerSchema = new mongoose.Schema({
     // Compuerinformationen
     marke: String,
     typ: String,
-    seriennummer: String,
+    seriennummer: { type: String, unique: true, sparse: true }, // nicht required!
     cpu: String,
     ram: Number,
     hddssd: String,

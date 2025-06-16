@@ -26,14 +26,23 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/computer/:id',
+        name: 'ComputerDetail',
+        component: () => import('../views/ComputerDetail.vue')
+    },
+    {
+        path: '/computer/:id/edit',
+        component: () => import('../views/ComputerEdit.vue')
+    },
+    {
         path: '/computer/neu',
         component: ComputerCreate,
         meta: { requiresAuth: true }
     },
     {
         path: '/computer/import',
-        component: ComputerImport,
-        meta: { requiresAuth: true }
+        name: 'ComputerCsvImport',
+        component: () => import('../views/ComputerCsvImport.vue')
     },
     {
         path: '/betriebssystem',
@@ -80,6 +89,16 @@ const routes = [
     {
         path: '/kategorie/trash',
         component: () => import('../views/KategorieTrash.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/student',
+        component: () => import('../views/StudentList.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/student/neu',
+        component: () => import('../views/StudentCreate.vue'),
         meta: { requiresAuth: true }
     },
     {

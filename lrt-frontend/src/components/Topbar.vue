@@ -22,7 +22,6 @@
             <ul class="dropdown-menu dropdown-menu-dark">
               <li><router-link class="dropdown-item" to="/computer/neu">🆕 Anlegen</router-link></li>
               <li><router-link class="dropdown-item" to="/computer">📄 Liste</router-link></li>
-              <li><router-link class="dropdown-item" to="/computer/import">🧩 CSV-Import</router-link></li>
             </ul>
           </li>
 
@@ -32,7 +31,6 @@
             <ul class="dropdown-menu dropdown-menu-dark">
               <li><router-link class="dropdown-item" to="/betriebssystem/neu">➕ Anlegen</router-link></li>
               <li><router-link class="dropdown-item" to="/betriebssystem">📄 Liste</router-link></li>
-              <li><router-link class="dropdown-item" to="/betriebssystem/import">🧩 CSV-Import</router-link></li>
             </ul>
           </li>
 
@@ -42,7 +40,15 @@
             <ul class="dropdown-menu dropdown-menu-dark">
               <li><router-link class="dropdown-item" to="/kategorie/neu">➕ Anlegen</router-link></li>
               <li><router-link class="dropdown-item" to="/kategorie">📄 Liste</router-link></li>
-              <li><router-link class="dropdown-item" to="/kategorie/import">🧩 CSV-Import</router-link></li>
+            </ul>
+          </li>
+
+          <!-- 🏷️ Kategorie -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">🎓 Studenten</a>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><router-link class="dropdown-item" to="/student/neu">➕ Anlegen</router-link></li>
+              <li><router-link class="dropdown-item" to="/student">📄 Liste</router-link></li>
             </ul>
           </li>
 

@@ -1,11 +1,8 @@
-module.exports = function filterFields(dataArray, allowedFields) {
-    return dataArray.map(obj => {
-        const filtered = {}
-        for (const key of allowedFields) {
-            if (obj[key] !== undefined) {
-                filtered[key] = obj[key]
-            }
-        }
-        return filtered
-    })
-}
+// Gibt ein neues Objekt mit nur den erlaubten Feldern zurück
+module.exports = function filterFields(obj, allowedFields) {
+    const filtered = {};
+    allowedFields.forEach(f => {
+        if (obj[f] !== undefined) filtered[f] = obj[f];
+    });
+    return filtered;
+};
