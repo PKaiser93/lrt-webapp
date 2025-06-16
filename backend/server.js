@@ -33,7 +33,6 @@ app.use('/api/computer', require('./routes/computerRoutes'))
 app.use('/api/kategorie', require('./routes/kategorieRoutes'))
 app.use('/api/betriebssystem', require('./routes/betriebssystemRoutes'))
 app.use('/api/dashboard', require('./routes/dashboardRoutes'))
-app.use('/api/csv', require('./routes/csvRoutes'))
 app.use('/api/auth', require('./routes/authRoutes'))
 app.use('/api/studenten', require('./routes/studentenRoutes'));
 

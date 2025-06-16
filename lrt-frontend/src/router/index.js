@@ -7,7 +7,6 @@ import Home from '../views/Home.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import ComputerList from '../views/ComputerList.vue'
 import ComputerCreate from '../views/ComputerCreate.vue'
-import ComputerImport from '../views/ComputerImport.vue'
 import BetriebssystemList from '../views/BetriebssystemList.vue'
 import KategorieList from '../views/KategorieList.vue'
 import KategorieCreate from '../views/KategorieCreate.vue'
@@ -40,11 +39,6 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/computer/import',
-        name: 'ComputerCsvImport',
-        component: () => import('../views/ComputerCsvImport.vue')
-    },
-    {
         path: '/betriebssystem',
         component: BetriebssystemList,
         meta: { requiresAuth: true }
@@ -67,11 +61,6 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/betriebssystem/import',
-        component: () => import('../views/BetriebssystemImport.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
         path: '/kategorie',
         component: KategorieList,
         meta: { requiresAuth: true }
@@ -79,11 +68,6 @@ const routes = [
     {
         path: '/kategorie/neu',
         component: KategorieCreate,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/kategorie/import',
-        component: () => import('../views/KategorieImport.vue'),
         meta: { requiresAuth: true }
     },
     {
@@ -100,6 +84,10 @@ const routes = [
         path: '/student/neu',
         component: () => import('../views/StudentCreate.vue'),
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/trash',
+        component: () => import('../views/TrashPage.vue')
     },
     {
         path: '/admin',

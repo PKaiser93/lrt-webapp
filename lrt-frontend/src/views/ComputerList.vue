@@ -1,16 +1,20 @@
 <template>
-  <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-      <h2 class="mb-0">🖥️ Computerliste</h2>
-      <button class="btn btn-success d-flex align-items-center" @click="showAddModal = true">
-        <span class="me-2">➕</span> Neu anlegen
-      </button>
+  <div class="computerlist-wrapper container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h2 class="mb-0 text-gradient fw-bold"><i class="bi bi-pc-display me-2"></i>Computerliste</h2>
+      <router-link
+          to="/computer/neu"
+          class="btn btn-success d-flex align-items-center shadow-sm"
+          style="min-width:170px"
+      >
+        <i class="bi bi-plus-circle me-2"></i> Neu anlegen
+      </router-link>
     </div>
 
     <!-- 🔍 Suche & Filter -->
     <div class="row mb-4 g-2 align-items-end">
       <div class="col-md-4">
-        <input v-model="search" class="form-control" placeholder="🔍 Suche, z.B. DNS:lrt076 RAM<16" />
+        <input v-model="search" class="form-control shadow-sm" placeholder="🔍 Suche, z.B. DNS:lrt076 RAM<16" />
       </div>
       <div class="col-auto">
         <div class="form-check form-switch">
@@ -19,13 +23,13 @@
         </div>
       </div>
       <div class="col-md-3">
-        <select v-model="selectedKategorie" class="form-select">
+        <select v-model="selectedKategorie" class="form-select shadow-sm">
           <option value="">📁 Kategorie (alle)</option>
           <option v-for="k in kategorieList" :key="k._id" :value="k.bezeichnung">{{ k.bezeichnung }}</option>
         </select>
       </div>
       <div class="col-md-3">
-        <select v-model="selectedOS" class="form-select">
+        <select v-model="selectedOS" class="form-select shadow-sm">
           <option value="">💽 OS (alle)</option>
           <option v-for="os in osList" :key="os._id" :value="os.name">{{ os.name }}</option>
         </select>
@@ -38,68 +42,39 @@
     </div>
     <div v-else>
       <div v-if="error" class="alert alert-danger mb-3">{{ error }}</div>
-      <!-- Tabelle -->
-      <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-          <thead>
+      <div class="table-responsive shadow-sm rounded-4">
+        <table class="table table-striped table-hover align-middle mb-0">
+          <thead class="table-light">
           <tr>
             <th @click="sortBy('dnsName')" style="cursor:pointer">
               DNS
-              <span v-if="sortField === 'dnsName'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'dnsName'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('ipAdresse')" style="cursor:pointer">
               IP
-              <span v-if="sortField === 'ipAdresse'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'ipAdresse'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('marke')" style="cursor:pointer">
               Marke
-              <span v-if="sortField === 'marke'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'marke'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('cpu')" style="cursor:pointer">
               CPU
-              <span v-if="sortField === 'cpu'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'cpu'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('ram')" style="cursor:pointer">
               RAM
-              <span v-if="sortField === 'ram'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'ram'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('raumnummer')" style="cursor:pointer">
               Raum
-              <span v-if="sortField === 'raumnummer'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'raumnummer'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
             <th @click="sortBy('kategorie.bezeichnung')" style="cursor:pointer">
               Kategorie
-              <span v-if="sortField === 'kategorie.bezeichnung'">
-                <span v-if="sortDir === 'asc'">▲</span>
-                <span v-else>▼</span>
-              </span>
-              <span v-else style="opacity:.5">↕</span>
+              <SortArrow :field="'kategorie.bezeichnung'" :sortField="sortField" :sortDir="sortDir"/>
             </th>
-            <th>🛠️ Aktionen</th>
+            <th>Aktionen</th>
           </tr>
           </thead>
           <tbody>
@@ -111,7 +86,7 @@
             <td>{{ comp.ram }}</td>
             <td>{{ comp.raumnummer }}</td>
             <td>
-              <span class="badge text-dark" :style="{ backgroundColor: comp.kategorie?.farbe || '#aaa' }">
+              <span class="badge text-dark" :style="{ backgroundColor: comp.kategorie?.farbe || '#eee', fontWeight: 500 }">
                 {{ comp.kategorie?.bezeichnung || '—' }}
               </span>
             </td>
@@ -121,15 +96,13 @@
                   :to="`/computer/${comp._id}`"
                   class="btn btn-sm btn-outline-secondary me-1"
                   title="Details"
-              >🔍</router-link>
-
+              ><i class="bi bi-search"></i></router-link>
               <!-- Bearbeiten -->
               <router-link
                   :to="`/computer/${comp._id}/edit`"
                   class="btn btn-sm btn-outline-primary me-1"
                   title="Bearbeiten"
-              >✏️</router-link>
-
+              ><i class="bi bi-pencil-square"></i></router-link>
               <!-- Löschen -->
               <button
                   class="btn btn-sm btn-outline-danger"
@@ -138,7 +111,7 @@
                   title="Löschen"
               >
                 <span v-if="deletingId === comp._id" class="spinner-border spinner-border-sm"></span>
-                <span v-else>🗑️</span>
+                <span v-else><i class="bi bi-trash3"></i></span>
               </button>
             </td>
           </tr>
@@ -147,7 +120,7 @@
       </div>
 
       <!-- 📄 Pagination -->
-      <nav v-if="totalPages > 1">
+      <nav v-if="totalPages > 1" class="mt-4">
         <ul class="pagination justify-content-center">
           <li class="page-item" :class="{ disabled: page === 1 }">
             <a class="page-link" @click.prevent="page > 1 && page--">«</a>
@@ -166,76 +139,13 @@
         </ul>
       </nav>
     </div>
-
-    <!-- MODAL: Neuer Computer anlegen (wie gehabt) -->
-    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.3)" v-if="showAddModal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <form @submit.prevent="addComputer">
-            <div class="modal-header">
-              <h5 class="modal-title">Neuen Computer anlegen</h5>
-              <button type="button" class="btn-close" @click="showAddModal = false"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-2">
-                <label class="form-label">Marke</label>
-                <input v-model="addForm.marke" class="form-control" required />
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Typ</label>
-                <input v-model="addForm.typ" class="form-control" />
-              </div>
-              <div class="mb-2">
-                <label class="form-label">DNS</label>
-                <input v-model="addForm.dnsName" class="form-control" />
-              </div>
-              <div class="mb-2">
-                <label class="form-label">IP-Adresse</label>
-                <input v-model="addForm.ipAdresse" class="form-control" />
-              </div>
-              <div class="mb-2">
-                <label class="form-label">RAM (GB)</label>
-                <input v-model.number="addForm.ram" type="number" class="form-control" />
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Kategorie</label>
-                <select v-model="addForm.kategorie" class="form-select">
-                  <option value="">—</option>
-                  <option v-for="k in kategorieList" :key="k._id" :value="k._id">{{ k.bezeichnung }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success">
-                <span v-if="adding">Anlegen...</span>
-                <span v-else>Speichern</span>
-              </button>
-              <button type="button" class="btn btn-secondary" @click="showAddModal = false" :disabled="adding">Abbrechen</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div v-if="showAddModal" class="modal-backdrop fade show"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import http from '../api/http'
 import { showToast } from '../utils/toast'
-
-// Sort-Icons als Mini-Komponente (Pfeil hoch/runter je nach Status)
-const SortIcon = {
-  props: ['field', 'sortField', 'sortDir'],
-  template: `
-    <span v-if="field === sortField">
-      <span v-if="sortDir === 'asc'">▲</span>
-      <span v-else>▼</span>
-    </span>
-    <span v-else style="opacity:.5">↕</span>
-  `
-}
 
 const computers = ref([])
 const kategorieList = ref([])
@@ -264,7 +174,20 @@ const addForm = ref({
   kategorie: '',
 })
 
-// SORT
+// Sort Arrow component for table headers
+const SortArrow = {
+  props: ['field', 'sortField', 'sortDir'],
+  template: `
+    <span v-if="field === sortField">
+      <i v-if="sortDir === 'asc'" class="bi bi-caret-up-fill"></i>
+      <i v-else class="bi bi-caret-down-fill"></i>
+    </span>
+    <span v-else style="opacity:.4">
+      <i class="bi bi-arrow-down-up"></i>
+    </span>
+  `
+}
+
 const sortField = ref('dnsName')
 const sortDir = ref('asc')
 
@@ -334,13 +257,10 @@ const totalPages = computed(() =>
     Math.ceil(computers.value.length / perPage)
 )
 
-// ---- Natural sort for DNS ----
 function naturalSort(a, b) {
-  // Both null/undefined
   if (a == null && b == null) return 0
   if (a == null) return 1
   if (b == null) return -1
-  // Extract prefix, number (e.g. lrt10 => ['lrt', 10])
   const parse = v => {
     if (typeof v !== 'string') return [v, 0]
     const m = v.match(/^([a-zA-Z\-]*)(\d+)$/)
@@ -353,14 +273,12 @@ function naturalSort(a, b) {
   return ap.localeCompare(bp)
 }
 
-// Sortierfunktion für alle Felder
 const sortedComputers = computed(() => {
   let arr = [...computers.value]
   arr.sort((a, b) => {
     const dir = sortDir.value === 'asc' ? 1 : -1
     let va, vb
     if (sortField.value.includes('.')) {
-      // Nested field, z.B. kategorie.bezeichnung
       const [p, f] = sortField.value.split('.')
       va = a[p]?.[f]
       vb = b[p]?.[f]
@@ -371,7 +289,6 @@ const sortedComputers = computed(() => {
     if (sortField.value === 'dnsName') {
       return naturalSort(va, vb) * dir
     }
-    // Numerisch?
     if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir
     if (va == null && vb == null) return 0
     if (va == null) return 1
@@ -390,7 +307,7 @@ async function addComputer() {
   adding.value = true
   try {
     const { marke, typ, dnsName, ipAdresse, ram, kategorie } = addForm.value
-    const res = await http.post('/computer', {
+    await http.post('/computer', {
       marke,
       typ,
       dnsName,
@@ -411,21 +328,55 @@ async function addComputer() {
 </script>
 
 <style scoped>
-.modal-backdrop {
-  z-index: 1040 !important;
+.computerlist-wrapper {
+  background: #f8fafc;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
+  margin-top: 30px;
 }
-.modal {
-  z-index: 1050 !important;
+.text-gradient {
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+.table {
+  border-radius: 1.3rem;
+  overflow: hidden;
+}
+.table thead th {
+  font-weight: 600;
+  border-top: none;
+  user-select: none;
+  background: #f1f5fa;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background: #f8fafc;
+}
+.table-hover > tbody > tr:hover {
+  background: #e0f2fe !important;
+}
+.badge {
+  border-radius: 0.75rem;
+  font-size: 0.97em;
+  padding: 0.55em 1em;
+  box-shadow: 0 2px 8px rgba(56, 143, 253, 0.06);
+  background: #e0f2fe;
+}
+.btn {
+  border-radius: 0.75rem !important;
+}
+.modal-content {
+  border-radius: 1.3rem;
 }
 @media (max-width: 700px) {
-  .modal-dialog {
-    max-width: 95vw;
+  .computerlist-wrapper {
+    padding: 12px 3px !important;
   }
-}
-th {
-  user-select: none;
-}
-th:hover {
-  background: #f8f9fa;
+  .table-responsive {
+    border-radius: 0.7rem;
+    margin-bottom: 12px;
+  }
 }
 </style>
