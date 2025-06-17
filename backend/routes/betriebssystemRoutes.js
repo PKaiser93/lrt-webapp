@@ -1,17 +1,30 @@
-const express = require('express')
-const router = express.Router()
-const ctrl = require('../controllers/betriebssystemController')
+const express = require('express');
+const router = express.Router();
+const bs = require('../controllers/betriebssystemController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// Wichtig: spezifischere Routen zuerst
-router.get('/trash', ctrl.listTrash)             // zeigt deleted = true
-router.delete('/trash', ctrl.hardDeleteAll) // endgültig löschen
+// Alle Betriebssysteme (sichtbar für alle User)
+router.get('/', bs.listAll);
 
-router.get('/', ctrl.list)
-router.post('/', ctrl.create)
-router.post('/import', ctrl.bulkImport)
+// Anlegen (nur Admin)
+router.post('/', requireAuth, requireAdmin, bs.create);
 
-router.patch('/:id', ctrl.update)
-router.patch('/:id/restore', ctrl.restore)
-router.delete('/:id', ctrl.softDelete)      // muss zuletzt, weil :id sonst trash matched
+// Aktualisieren (nur Admin)
+router.patch('/:id', requireAuth, requireAdmin, bs.update);
 
-module.exports = router
+// Soft Delete (nur Admin)
+router.patch('/:id/soft-delete', requireAuth, requireAdmin, bs.softDelete);
+
+// Restore (nur Admin)
+router.patch('/:id/restore', requireAuth, requireAdmin, bs.restore);
+
+// Bulk Import (nur Admin)
+router.post('/bulk-import', requireAuth, requireAdmin, bs.bulkImport);
+
+// Hard Delete ALL (Papierkorb leeren, nur Admin)
+router.delete('/hard-delete-all', requireAuth, requireAdmin, bs.hardDeleteAll);
+
+// Gelöschte Betriebssysteme auflisten (nur Admin)
+router.get('/trash/list', requireAuth, requireAdmin, bs.listTrash);
+
+module.exports = router;

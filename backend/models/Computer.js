@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const ComputerSchema = new mongoose.Schema({
     deleted: { type: Boolean, default: false },
 
-    // Compuerinformationen
-    marke: String,
-    typ: String,
-    seriennummer: { type: String, unique: true, sparse: true }, // nicht required!
+    // Computerinformationen
+    marke: { type: String, required: true },
+    typ: { type: String, required: true },
+    seriennummer: { type: String, unique: true, sparse: true },
     cpu: String,
     ram: Number,
     hddssd: String,
@@ -25,15 +25,15 @@ const ComputerSchema = new mongoose.Schema({
     dnsName: String,
     ipAdresse: String,
     macAdresse: String,
-    dhcp: { type: String, enum: ['ja', 'nein'] },
+    dhcp: { type: Boolean, default: false }, // Optimierung: Boolean statt Enum/String
 
     // Benutzerinformationen
     benutzer: String,
     idmKennung: String,
     betreuer: String,
     artDerArbeit: String,
-    startdatum: String,
-    abgabe: String,
+    startdatum: { type: Date },  // Optimierung: Date statt String
+    abgabe: { type: Date },      // Optimierung: Date statt String
 
     // Rauminformationen
     raumnummer: String,

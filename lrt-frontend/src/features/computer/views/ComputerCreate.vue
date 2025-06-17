@@ -99,12 +99,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '../api/http'
+import http from '../../../api/http'
 import { useRouter } from 'vue-router'
-import { showToast } from '../utils/toast'
-import Field from '../components/FormField.vue'
-import FormSelect from '../components/FormSelect.vue'
-import FormDate from '../components/FormDate.vue'
+import { showToast } from '../../../utils/toast'
+import Field from '../../../components/FormField.vue'
+import FormSelect from '../../../components/FormSelect.vue'
+import FormDate from '../../../components/FormDate.vue'
 
 const computer = ref({
   marke: '', typ: '', seriennummer: '', cpu: '', ram: '', hddssd: '', grafikkarte: '', chipsatz: '',

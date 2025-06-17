@@ -1,63 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const Student = require('../models/Student');
+const student = require('../controllers/studentController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// GET: Alle Studenten
-router.get('/', async (req, res) => {
-    try {
-        const studenten = await Student.find()
-            .populate('betriebssystem')
-            .populate('rechner');
-        res.json(studenten);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
+// Alle Studenten (nur Admin)
+router.get('/', requireAuth, requireAdmin, student.listStudents);
 
-// GET: Einzelner Student nach ID
-router.get('/:id', async (req, res) => {
-    try {
-        const student = await Student.findById(req.params.id)
-            .populate('betriebssystem')
-            .populate('rechner');
-        if (!student) return res.status(404).json({ error: 'Student nicht gefunden' });
-        res.json(student);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
+// Einzelnen Studenten holen (nur Admin)
+router.get('/:id', requireAuth, requireAdmin, student.getStudentById);
 
-// POST: Anlegen
-router.post('/', async (req, res) => {
-    try {
-        const student = new Student(req.body);
-        await student.save();
-        res.status(201).json(student);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// Studenten anlegen (nur Admin)
+router.post('/', requireAuth, requireAdmin, student.createStudent);
 
-// PUT: Bearbeiten
-router.put('/:id', async (req, res) => {
-    try {
-        const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!student) return res.status(404).json({ error: 'Student nicht gefunden' });
-        res.json(student);
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// Studenten aktualisieren (nur Admin)
+router.put('/:id', requireAuth, requireAdmin, student.updateStudent);
 
-// DELETE: Löschen
-router.delete('/:id', async (req, res) => {
-    try {
-        const result = await Student.findByIdAndDelete(req.params.id);
-        if (!result) return res.status(404).json({ error: 'Student nicht gefunden' });
-        res.json({ message: 'Student gelöscht' });
-    } catch (e) {
-        res.status(400).json({ error: e.message });
-    }
-});
+// Student löschen (nur Admin)
+router.delete('/:id', requireAuth, requireAdmin, student.deleteStudent);
 
 module.exports = router;

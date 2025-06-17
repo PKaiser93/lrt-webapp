@@ -1,20 +1,30 @@
-const express = require('express')
-const router = express.Router()
-const ctrl = require('../controllers/kategorieController')
+const express = require('express');
+const router = express.Router();
+const kategorie = require('../controllers/kategorieController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-// ✍️ CRUD + Trash Routes
-router.post('/', ctrl.createKategorie)
-router.patch('/:id', ctrl.updateKategorie)
+// Alle Kategorien (sichtbar für alle eingeloggten User)
+router.get('/', kategorie.listKategorien);
 
-router.patch('/:id/restore', ctrl.restoreKategorie)
+// Einzelne Kategorie – optional implementieren, falls benötigt
+// router.get('/:id', requireAuth, kategorie.getKategorieById);
 
-// 🧠 Reguläre & gelöschte Abfragen
-router.get('/', ctrl.listKategorien) // -> listet NICHT-gelöschte
-router.get('/trash', ctrl.listTrashKategorien) // -> listet NUR gelöschte
+// Anlegen (nur Admin)
+router.post('/', requireAuth, requireAdmin, kategorie.createKategorie);
 
+// Aktualisieren (nur Admin)
+router.put('/:id', requireAuth, requireAdmin, kategorie.updateKategorie);
 
-// 🧨 Hard Delete
-router.delete('/trash', ctrl.deleteTrash)
-router.delete('/:id', ctrl.softDeleteKategorie)
+// Soft Delete (nur Admin)
+router.patch('/:id/soft-delete', requireAuth, requireAdmin, kategorie.softDeleteKategorie);
 
-module.exports = router
+// Restore (nur Admin)
+router.patch('/:id/restore', requireAuth, requireAdmin, kategorie.restoreKategorie);
+
+// Gelöschte Kategorien anzeigen (nur Admin)
+router.get('/trash/list', requireAuth, requireAdmin, kategorie.listTrashKategorien);
+
+// Hard Delete Trash (Papierkorb leeren, nur Admin)
+router.delete('/trash', requireAuth, requireAdmin, kategorie.deleteTrash);
+
+module.exports = router;

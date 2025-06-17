@@ -1,79 +1,54 @@
-const Kategorie = require('../models/Kategorie')
+const Kategorie = require('../models/Kategorie');
 
-exports.createKategorie = async (req, res) => {
-    try {
-        const { bezeichnung, beschreibung, farbe } = req.body
-        const kat = await Kategorie.create({ bezeichnung, beschreibung, farbe, deleted: false })
-        res.status(201).json(kat)
-    } catch (err) {
-        res.status(500).json({ error: 'Fehler beim Anlegen', details: err.message })
-    }
-}
+// Optional: asyncHandler global verwenden
+const asyncHandler = fn => (req, res, next) =>
+    Promise.resolve(fn(req, res, next)).catch(next);
 
-exports.updateKategorie = async (req, res) => {
-    try {
-        const kategorie = await Kategorie.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        res.json(kategorie)
-    } catch (err) {
-        res.status(400).json({ error: err.message })
-    }
-}
+// --- CREATE ---
+exports.createKategorie = asyncHandler(async (req, res) => {
+    const { bezeichnung, beschreibung, farbe } = req.body;
+    if (!bezeichnung)
+        return res.status(400).json({ error: 'Bezeichnung erforderlich' });
+    const kat = await Kategorie.create({ bezeichnung, beschreibung, farbe, deleted: false });
+    res.status(201).json(kat);
+});
 
-exports.softDeleteKategorie = async (req, res) => {
-    try {
-        console.log('🧪 Soft Delete ID:', req.params.id)
-        const updated = await Kategorie.findByIdAndUpdate(req.params.id, { deleted: true })
-        if (!updated) return res.status(404).json({ error: 'Kategorie nicht gefunden' })
-        res.status(200).json({ message: 'Soft Delete erfolgreich' })
-    } catch (err) {
-        console.error('❌ Fehler beim Soft Delete:', err)
-        res.status(500).json({ error: 'Fehler beim Löschen', details: err.message })
-    }
-}
+// --- UPDATE ---
+exports.updateKategorie = asyncHandler(async (req, res) => {
+    const updated = await Kategorie.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Kategorie nicht gefunden' });
+    res.status(200).json(updated);
+});
 
+// --- SOFT DELETE ---
+exports.softDeleteKategorie = asyncHandler(async (req, res) => {
+    const updated = await Kategorie.findByIdAndUpdate(req.params.id, { deleted: true });
+    if (!updated) return res.status(404).json({ error: 'Kategorie nicht gefunden' });
+    res.status(200).json({ message: 'Soft Delete erfolgreich' });
+});
 
-exports.restoreKategorie = async (req, res) => {
-    try {
-        await Kategorie.findByIdAndUpdate(req.params.id, { deleted: false })
-        res.status(200).json({ message: 'Kategorie wiederhergestellt' })
-    } catch (err) {
-        res.status(500).json({ error: 'Fehler beim Wiederherstellen', details: err.message })
-    }
-}
+// --- RESTORE ---
+exports.restoreKategorie = asyncHandler(async (req, res) => {
+    const updated = await Kategorie.findByIdAndUpdate(req.params.id, { deleted: false });
+    if (!updated) return res.status(404).json({ error: 'Kategorie nicht gefunden' });
+    res.status(200).json({ message: 'Kategorie wiederhergestellt' });
+});
 
-exports.listKategorien = async (req, res) => {
-    try {
-        const query = req.query.deleted === 'true' ? { deleted: true } : { deleted: { $ne: true } }
-        const kategorien = await Kategorie.find(query)
-        res.json(kategorien)
-    } catch (err) {
-        res.status(500).json({ error: 'Fehler beim Laden der Kategorien', details: err.message })
-    }
-}
+// --- LIST ---
+exports.listKategorien = asyncHandler(async (req, res) => {
+    const query = req.query.deleted === 'true' ? { deleted: true } : { deleted: { $ne: true } };
+    const kategorien = await Kategorie.find(query);
+    res.status(200).json(kategorien);
+});
 
-exports.listTrashKategorien = async (req, res) => {
-    try {
-        const kategorien = await Kategorie.find({ deleted: true })
-        res.json(kategorien)
-    } catch (err) {
-        res.status(500).json({ error: 'Fehler beim Laden der gelöschten Kategorien', details: err.message })
-    }
-}
+// --- LIST TRASH ---
+exports.listTrashKategorien = asyncHandler(async (req, res) => {
+    const kategorien = await Kategorie.find({ deleted: true });
+    res.status(200).json(kategorien);
+});
 
-exports.deleteTrash = async (req, res) => {
-    try {
-        const gelöschte = await Kategorie.find({ deleted: true });
-        console.log('🧾 Zu löschende Kategorien:', gelöschte);
-
-        const result = await Kategorie.deleteMany({ deleted: true });
-        console.log(`🧹 ${result.deletedCount} Kategorien endgültig gelöscht`);
-
-        res.status(200).json({ message: `${result.deletedCount} Kategorien gelöscht.` });
-    } catch (err) {
-        console.error('❌ Fehler beim Hard Delete:', err); // LOG VOLLER ERROR STACK
-        res.status(500).json({ error: 'Fehler beim endgültigen Löschen', details: err.stack });
-    }
-};
-
-
-
+// --- HARD DELETE TRASH ---
+exports.deleteTrash = asyncHandler(async (req, res) => {
+    const result = await Kategorie.deleteMany({ deleted: true });
+    res.status(200).json({ message: `${result.deletedCount} Kategorien gelöscht.` });
+});

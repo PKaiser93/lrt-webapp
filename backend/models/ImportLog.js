@@ -1,12 +1,8 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const ImportLogSchema = new mongoose.Schema({
-    source: String,
-    count: Number,
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-})
+    source: { type: String, required: true },
+    count: { type: Number, required: true }
+}, { timestamps: true });
 
-module.exports = mongoose.model('ImportLog', ImportLogSchema)
+module.exports = mongoose.model('ImportLog', ImportLogSchema);

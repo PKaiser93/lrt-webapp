@@ -4,11 +4,10 @@
     <div class="row g-4 mb-4">
       <!-- Stat Cards -->
       <StatCard icon="bi-pc-display" title="Computer" :value="stats.computer" color="primary" />
-      <StatCard icon="bi-windows" title="Betriebssysteme" :value="stats.os" color="info" />
-      <StatCard icon="bi-tags" title="Kategorien" :value="stats.kategorie" color="success" />
-      <StatCard icon="bi-mortarboard" title="Studenten" :value="stats.student" color="warning" />
+      <StatCard icon="bi-windows" title="Betriebssysteme" :value="stats.betriebssysteme" color="info" />
+      <StatCard icon="bi-tags" title="Kategorien" :value="stats.kategorien" color="success" />
+      <StatCard icon="bi-mortarboard" title="Studenten" :value="stats.studenten" color="warning" />
     </div>
-
     <div class="row g-4 mb-4">
       <div class="col-md-5">
         <!-- PieChart Card -->
@@ -17,15 +16,18 @@
             <h5 class="card-title mb-3"><i class="bi bi-pie-chart me-2"></i>Betriebssystem-Verteilung</h5>
             <canvas ref="osChart" style="min-height:250px"></canvas>
             <div v-if="osLabels.length === 0" class="text-muted mt-2">Keine Daten verfügbar.</div>
+            <div v-if="osLabels.includes('Unbekannt')" class="alert alert-warning mt-3 py-1">
+              Achtung: Es gibt Computer mit keinem oder unbekanntem Betriebssystem!
+            </div>
           </div>
         </div>
       </div>
       <div class="col-md-7">
-        <!-- User Management -->
+        <!-- Users Management -->
         <div class="card shadow-sm rounded-4 h-100">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="card-title mb-0"><i class="bi bi-people me-2"></i>User Management</h5>
+              <h5 class="card-title mb-0"><i class="bi bi-people me-2"></i>Users Management</h5>
               <button class="btn btn-primary btn-sm" @click="showCreateUser = true">
                 <i class="bi bi-plus-circle me-1"></i>Neuen User anlegen
               </button>
@@ -44,9 +46,9 @@
                 <td>{{ u.username }}</td>
                 <td>{{ u.email || '—' }}</td>
                 <td>
-                    <span class="badge" :class="u.role==='admin' ? 'bg-danger' : 'bg-secondary'">
-                      {{ u.role }}
-                    </span>
+                  <span class="badge" :class="u.role==='admin' ? 'bg-danger' : 'bg-secondary'">
+                    {{ u.role }}
+                  </span>
                 </td>
                 <td class="text-end">
                   <button class="btn btn-sm btn-outline-secondary me-1"
@@ -157,8 +159,7 @@ const StatCard = {
   `
 }
 
-// --- DATA ---
-const stats = ref({ computer: 0, os: 0, kategorie: 0, student: 0 })
+const stats = ref({ computer: 0, betriebssysteme: 0, kategorien: 0, studenten: 0 })
 const users = ref([])
 const showCreateUser = ref(false)
 const showPwReset = ref(false)
@@ -175,20 +176,33 @@ onMounted(async () => {
   await fetchUsers()
   await fetchOSStats()
   await nextTick(drawChart)
+  // Debugging-Ausgabe
+  console.log("Stats geladen:", stats.value)
+  console.log("Users geladen:", users.value)
+  console.log("OS-Verteilung Labels:", osLabels.value)
+  console.log("OS-Verteilung Counts:", osCounts.value)
 })
 
 async function fetchStats() {
   const res = await http.get('/admin/stats')
+  console.log('API /admin/stats Antwort:', res.data)
   stats.value = res.data
 }
 
 async function fetchUsers() {
-  const res = await http.get('/admin/users')
-  users.value = res.data
+  try {
+    const res = await http.get('/admin/users')
+    console.log('API /admin/users Antwort:', res.data)
+    users.value = res.data
+  } catch (e) {
+    console.error('Fehler beim Laden der User:', e)
+    showToast('Fehler beim Laden der User', 'danger')
+  }
 }
 
 async function fetchOSStats() {
   const res = await http.get('/admin/os-stats')
+  console.log('API /admin/os-stats Antwort:', res.data)
   osLabels.value = res.data.labels
   osCounts.value = res.data.counts
   await nextTick(drawChart)
@@ -217,7 +231,7 @@ function drawChart() {
   })
 }
 
-// User create & actions
+// Users create & actions
 function generatePassword() {
   newUser.value.password = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-4)
 }

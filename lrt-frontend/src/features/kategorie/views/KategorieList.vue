@@ -57,8 +57,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '../api/http'
-import { showToast } from '../utils/toast'
+import http from '../../../api/http'
+import { showToast } from '../../../utils/toast'
 
 const kategorien = ref([])
 

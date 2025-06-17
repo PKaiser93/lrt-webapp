@@ -1,21 +1,21 @@
-const express = require('express')
-const router = express.Router()
-const auth = require('../controllers/authController')
-const { verifyToken, requireAdmin } = require('../middleware/verifyToken')
+const express = require('express');
+const router = express.Router();
+const auth = require('../controllers/authController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 // Alle Benutzer abrufen (nur Admins!)
-router.get('/', verifyToken, requireAdmin, auth.listUsers)
+router.get('/', requireAuth, requireAdmin, auth.listUsers);
 
 // Benutzer erstellen
-router.post('/register', auth.register)
+router.post('/register', auth.register);
 
 // Benutzer löschen (nur Admins!)
-router.delete('/:id', verifyToken, requireAdmin, auth.deleteUser)
+router.delete('/:id', requireAuth, requireAdmin, auth.deleteUser);
 
 // Login
-router.post('/login', auth.login)
+router.post('/login', auth.login);
 
 // Eigene Daten
-router.get('/me', verifyToken, auth.me)
+router.get('/me', requireAuth, auth.me);
 
-module.exports = router
+module.exports = router;

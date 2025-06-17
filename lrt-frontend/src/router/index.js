@@ -1,97 +1,92 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-
-import Welcome from '../views/Welcome.vue'
-import LoginForm from '../views/LoginForm.vue'
-import Home from '../views/Home.vue'
-import AdminDashboard from '../views/AdminDashboard.vue'
-import ComputerList from '../views/ComputerList.vue'
-import ComputerCreate from '../views/ComputerCreate.vue'
-import BetriebssystemList from '../views/BetriebssystemList.vue'
-import KategorieList from '../views/KategorieList.vue'
-import KategorieCreate from '../views/KategorieCreate.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const routes = [
-    { path: '/', component: Welcome },
-    { path: '/login', component: LoginForm },
+    { path: '/', component: () => import('@/views/Welcome.vue') },
+    { path: '/login', component: () => import('@/views/LoginForm.vue') },
     {
         path: '/home',
-        component: Home,
+        component: () => import('@/views/Home.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/computer',
-        component: ComputerList,
+        component: () => import('@/features/computer/views/ComputerList.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/computer/:id',
         name: 'ComputerDetail',
-        component: () => import('../views/ComputerDetail.vue')
+        component: () => import('@/features/computer/views/ComputerDetail.vue'),
     },
     {
         path: '/computer/:id/edit',
-        component: () => import('../views/ComputerEdit.vue')
+        component: () => import('@/features/computer/views/ComputerEdit.vue'),
     },
     {
         path: '/computer/neu',
-        component: ComputerCreate,
+        component: () => import('@/features/computer/views/ComputerCreate.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/betriebssystem',
-        component: BetriebssystemList,
+        component: () => import('@/features/betriebssystem/views/BetriebssystemList.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/betriebssystem/neu',
-        component: () => import('../views/BetriebssystemForm.vue'),
+        component: () => import('@/features/betriebssystem/components/BetriebssystemForm.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/betriebssystem/:id',
         name: 'BetriebssystemEdit',
-        component: () => import('../views/BetriebssystemForm.vue'),
+        component: () => import('@/features/betriebssystem/components/BetriebssystemForm.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/betriebssystem/trash',
         name: 'BetriebssystemTrash',
-        component: () => import('../views/BetriebssystemTrash.vue'),
+        component: () => import('@/features/betriebssystem/views/BetriebssystemTrash.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/kategorie',
-        component: KategorieList,
+        component: () => import('@/features/kategorie/views/KategorieList.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/kategorie/neu',
-        component: KategorieCreate,
+        component: () => import('@/features/kategorie/views/KategorieCreate.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/kategorie/:id',
+        component: () => import('@/features/kategorie/views/KategorieCreate.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/kategorie/trash',
-        component: () => import('../views/KategorieTrash.vue'),
+        component: () => import('@/features/kategorie/views/KategorieTrash.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/student',
-        component: () => import('../views/StudentList.vue'),
+        component: () => import('@/features/student/views/StudentList.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/student/neu',
-        component: () => import('../views/StudentCreate.vue'),
+        component: () => import('@/features/student/views/StudentCreate.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/trash',
-        component: () => import('../views/TrashPage.vue')
+        component: () => import('@/views/TrashPage.vue')
     },
     {
         path: '/admin',
-        component: AdminDashboard,
+        component: () => import('@/views/AdminDashboard.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
     }
 ]
@@ -101,19 +96,16 @@ const router = createRouter({
     routes
 })
 
-// 🛡️ Navigation Guard mit Pinia Auth-Check und Smart Redirect
+// Navigation Guard
 router.beforeEach((to, from, next) => {
     const auth = useAuthStore()
 
-    // Auth erforderlich, aber kein Token
     if (to.meta.requiresAuth && !auth.token) {
         next({ path: '/login', query: { redirect: to.fullPath } })
     }
-    // Admin erforderlich, aber kein Admin
     else if (to.meta.requiresAdmin && !auth.user?.isAdmin) {
         next('/home')
     }
-    // Freier Zugang
     else {
         next()
     }

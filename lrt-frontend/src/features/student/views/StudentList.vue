@@ -76,7 +76,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '../api/http'
+import http from '../../../api/http'
 import StudentEditModal from './StudentEditModal.vue'
 
 const students = ref([])

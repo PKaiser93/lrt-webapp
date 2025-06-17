@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import http from '../api/http'
+import http from '../../../api/http'
 
 const props = defineProps({ student: Object })
 const emit = defineEmits(['close', 'saved'])

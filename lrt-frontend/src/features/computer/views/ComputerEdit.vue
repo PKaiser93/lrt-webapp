@@ -119,7 +119,7 @@
               <span v-if="saving"><i class="bi bi-arrow-repeat me-1"></i>Speichern…</span>
               <span v-else><i class="bi bi-save me-1"></i>Speichern</span>
             </button>
-            <router-link class="btn btn-outline-secondary rounded-pill px-4" :to="'/computerlist'">
+            <router-link class="btn btn-outline-secondary rounded-pill px-4" :to="'/computer'">
               <i class="bi bi-x-lg me-1"></i>Abbrechen
             </router-link>
           </div>
@@ -132,8 +132,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import http from '../api/http'
-import { showToast } from '../utils/toast'
+import http from '@/api/http'
+import { showToast } from '@/utils/toast'
 
 const route = useRoute()
 const router = useRouter()
@@ -196,9 +196,9 @@ async function saveComputer() {
   error.value = ''
   try {
     const compData = { ...form.value }
-    await http.put(`/computer/${route.params.id}`, compData)
+    await http.patch(`/computer/${route.params.id}`, compData)
     showToast('Änderungen gespeichert', 'success')
-    router.push('/computerlist')
+    router.push('/computer')
   } catch (err) {
     error.value = err?.response?.data?.error || 'Speichern fehlgeschlagen.'
     showToast(error.value, 'danger')

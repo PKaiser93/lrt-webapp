@@ -17,6 +17,9 @@ export const useAuthStore = defineStore('auth', {
             const response = await http.post('/auth/login', credentials)
             this.token = response.data.token
 
+            // Token im localStorage speichern (wichtig für persistentes Login)
+            localStorage.setItem('token', this.token)
+
             // Authorization Header setzen
             http.defaults.headers.common.Authorization = `Bearer ${this.token}`
             this.init()
@@ -42,7 +45,10 @@ export const useAuthStore = defineStore('auth', {
         },
 
         init() {
-            if (this.token) {
+            // Token aus LocalStorage laden, falls vorhanden
+            const storedToken = localStorage.getItem('token')
+            if (storedToken) {
+                this.token = storedToken
                 http.defaults.headers.common.Authorization = `Bearer ${this.token}`
             }
         }

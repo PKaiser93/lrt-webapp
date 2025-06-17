@@ -1,9 +1,12 @@
 const Computer = require('../models/Computer');
-const Kategorie = require('../models/Kategorie'); // Passe ggf. Pfad/Modellnamen an!
+const Kategorie = require('../models/Kategorie');
+const Betriebssystem = require('../models/Betriebssystem');
 
-// Hilfsfunktion: Mapping Klartext → ObjectId (Cache für Performance)
+// Optional: asyncHandler zentral nutzen
+const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+// --- Hilfsfunktionen ---
 let kategorieCache = null;
-
 async function getKategorieLookup() {
     if (kategorieCache) return kategorieCache;
     const kategorien = await Kategorie.find({});
@@ -17,13 +20,11 @@ async function getKategorieLookup() {
     return lookup;
 }
 
-// Query Parser
 function parseAdvancedSearch(search) {
-    const expr = /\b(\w+)\s*(>=|<=|>|<|:|=)\s*:?\s*([^\s&]+)/gi;
+    const expr = /\b(\w+)\s*(>=|<=|>|<|:|=)\s*:?\s*([^&]+)/gi;
     let match, rules = [];
     let rest = search;
     while ((match = expr.exec(search)) !== null) {
-        console.log('RegExp Match:', match);
         rules.push({
             field: match[1].toLowerCase(),
             op: match[2],
@@ -49,186 +50,153 @@ const FIELD_MAP = {
     raum: 'raumnummer',
     raumnummer: 'raumnummer',
 };
-
 const INT_FIELDS = [
     'ram', 'beschaffungsjahr', 'inventarnummer', 'laufendeNummer', 'studPCs', 'studienzuschuss'
 ];
 
-// --- ADVANCED SEARCH ---
-exports.advancedSearchComputers = async (req, res) => {
-    try {
-        const { query = '', regex = 'false' } = req.query;
-        const useRegex = regex === 'true';
-        const { rules, text } = parseAdvancedSearch(query);
-        const filter = { deleted: false };
-        const kategorieLookup = await getKategorieLookup();
+// --- Advanced Search ---
+exports.advancedSearchComputers = asyncHandler(async (req, res) => {
+    const { query = '', regex = 'false' } = req.query;
+    const useRegex = regex === 'true';
+    const { rules, text } = parseAdvancedSearch(query);
+    const filter = { deleted: false };
+    const kategorieLookup = await getKategorieLookup();
 
-        console.log('--- Advanced Search Debug ---');
-        console.log('Query String:', query);
-        console.log('Regeln:', rules);
-
-        rules.forEach(rule => {
-            let field = FIELD_MAP[rule.field] || rule.field;
-            // INT-Felder mit Operatoren
-            if (INT_FIELDS.includes(field)) {
-                let val = Number(rule.value);
-                if (isNaN(val)) {
-                    console.warn('IGNORIERE, kein numerischer Wert:', rule);
-                    return;
-                }
-                if (rule.op === '=' || rule.op === ':') {
-                    filter[field] = val; // Gleichheit überschreibt alles
-                } else {
-                    if (!filter[field] || typeof filter[field] !== 'object' || Array.isArray(filter[field])) {
-                        filter[field] = {};
-                    }
-                    switch (rule.op) {
-                        case '>=':
-                            filter[field]['$gte'] = val;
-                            break;
-                        case '<=':
-                            filter[field]['$lte'] = val;
-                            break;
-                        case '>':
-                            filter[field]['$gt'] = val;
-                            break;
-                        case '<':
-                            filter[field]['$lt'] = val;
-                            break;
-                    }
-                }
-            }
-            // Kategorie-Mapping (Klartext oder ID)
-            else if (field === 'kategorie') {
-                let val = rule.value.trim().toLowerCase();
-                filter[field] = kategorieLookup[val] ? kategorieLookup[val] : rule.value;
-            }
-            // Stringfelder
-            else {
-                if (rule.op === ':' || rule.op === '=') {
-                    if (useRegex || rule.op === ':') {
-                        filter[field] = { $regex: rule.value, $options: 'i' };
-                    } else {
-                        filter[field] = rule.value;
-                    }
-                }
-            }
-        });
-
-        // Freitextsuche (optional)
-        if (text) {
-            const textRegex = useRegex
-                ? new RegExp(text, 'i')
-                : new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-            const orFields = [
-                'dnsName', 'benutzer', 'cpu', 'marke', 'typ', 'seriennummer', 'grafikkarte',
-                'chipsatz', 'tpm', 'bios', 'remote', 'version', 'abstraktionsebene', 'ipAdresse',
-                'macAdresse', 'betreuer', 'artDerArbeit', 'raumnummer', 'fauInventarnummer', 'info', 'todo', 'ablauf'
-            ];
-            filter['$or'] = orFields.map(f => ({ [f]: { $regex: textRegex } }));
-        }
-
-        // DEBUG: finaler Filter
-        console.log('Mongo-Filter:', JSON.stringify(filter, null, 2));
-
-        // RAM-Type-Check (zeigt Typ im ersten Treffer, wenn vorhanden)
-        if (filter.ram && typeof filter.ram !== "undefined") {
-            const ramTest = await Computer.findOne({ ram: { $exists: true } });
-            if (ramTest) {
-                console.log('RAM Beispielwert in DB:', ramTest.ram, 'Typ:', typeof ramTest.ram);
+    for (const rule of rules) {
+        let field = FIELD_MAP[rule.field] || rule.field;
+        if (INT_FIELDS.includes(field)) {
+            let val = Number(rule.value);
+            if (isNaN(val)) continue;
+            if (rule.op === '=' || rule.op === ':') {
+                filter[field] = val;
             } else {
-                console.log('Keine RAM-Daten in DB gefunden');
+                filter[field] = filter[field] || {};
+                switch (rule.op) {
+                    case '>=': filter[field]['$gte'] = val; break;
+                    case '<=': filter[field]['$lte'] = val; break;
+                    case '>':  filter[field]['$gt']  = val; break;
+                    case '<':  filter[field]['$lt']  = val; break;
+                }
+            }
+        } else if (field === 'kategorie') {
+            let val = rule.value.trim().toLowerCase();
+            filter[field] = kategorieLookup[val] ? kategorieLookup[val] : rule.value;
+        } else if (field === 'betriebssystem') {
+            const osDocs = await Betriebssystem.find({
+                name: { $regex: rule.value, $options: 'i' }
+            }).lean();
+            const ids = osDocs.map(doc => doc._id);
+            filter[field] = ids.length ? { $in: ids } : null;
+        } else {
+            if ((rule.op === ':' || rule.op === '=') && rule.value) {
+                filter[field] = { $regex: rule.value, $options: 'i' };
+            } else {
+                filter[field] = rule.value;
             }
         }
-
-        const result = await Computer.find(filter)
-            .populate('betriebssystem')
-            .populate('kategorie')
-            .limit(1000)
-            .lean();
-
-        res.json(result);
-    } catch (err) {
-        console.error('Advanced Search Fehler:', err);
-        res.status(500).json({ error: err.message || 'Advanced Search fehlgeschlagen.' });
     }
-};
+
+    // Freitextsuche
+    if (text && text.trim().length > 0) {
+        const textRegex = useRegex
+            ? new RegExp(text, 'i')
+            : new RegExp(text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        const orFields = [
+            'dnsName', 'benutzer', 'cpu', 'marke', 'typ', 'seriennummer', 'grafikkarte',
+            'chipsatz', 'tpm', 'bios', 'remote', 'version', 'abstraktionsebene', 'ipAdresse',
+            'macAdresse', 'betreuer', 'artDerArbeit', 'raumnummer', 'fauInventarnummer', 'info', 'todo', 'ablauf'
+        ];
+        filter['$or'] = orFields.map(f => ({ [f]: { $regex: textRegex } }));
+    }
+
+    const result = await Computer.find(filter)
+        .populate('betriebssystem')
+        .populate('kategorie')
+        .limit(1000)
+        .lean();
+
+    res.status(200).json(result);
+});
 
 // --- CREATE ---
-exports.createComputer = async (req, res) => {
-    try {
-        let body = { ...req.body };
-        if (body.kategorie && typeof body.kategorie === "string") {
-            const kategorieLookup = await getKategorieLookup();
-            const mapped = kategorieLookup[body.kategorie.trim().toLowerCase()];
-            if (mapped) body.kategorie = mapped;
-        }
-        if (body.dhcp === "Ja") body.dhcp = true;
-        if (body.dhcp === "Nein") body.dhcp = false;
-        const computer = new Computer(body);
-        await computer.save();
-        const populated = await Computer.findById(computer._id)
-            .populate('kategorie')
-            .populate('betriebssystem');
-        res.status(201).json(populated);
-    } catch (err) {
-        res.status(400).json({ error: err?.message || 'Computer konnte nicht erstellt werden.' });
+exports.createComputer = asyncHandler(async (req, res) => {
+    let body = { ...req.body };
+    if (body.kategorie && typeof body.kategorie === "string") {
+        const kategorieLookup = await getKategorieLookup();
+        const mapped = kategorieLookup[body.kategorie.trim().toLowerCase()];
+        if (mapped) body.kategorie = mapped;
     }
-};
+    if (body.dhcp === "Ja") body.dhcp = true;
+    if (body.dhcp === "Nein") body.dhcp = false;
+    const computer = new Computer(body);
+    await computer.save();
+    const populated = await Computer.findById(computer._id)
+        .populate('kategorie')
+        .populate('betriebssystem');
+    res.status(201).json(populated);
+});
 
 // --- UPDATE ---
-exports.updateComputer = async (req, res) => {
-    try {
-        let body = { ...req.body };
-        if (body.kategorie && typeof body.kategorie === "string") {
-            const kategorieLookup = await getKategorieLookup();
-            const mapped = kategorieLookup[body.kategorie.trim().toLowerCase()];
-            if (mapped) body.kategorie = mapped;
-        }
-        if (body.dhcp === "Ja") body.dhcp = true;
-        if (body.dhcp === "Nein") body.dhcp = false;
-        const updated = await Computer.findByIdAndUpdate(req.params.id, body, { new: true });
-        if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
-        const populated = await Computer.findById(updated._id)
-            .populate('kategorie')
-            .populate('betriebssystem');
-        res.json(populated);
-    } catch (err) {
-        res.status(400).json({ error: err?.message || 'Update fehlgeschlagen.' });
+exports.updateComputer = asyncHandler(async (req, res) => {
+    let body = { ...req.body };
+    if (body.kategorie && typeof body.kategorie === "string") {
+        const kategorieLookup = await getKategorieLookup();
+        const mapped = kategorieLookup[body.kategorie.trim().toLowerCase()];
+        if (mapped) body.kategorie = mapped;
     }
-};
+    if (body.dhcp === "Ja") body.dhcp = true;
+    if (body.dhcp === "Nein") body.dhcp = false;
+    const updated = await Computer.findByIdAndUpdate(req.params.id, body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
+    const populated = await Computer.findById(updated._id)
+        .populate('kategorie')
+        .populate('betriebssystem');
+    res.status(200).json(populated);
+});
 
 // --- SOFT DELETE ---
-exports.softDeleteComputer = async (req, res) => {
-    try {
-        const updated = await Computer.findByIdAndUpdate(req.params.id, { deleted: true }, { new: true });
-        if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
-        res.json({ message: 'Computer gelöscht (soft delete)' });
-    } catch (err) {
-        res.status(400).json({ error: err?.message || 'Soft delete fehlgeschlagen.' });
-    }
-};
+exports.softDeleteComputer = asyncHandler(async (req, res) => {
+    const updated = await Computer.findByIdAndUpdate(req.params.id, { deleted: true }, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
+    res.status(200).json({ message: 'Computer gelöscht (soft delete)' });
+});
 
 // --- RESTORE ---
-exports.restoreComputer = async (req, res) => {
-    try {
-        const updated = await Computer.findByIdAndUpdate(req.params.id, { deleted: false }, { new: true });
-        if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
-        res.json({ message: 'Computer wiederhergestellt' });
-    } catch (err) {
-        res.status(400).json({ error: err?.message || 'Restore fehlgeschlagen.' });
-    }
-};
+exports.restoreComputer = asyncHandler(async (req, res) => {
+    const updated = await Computer.findByIdAndUpdate(req.params.id, { deleted: false }, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Computer nicht gefunden.' });
+    res.status(200).json({ message: 'Computer wiederhergestellt' });
+});
 
 // --- EINZELN / ID ---
-exports.getComputerById = async (req, res) => {
-    try {
-        const computer = await Computer.findById(req.params.id)
-            .populate('kategorie')
-            .populate('betriebssystem');
-        if (!computer) return res.status(404).json({ error: 'Computer nicht gefunden.' });
-        res.json(computer);
-    } catch (err) {
-        res.status(404).json({ error: err?.message || 'Fehler beim Abrufen.' });
-    }
-};
+exports.getComputerById = asyncHandler(async (req, res) => {
+    const computer = await Computer.findById(req.params.id)
+        .populate('kategorie')
+        .populate('betriebssystem');
+    if (!computer) return res.status(404).json({ error: 'Computer nicht gefunden.' });
+    res.status(200).json(computer);
+});
+
+// --- HARTES LÖSCHEN ALLER (z.B. für Cleanup) ---
+exports.hardDeleteAll = asyncHandler(async (req, res) => {
+    const result = await Computer.deleteMany({ deleted: true });
+    res.status(200).json({ message: `${result.deletedCount} Computer gelöscht.` });
+});
+
+// --- BULK IMPORT ---
+exports.bulkImport = asyncHandler(async (req, res) => {
+    if (!Array.isArray(req.body) || !req.body.length)
+        return res.status(400).json({ error: 'Importdaten fehlen oder fehlerhaft.' });
+    const daten = req.body.map(item => ({ ...item }));
+    await Computer.insertMany(daten);
+    res.status(201).json({ message: 'Import erfolgreich' });
+});
+
+// --- ALLE (ohne Filter, Vorsicht bei sehr vielen Daten!) ---
+exports.listAll = asyncHandler(async (req, res) => {
+    const list = await Computer.find({ deleted: { $ne: true } })
+        .populate('kategorie')
+        .populate('betriebssystem')
+        .lean();
+    res.status(200).json(list);
+});
