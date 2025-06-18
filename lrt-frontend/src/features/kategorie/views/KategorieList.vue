@@ -2,14 +2,14 @@
   <div class="kategorie-wrapper container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
       <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
-        <i class="bi bi-tags"></i>Kategorien
+        <i class="bi bi-tags me-2"></i>Kategorien
       </h2>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm" @click="openForm()">
-          <i class="bi bi-plus-circle"></i> Neue Kategorie
+          <i class="bi bi-plus-circle"></i>
         </button>
         <router-link to="/kategorie/trash" class="btn btn-outline-gradient d-flex align-items-center gap-2 shadow-sm">
-          <i class="bi bi-trash3"></i> Papierkorb
+          <i class="bi bi-trash3"></i>
         </router-link>
       </div>
     </div>
@@ -161,7 +161,7 @@ onMounted(load)
   margin-top: 30px;
 }
 .text-gradient {
-  background: linear-gradient(90deg, #ff9360 10%, #388bfd 80%);
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

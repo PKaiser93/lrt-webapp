@@ -13,6 +13,9 @@ function getOsIcon(osName) {
   if (name.includes('linux')) return 'bi-linux text-success';
   if (name.includes('mac') || name.includes('osx') || name.includes('ipad') || name.includes('ios')) return 'bi-apple text-dark';
   if (name.includes('android')) return 'bi-android text-success';
+  if (name.includes('drucker')) return 'bi-printer text-success';
+  if (name.includes('3d')) return 'bi-badge-3d text-success';
+  if (name.includes('andere')) return 'bi-three-dots text-success';
   // Fallback
   return 'bi-cpu text-secondary';
 }

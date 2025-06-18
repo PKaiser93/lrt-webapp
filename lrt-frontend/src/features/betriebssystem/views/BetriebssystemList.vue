@@ -60,15 +60,23 @@ onMounted(() => {
   <div class="os-list-container shadow-lg">
     <div class="os-list-header d-flex justify-content-between align-items-center flex-wrap">
       <div>
-        <h2 class="gradient-text mb-1 d-flex align-items-center">
+        <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
           <i class="bi bi-microsoft me-2"></i>
           Betriebssysteme
         </h2>
         <div class="subtitle mb-2">Alle aktiven Betriebssysteme in der Datenbank</div>
       </div>
-      <button class="btn btn-gradient d-flex align-items-center gap-2" @click="openForm()">
-        <i class="bi bi-plus-circle"></i> <span>Neues Betriebssystem</span>
-      </button>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-gradient d-flex align-items-center gap-2" @click="openForm()">
+          <i class="bi bi-plus-circle"></i>
+        </button>
+        <router-link
+            to="/betriebssystem/trash"
+            class="btn btn-outline-gradient ms-auto d-flex align-items-center gap-2"
+        >
+          <i class="bi bi-trash3"></i>
+        </router-link>
+      </div>
     </div>
     <BetriebssystemForm
         v-if="showForm"
@@ -88,12 +96,6 @@ onMounted(() => {
             placeholder="Suchen …"
         />
       </div>
-      <router-link
-          to="/betriebssystem/trash"
-          class="btn btn-outline-gradient ms-auto d-flex align-items-center gap-2"
-      >
-        <i class="bi bi-trash3"></i> <span>Papierkorb</span>
-      </router-link>
     </div>
 
     <div v-if="store.isLoading" class="text-center py-5">
@@ -150,13 +152,12 @@ onMounted(() => {
   margin-bottom: 18px;
 }
 
-.gradient-text {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 60%);
+.text-gradient {
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-fill-color: transparent;
-  font-weight: bold;
 }
 .subtitle {
   color: #3a7bd5bb;

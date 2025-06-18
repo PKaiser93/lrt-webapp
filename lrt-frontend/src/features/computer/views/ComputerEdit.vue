@@ -5,6 +5,20 @@
       <h2 class="mb-0 fw-bold text-gradient">Computer bearbeiten</h2>
     </div>
 
+    <!-- Infobox zu Pflichtfeldern -->
+    <div class="alert alert-primary d-flex align-items-center mb-4 info-hint shadow-sm">
+      <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+      <div>
+        <strong>Hinweis:</strong><br>
+        Die Felder <strong>Marke</strong>, <strong>Typ</strong>, <strong>Betriebssystem</strong>, <strong>DHCP</strong> und <strong>Kategorie</strong> sind Pflichtfelder und müssen ausgefüllt werden.
+        <hr>
+        <strong>Marke</strong> und <strong>Typ</strong> sind im Tab Computer<br>
+        <strong>Betriebssystem</strong> im Tab Betriebssystem<br>
+        <strong>DHCP</strong> im Tab Netzwerk<br>
+        <strong>Kategorie</strong> im Tab Raum
+      </div>
+    </div>
+
     <div v-if="loading" class="text-center my-5">
       <div class="spinner-border text-primary"></div>
     </div>
@@ -26,6 +40,7 @@
               </button>
             </li>
           </ul>
+
           <div class="tab-content p-3 pb-1">
             <!-- Geräte-Info -->
             <div v-if="activeTab === 'info'">
@@ -114,12 +129,12 @@
           </div>
           <!-- /Tab-Content -->
 
-          <div class="mt-4 d-flex gap-2 justify-content-end">
+          <div class="text-end px-4 pb-4">
             <button class="btn btn-success shadow-sm rounded-pill px-4" type="submit" :disabled="saving">
               <span v-if="saving"><i class="bi bi-arrow-repeat me-1"></i>Speichern…</span>
               <span v-else><i class="bi bi-save me-1"></i>Speichern</span>
             </button>
-            <router-link class="btn btn-outline-secondary rounded-pill px-4" :to="'/computer'">
+            <router-link class="btn btn-outline-secondary rounded-pill px-4 ms-2" to="/computer">
               <i class="bi bi-x-lg me-1"></i>Abbrechen
             </router-link>
           </div>
@@ -143,7 +158,7 @@ const saving = ref(false)
 const error = ref('')
 
 const kategorieList = ref([])
-const osList = ref([])
+const osList        = ref([])
 
 const form = ref({
   marke: '', typ: '', seriennummer: '', dnsName: '', ram: null, cpu: '', grafikkarte: '', chipsatz: '',
@@ -156,20 +171,19 @@ const form = ref({
 })
 
 const tabs = [
-  { key: 'info', label: 'Geräte-Info', icon: 'bi-cpu' },
-  { key: 'os', label: 'Betriebssystem', icon: 'bi-windows' },
-  { key: 'net', label: 'Netzwerk', icon: 'bi-diagram-3' },
-  { key: 'user', label: 'Benutzer', icon: 'bi-person-circle' },
-  { key: 'proc', label: 'Beschaffung', icon: 'bi-bag' },
-  { key: 'kat', label: 'Kategorie', icon: 'bi-tag' },
-  { key: 'other', label: 'Sonstiges', icon: 'bi-info-circle' },
+  { key: 'info',  label: 'Geräte-Info',     icon: 'bi bi-cpu' },
+  { key: 'os',    label: 'Betriebssystem',   icon: 'bi bi-windows' },
+  { key: 'net',   label: 'Netzwerk',         icon: 'bi bi-diagram-3' },
+  { key: 'user',  label: 'Benutzer',         icon: 'bi bi-person-circle' },
+  { key: 'proc',  label: 'Beschaffung',      icon: 'bi bi-bag' },
+  { key: 'kat',   label: 'Kategorie',        icon: 'bi bi-tag' },
+  { key: 'other', label: 'Sonstiges',        icon: 'bi bi-info-circle' },
 ]
 
 const activeTab = ref('info')
 
-async function loadData() {
+onMounted(async () => {
   loading.value = true
-  error.value = ''
   try {
     const [compRes, katRes, osRes] = await Promise.all([
       http.get(`/computer/${route.params.id}`),
@@ -178,25 +192,25 @@ async function loadData() {
     ])
     Object.assign(form.value, compRes.data)
     kategorieList.value = katRes.data
-    osList.value = osRes.data
+    osList.value        = osRes.data
+
     if (typeof form.value.betriebssystem === 'object' && form.value.betriebssystem)
       form.value.betriebssystem = form.value.betriebssystem._id
     if (typeof form.value.kategorie === 'object' && form.value.kategorie)
       form.value.kategorie = form.value.kategorie._id
+
   } catch (err) {
     error.value = err?.response?.data?.error || 'Fehler beim Laden.'
   } finally {
     loading.value = false
   }
-}
-onMounted(loadData)
+})
 
 async function saveComputer() {
   saving.value = true
-  error.value = ''
+  error.value  = ''
   try {
-    const compData = { ...form.value }
-    await http.patch(`/computer/${route.params.id}`, compData)
+    await http.patch(`/computer/${route.params.id}`, form.value)
     showToast('Änderungen gespeichert', 'success')
     router.push('/computer')
   } catch (err) {
@@ -213,8 +227,6 @@ async function saveComputer() {
   background: linear-gradient(90deg, #ff9360 10%, #388bfd 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
 .card {
   border-radius: 1.5rem;
@@ -229,7 +241,8 @@ async function saveComputer() {
   margin-right: 2px;
   transition: all .14s;
 }
-.modern-tabs .nav-link.active, .modern-tabs .nav-link:focus {
+.modern-tabs .nav-link.active,
+.modern-tabs .nav-link:focus {
   background: #eaf2ff;
   color: #388bfd;
   border-bottom: 2px solid #388bfd;
@@ -240,11 +253,15 @@ async function saveComputer() {
   box-shadow: 0 3px 16px 0 #0001;
   margin-top: -4px;
 }
+.info-hint {
+  border-radius: 1rem;
+}
 .btn-success {
   background: linear-gradient(90deg, #50d285, #22a6b3 90%);
   border: none;
 }
-.btn-success:active, .btn-success:focus {
+.btn-success:active,
+.btn-success:focus {
   background: #22a6b3;
 }
 .btn-success .bi {

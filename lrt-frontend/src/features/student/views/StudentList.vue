@@ -2,15 +2,15 @@
   <div class="studentlist-wrapper container py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-      <h2 class="mb-0 text-gradient fw-bold">
+      <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
         <i class="bi bi-mortarboard-fill me-2"></i>Studenten
       </h2>
+      <!-- Neu anlegen Button mit Gradient‑Style -->
       <button
-          class="btn btn-success d-flex align-items-center shadow-sm"
-          style="min-width:170px"
+          class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm"
           @click="openForm()"
       >
-        <i class="bi bi-person-plus me-2"></i> Neu anlegen
+        <i class="bi bi-person-plus"></i>
       </button>
     </div>
 
@@ -41,9 +41,7 @@
             <td>{{ stud.name }}</td>
             <td>{{ stud.vorname }}</td>
             <td>
-                <span class="badge bg-light text-dark">
-                  {{ stud.idmAccount }}
-                </span>
+              <span class="badge bg-light text-dark">{{ stud.idmAccount }}</span>
             </td>
             <td>
                 <span class="badge bg-light text-dark">
@@ -146,7 +144,6 @@ async function fetchStudents() {
         if (name) {
           s.betriebssystem = { name }
         } else {
-          // Falls ID unbekannt, entfernen wir das Feld
           delete s.betriebssystem
         }
       }
@@ -232,6 +229,40 @@ onMounted(fetchStudents)
 .btn {
   border-radius: 0.75rem !important;
 }
+/* btn-gradient wie in KategorieList.vue */
+.btn-gradient {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 1.2em;
+  padding: 8px 22px;
+  box-shadow: 0 2px 10px #00d2ff12;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-gradient:hover,
+.btn-gradient:focus {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
+  color: #fff;
+}
+
+/* Optional: btn-outline-gradient, falls Du es auch brauchst */
+.btn-outline-gradient {
+  border: 2px solid #3a7bd5;
+  color: #3a7bd5;
+  background: #fafdff;
+  font-weight: 500;
+  border-radius: 14px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px #00d2ff11;
+}
+.btn-outline-gradient:hover,
+.btn-outline-gradient:focus {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  box-shadow: 0 2px 10px #00d2ff22;
+}
+
 .badge {
   border-radius: 0.75rem;
   font-size: 0.97em;

@@ -13,13 +13,13 @@ function kategorieColor(kategorie) {
 
 <template>
   <tr :class="{ 'table-danger': deletingId === comp._id }">
-    <td>{{ comp.dnsName }}</td>
-    <td>{{ comp.ipAdresse }}</td>
-    <td>{{ comp.marke }}</td>
-    <td>{{ comp.cpu }}</td>
-    <td>{{ comp.ram }}</td>
-    <td>{{ comp.raumnummer }}</td>
-    <td>
+    <td class="text-center align-middle">{{ comp.dnsName }}</td>
+    <td class="text-center align-middle">{{ comp.ipAdresse }}</td>
+    <td class="text-center align-middle">{{ comp.marke }}</td>
+    <td class="text-center align-middle">{{ comp.cpu }}</td>
+    <td class="text-center align-middle">{{ comp.ram }} GB</td>
+    <td class="text-center align-middle">{{ comp.raumnummer }}</td>
+    <td class="text-center align-middle">
       <span
           v-if="comp.kategorie"
           class="badge kategorie-badge"
@@ -28,7 +28,7 @@ function kategorieColor(kategorie) {
         {{ comp.kategorie.bezeichnung || comp.kategorie }}
       </span>
     </td>
-    <td class="text-end align-middle">
+    <td class="text-center align-middle">
       <div class="d-inline-flex gap-1">
         <router-link
             :to="`/computer/${comp._id}`"

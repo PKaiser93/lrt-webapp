@@ -7,9 +7,8 @@
       <router-link
           to="/computer/neu"
           class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm"
-          style="min-width:170px"
       >
-        <i class="bi bi-plus-circle"></i> Neu anlegen
+        <i class="bi bi-plus-circle"></i>
       </router-link>
     </div>
 
@@ -30,7 +29,7 @@
     <div v-else>
       <div v-if="computerStore.error" class="alert alert-danger mb-3">{{ computerStore.error }}</div>
       <div class="table-responsive shadow-sm rounded-4">
-        <table class="table table-hover align-middle mb-0 table-striped">
+        <table class="table table-hover align-middle mb-0 table-striped text-center">
           <thead class="table-light">
           <tr>
             <th @click="sortBy('dnsName')" style="cursor:pointer">
