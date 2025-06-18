@@ -9,6 +9,8 @@ require('dotenv').config();
 
 const app = express();
 
+const { metricsMiddleware } = require('./middleware/metricsMiddleware');
+
 // Logging
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -52,7 +54,7 @@ app.use(cors({
 }));
 
 // Healthcheck-Route (vor allen anderen Routen!)
-app.get('/health', async (req, res) => {
+app.get('/api/health', async (req, res) => {
     const dbState = mongoose.connection.readyState;
     // 1 = connected, 0 = disconnected, 2 = connecting, 3 = disconnecting
     const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
@@ -67,6 +69,8 @@ app.get('/health', async (req, res) => {
 // Body-Parser
 app.use(express.json({ limit: '50mb' }));
 
+app.use(metricsMiddleware);
+
 // API-Routen
 app.use('/api/computer', require('./routes/computerRoutes'));
 app.use('/api/kategorie', require('./routes/kategorieRoutes'));
@@ -75,6 +79,8 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/studenten', require('./routes/studentenRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/admin/privacy', require('./routes/privacyRoutes'));
+app.use('/api/admin/metrics', require('./routes/metricsRoutes'));
 
 // 404-Handler
 app.use((req, res, next) => {

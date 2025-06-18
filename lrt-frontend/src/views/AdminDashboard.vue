@@ -5,16 +5,91 @@
       <i class="bi bi-bar-chart-line me-2"></i>Admin Dashboard
     </h2>
 
-    <!-- Statistikkarten -->
+    <!-- Health‑Check, Backup & API‑Monitoring nebeneinander -->
     <div class="row g-4 mb-4">
-      <StatCard icon="bi-pc-display"        title="Computer"           :value="stats.computer"           color="primary" />
-      <StatCard icon="bi-windows"            title="Betriebssysteme"    :value="stats.betriebssysteme"    color="info"    />
-      <StatCard icon="bi-tags"               title="Kategorien"         :value="stats.kategorien"         color="success" />
-      <StatCard icon="bi-mortarboard"        title="Studenten"         :value="stats.studenten"          color="warning" />
+      <!-- Health‑Check Card -->
+      <div class="col-md-3">
+        <div
+            class="card shadow-sm rounded-4 h-100"
+            :class="health.status === 'ok' ? 'border-success' : 'border-danger'"
+        >
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bi bi-heart-pulse me-2"></i>Health Check
+            </h5>
+            <p class="mb-1">
+              Status:
+              <span :class="health.status === 'ok' ? 'text-success' : 'text-danger'">
+                {{ health.status.toUpperCase() }}
+              </span>
+            </p>
+            <p class="mb-1">
+              DB:
+              <span :class="health.db === 'connected' ? 'text-success' : 'text-danger'">
+                {{ health.db }}
+              </span>
+            </p>
+            <p class="mb-1">
+              Uptime: {{ formattedUptime }}
+            </p>
+            <p class="text-muted small mb-0">
+              Aktualisiert: {{ health.timestamp }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup‑Card -->
+      <div class="col-md-3">
+        <div class="card shadow-sm rounded-4 h-100 border border-primary">
+          <div class="card-body d-flex flex-column justify-content-center">
+            <h5 class="card-title mb-3">
+              <i class="bi bi-hdd-stack me-2"></i>Backup
+            </h5>
+            <button
+                class="btn btn-gradient d-flex align-items-center gap-1"
+                @click="createBackup"
+            >
+              <i class="bi bi-hdd-stack"></i> Backup erstellen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- API‑Monitoring Card -->
+      <div class="col-md-3">
+        <div class="card shadow-sm rounded-4 h-100 border-info">
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bi bi-bar-chart me-2"></i>API Monitoring
+            </h5>
+            <p class="mb-1">
+              Requests gesamt:
+              <strong>{{ metrics.totalRequests }}</strong>
+            </p>
+            <p class="mb-1">
+              Ø Latenz:
+              <strong>{{ overallAvg }} ms</strong>
+            </p>
+            <p class="text-muted small mb-0">
+              Routen: {{ metrics.routes.length }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
+    <!-- Statistikkarten -->
+    <div class="row g-4 mb-4">
+      <StatCard icon="bi-pc-display" title="Computer" :value="stats.computer" color="primary" />
+      <StatCard icon="bi-windows" title="Betriebssysteme" :value="stats.betriebssysteme" color="info" />
+      <StatCard icon="bi-tags" title="Kategorien" :value="stats.kategorien" color="success" />
+      <StatCard icon="bi-mortarboard" title="Studenten" :value="stats.studenten" color="warning" />
+    </div>
+
+    <!-- OS‑Verteilung & Users Management -->
     <div class="row g-4">
-      <!-- Pie-Chart für OS-Verteilung -->
+      <!-- Pie‑Chart Karte -->
       <div class="col-md-5">
         <div class="card shadow-sm rounded-4 h-100 border-0">
           <div class="card-body">
@@ -30,7 +105,7 @@
         </div>
       </div>
 
-      <!-- User‑Management -->
+      <!-- Users Management Karte -->
       <div class="col-md-7">
         <div class="card shadow-sm rounded-4 h-100 border-0">
           <div class="card-body">
@@ -76,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import http from '@/api/http'
 import { useToastStore } from '@/stores/toast'
 import Chart from 'chart.js/auto'
@@ -95,35 +170,71 @@ const StatCard = {
           <h3 class="fw-bold mb-0">{{ value }}</h3>
         </div>
       </div>
-    </div>
-  `
+    </div>`
 }
 
-// State
-const stats      = ref({ computer:0, betriebssysteme:0, kategorien:0, studenten:0 })
-const osLabels   = ref([])
-const osCounts   = ref([])
-const osChart    = ref(null)
-const users      = ref([])
-
-// Lifecycle
-onMounted(async () => {
-  await fetchStats()
-  await fetchOSStats()
-  await nextTick(drawChart)
-  await fetchUsers()
+// Health‑State
+const health = ref({
+  status: 'unknown',
+  db: 'unknown',
+  uptime: 0,
+  timestamp: ''
 })
+const formattedUptime = computed(() => {
+  const s = Math.floor(health.value.uptime)
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60
+  return `${h}h ${m}m ${sec}s`
+})
+async function fetchHealth() {
+  try {
+    const res = await http.get('/health')
+    health.value = res.data
+  } catch {
+    health.value.status = 'error'
+  }
+}
 
-// API‑Aufrufe
+// Backup‑Funktion
+async function createBackup() {
+  try {
+    await http.post('/admin/backup')
+    toast.show('Backup erfolgreich erstellt', 3000)
+  } catch {
+    toast.show('Backup fehlgeschlagen', 3000)
+  }
+}
+
+// Statistiken
+const stats = ref({ computer:0, betriebssysteme:0, kategorien:0, studenten:0 })
 async function fetchStats() {
   const res = await http.get('/admin/stats')
   stats.value = res.data
 }
+
+// OS‑Statistik
+const osLabels = ref([])
+const osCounts = ref([])
+const osChart = ref(null)
 async function fetchOSStats() {
   const res = await http.get('/admin/os-stats')
   osLabels.value = res.data.labels
   osCounts.value = res.data.counts
 }
+function drawChart() {
+  if (!osChart.value || !osLabels.value.length) return
+  if (window._osPieChart) window._osPieChart.destroy()
+  window._osPieChart = new Chart(osChart.value, {
+    type: 'pie',
+    data: { labels: osLabels.value, datasets:[{
+        data: osCounts.value,
+        backgroundColor:['#388bfd','#38d6ae','#ffc107','#fd7e14','#dc3545','#6c757d','#8e44ad']
+      }]},
+    options:{ plugins:{ legend:{ display:true, position:'bottom' } } }
+  })
+}
+
+// Users Management
+const users = ref([])
 async function fetchUsers() {
   try {
     const res = await http.get('/admin/users')
@@ -132,48 +243,71 @@ async function fetchUsers() {
     toast.show('Fehler beim Laden der User', 4000)
   }
 }
-
-// Chart.js initialisieren
-function drawChart() {
-  if (!osChart.value || !osLabels.value.length) return
-  if (window._osPieChart) window._osPieChart.destroy()
-  window._osPieChart = new Chart(osChart.value, {
-    type: 'pie',
-    data: {
-      labels: osLabels.value,
-      datasets: [{ data: osCounts.value, backgroundColor: [
-          '#388bfd','#38d6ae','#ffc107','#fd7e14','#dc3545','#6c757d','#8e44ad'
-        ]}]
-    },
-    options: { plugins: { legend: { display:true, position:'bottom' } } }
-  })
-}
-
-// isAdmin umschalten
-async function toggleAdmin(user) {
+async function toggleAdmin(u) {
   try {
-    const res = await http.patch(`/admin/users/toggle-admin/${user._id}`)
-    user.isAdmin = res.data.isAdmin
-    toast.show(
-        `User "${user.username}" ist jetzt ${user.isAdmin ? 'Admin' : 'kein Admin'}.`,
-        3000
-    )
+    const res = await http.patch(`/admin/users/toggle-admin/${u._id}`)
+    u.isAdmin = res.data.isAdmin
+    toast.show(`User "${u.username}" ist nun ${u.isAdmin?'Admin':'kein Admin'}.`,3000)
   } catch {
-    toast.show('Fehler beim Umschalten', 3000)
+    toast.show('Fehler beim Umschalten',3000)
   }
 }
+
+// API‑Monitoring
+const metrics = ref({ totalRequests: 0, routes: [] })
+async function fetchMetrics() {
+  try {
+    const res = await http.get('/admin/metrics')
+    metrics.value = {
+      totalRequests: res.data.totalRequests,
+      routes: res.data.routes.map(r =>
+          ({ ...r, avgLatency: parseFloat(r.avgLatency.toFixed(1)) })
+      )
+    }
+  } catch {
+    toast.show('Fehler beim Laden der Metriken',3000)
+  }
+}
+const overallAvg = computed(() => {
+  if (!metrics.value.routes.length) return 0
+  const sum = metrics.value.routes.reduce((a,b)=> a + b.avgLatency, 0)
+  return (sum/metrics.value.routes.length).toFixed(1)
+})
+
+// Lifecycle
+onMounted(async () => {
+  await fetchHealth()
+  await fetchStats()
+  await fetchUsers()
+  await fetchOSStats()
+  await nextTick(drawChart)
+  await fetchMetrics()
+})
 </script>
 
 <style scoped>
 .admin-wrapper {
   background: #fafdff;
   border-radius: 1.3rem;
-  box-shadow: 0 8px 32px rgba(44,62,80,0.05);
+  box-shadow: 0 8px 32px rgba(44,62,80,.05);
 }
 .text-gradient {
   background: linear-gradient(90deg,#ff9360,#388bfd);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+.btn-gradient {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 8px 18px;
+  box-shadow: 0 2px 12px #00d2ff13;
+  transition: background .2s, box-shadow .2s;
+}
+.btn-gradient:hover {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
+  box-shadow: 0 4px 18px #3a7bd525;
 }
 .table {
   border-radius: .8rem;

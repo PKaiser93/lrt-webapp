@@ -58,6 +58,9 @@
               <router-link class="nav-link" to="/admin">
                 <i class="bi bi-bar-chart-line me-1"></i> Dashboard
               </router-link>
+<!--              <router-link class="nav-link" to="/admin/privacy">
+                <i class="bi bi-shield-lock-fill me-1"></i>Privacy‑Toolkit
+              </router-link>-->
             </li>
             <!-- User Dropdown -->
             <li class="nav-item dropdown">

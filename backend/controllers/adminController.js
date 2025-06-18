@@ -1,3 +1,7 @@
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const Computer = require('../models/Computer');
@@ -10,6 +14,26 @@ const mongoose = require('mongoose');
 const randomPassword = () => Math.random().toString(36).slice(-10);
 
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+exports.backupDatabase = asyncHandler(async (req, res) => {
+    // Verzeichnis für Backups (env oder Standard)
+    const backupDir = process.env.BACKUP_DIR || path.resolve(__dirname, '../backups');
+    // Timestamp für Dateinamen
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const outPath = path.join(backupDir, `backup-${timestamp}`);
+
+    // Backup‑Verzeichnis anlegen
+    await fs.promises.mkdir(outPath, { recursive: true });
+
+    // mongodump ausführen (stellt sicher, dass `mongodump` im PATH ist)
+    const cmd = `mongodump --uri="${process.env.MONGO_URI}" --out="${outPath}"`;
+    await exec(cmd);
+
+    res.json({
+        message: 'Backup erfolgreich erstellt',
+        path: outPath
+    });
+});
 
 // --- ADMIN: Statistiken ---
 exports.getStats = asyncHandler(async (req, res) => {
