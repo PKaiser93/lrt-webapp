@@ -1,10 +1,13 @@
 <script setup>
-import {ref, onMounted, computed} from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useBetriebssystemStore } from '@/features/betriebssystem/store/betriebssystemStore';
 import BetriebssystemTableRow from '@/features/betriebssystem/components/BetriebssystemTableRow.vue';
 import BetriebssystemForm from '@/features/betriebssystem/components/BetriebssystemForm.vue';
+import { useToastStore } from '@/stores/toast';
 
 const store = useBetriebssystemStore();
+const toastStore = useToastStore();
+
 const showForm = ref(false);
 const editItem = ref(null);
 const search = ref('');
@@ -17,15 +20,34 @@ function closeForm() {
   showForm.value = false;
   editItem.value = null;
 }
-function deleteItem(id) {
-  if (confirm('Wirklich löschen?')) store.delete(id);
+async function deleteItem(id) {
+  if (!confirm('Wirklich löschen?')) return;
+  try {
+    await store.delete(id);
+    toastStore.show('Betriebssystem gelöscht', 'success');
+  } catch (err) {
+    toastStore.show(store.error || 'Fehler beim Löschen', 'danger');
+  }
+}
+async function saveBetriebssystem(data) {
+  try {
+    if (data._id) {
+      await store.update(data._id, data);
+      toastStore.show('Betriebssystem gespeichert', 'success');
+    } else {
+      await store.create(data);
+      toastStore.show('Betriebssystem neu angelegt', 'success');
+    }
+    closeForm();
+    await store.fetchAll();
+  } catch (err) {
+    toastStore.show(store.error || 'Fehler beim Speichern', 'danger');
+  }
 }
 
 const filteredItems = computed(() =>
     store.items.filter(
-        x =>
-            !search.value ||
-            x.name?.toLowerCase().includes(search.value.toLowerCase())
+        x => !search.value || x.name?.toLowerCase().includes(search.value.toLowerCase())
     )
 );
 
@@ -35,8 +57,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="os-list-container">
-    <div class="os-list-header">
+  <div class="os-list-container shadow-lg">
+    <div class="os-list-header d-flex justify-content-between align-items-center flex-wrap">
       <div>
         <h2 class="gradient-text mb-1 d-flex align-items-center">
           <i class="bi bi-microsoft me-2"></i>
@@ -44,13 +66,19 @@ onMounted(() => {
         </h2>
         <div class="subtitle mb-2">Alle aktiven Betriebssysteme in der Datenbank</div>
       </div>
-      <button class="btn btn-gradient" @click="openForm()">
-        <i class="bi bi-plus-circle me-2"></i> Neues Betriebssystem
+      <button class="btn btn-gradient d-flex align-items-center gap-2" @click="openForm()">
+        <i class="bi bi-plus-circle"></i> <span>Neues Betriebssystem</span>
       </button>
     </div>
+    <BetriebssystemForm
+        v-if="showForm"
+        :item="editItem"
+        @close="closeForm"
+        @saved="saveBetriebssystem"
+    />
 
     <div class="os-list-actions d-flex flex-wrap align-items-center mb-3 gap-3">
-      <div class="input-group search-group">
+      <div class="input-group search-group rounded-3 shadow-sm">
         <span class="input-group-text bg-white border-end-0">
           <i class="bi bi-search"></i>
         </span>
@@ -62,9 +90,9 @@ onMounted(() => {
       </div>
       <router-link
           to="/betriebssystem/trash"
-          class="btn btn-outline-gradient ms-auto"
+          class="btn btn-outline-gradient ms-auto d-flex align-items-center gap-2"
       >
-        <i class="bi bi-trash3"></i> Papierkorb
+        <i class="bi bi-trash3"></i> <span>Papierkorb</span>
       </router-link>
     </div>
 
@@ -73,6 +101,7 @@ onMounted(() => {
     </div>
     <div v-else>
       <div v-if="!filteredItems.length" class="alert alert-info text-center my-5">
+        <i class="bi bi-info-circle me-2"></i>
         Keine Betriebssysteme gefunden.
       </div>
       <div v-else class="table-responsive rounded-4 shadow-sm">
@@ -96,21 +125,15 @@ onMounted(() => {
         </table>
       </div>
     </div>
-
-    <BetriebssystemForm
-        v-if="showForm"
-        :item="editItem"
-        @close="closeForm"
-        @saved="() => { closeForm(); store.fetchAll(); }"
-    />
   </div>
 </template>
+
 
 <style scoped>
 .os-list-container {
   background: #fafdff;
   border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(32,78,118,.09);
+  box-shadow: 0 8px 32px 0 rgba(32,78,118,.09), 0 1.5px 8px rgba(0,210,255,0.08);
   padding: 32px 20px 30px;
   margin-top: 36px;
   max-width: 700px;
@@ -126,6 +149,7 @@ onMounted(() => {
   flex-wrap: wrap;
   margin-bottom: 18px;
 }
+
 .gradient-text {
   background: linear-gradient(90deg,#3a7bd5,#00d2ff 60%);
   -webkit-background-clip: text;
@@ -144,35 +168,36 @@ onMounted(() => {
   color: #fff;
   border: none;
   font-weight: 600;
-  border-radius: 12px;
-  padding: 8px 22px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s;
+  border-radius: 14px;
+  padding: 10px 26px;
+  box-shadow: 0 2px 12px #00d2ff13;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-gradient:hover, .btn-gradient:focus {
   background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
   color: #fff;
+  box-shadow: 0 4px 18px #3a7bd525;
 }
 .btn-outline-gradient {
   border: 2px solid #3a7bd5;
   color: #3a7bd5;
   background: #fafdff;
   font-weight: 500;
-  border-radius: 12px;
-  transition: background 0.15s, color 0.15s;
+  border-radius: 14px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px #00d2ff11;
 }
 .btn-outline-gradient:hover, .btn-outline-gradient:focus {
   background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
   color: #fff;
+  box-shadow: 0 2px 10px #00d2ff22;
 }
 .search-group {
-  min-width: 230px;
+  min-width: 250px;
+  border-radius: 14px !important;
+  overflow: hidden;
 }
-.os-table thead tr {
-  background: linear-gradient(90deg,#eaf6fb,#e3f5ff 100%);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
-}
+
 .os-table th, .os-table td {
   vertical-align: middle !important;
   font-size: 1.08em;
@@ -181,6 +206,7 @@ onMounted(() => {
   font-weight: 600;
   user-select: none;
   border-top: none;
+  background: linear-gradient(90deg,#eaf6fb,#e3f5ff 100%);
 }
 .os-table tbody tr:hover {
   background: #e3f6ff !important;
@@ -189,6 +215,7 @@ onMounted(() => {
 .os-table td {
   background: none !important;
 }
+
 @media (max-width: 700px) {
   .os-list-container {
     padding: 13px 4px 15px;

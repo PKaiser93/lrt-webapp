@@ -6,6 +6,20 @@
       </h2>
     </div>
 
+    <!-- Infobox zu Pflichtfeldern -->
+    <div class="alert alert-primary d-flex align-items-center mb-4 info-hint shadow-sm">
+      <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+      <div>
+        <strong>Hinweis:</strong><br>
+        Die Felder <strong>Marke</strong>, <strong>Typ</strong>, <strong>Betriebssystem</strong>, <strong>DHCP</strong> und <strong>Kategorie</strong> sind Pflichtfelder und müssen ausgefüllt werden.
+        <hr>
+        <strong>Marke</strong> und <strong>Typ</strong> sind im Tab Computer
+        <br><strong>Betriebssystem</strong> im Tab Betriebssystem
+        <br><strong>DHCP</strong> im Tab Netzwerk
+        <br><strong>Kategorie</strong> im Tab Raum
+      </div>
+    </div>
+
     <form @submit.prevent="submit" class="needs-validation" novalidate>
       <div class="card shadow-sm rounded-4 border-0">
         <!-- Tabs -->
@@ -99,12 +113,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '../../../api/http'
+import http from '@/api/http'
 import { useRouter } from 'vue-router'
-import { showToast } from '../../../utils/toast'
-import Field from '../../../components/FormField.vue'
-import FormSelect from '../../../components/FormSelect.vue'
-import FormDate from '../../../components/FormDate.vue'
+import { showToast } from '@/utils/toast'
+import Field from '@/components/FormField.vue'
+import FormSelect from '@/components/FormSelect.vue'
+import FormDate from '@/components/FormDate.vue'
 
 const computer = ref({
   marke: '', typ: '', seriennummer: '', cpu: '', ram: '', hddssd: '', grafikkarte: '', chipsatz: '',
@@ -132,6 +146,7 @@ const tabs = [
 
 onMounted(async () => {
   try {
+    console.log('[DEBUG] onMounted ausgelöst')
     const osRes = await http.get('/betriebssystem')
     const katRes = await http.get('/kategorie')
     osList.value = osRes.data
@@ -139,21 +154,54 @@ onMounted(async () => {
       _id: k._id,
       name: k.bezeichnung
     }))
+    console.log('[DEBUG] OS-Liste:', osList.value)
+    console.log('[DEBUG] Kategorie-Liste:', kategorieList.value)
   } catch (err) {
     showToast('Fehler beim Laden von Optionen', 'danger')
+    console.error('[ERROR] Fehler beim Laden von Optionen:', err)
   }
 })
 
 const submit = async () => {
+  console.log('===== [DEBUG] Submit ausgelöst =====')
+  console.log('[DEBUG] Aktueller Computer-Wert:', JSON.stringify(computer.value, null, 2))
+
+  if (!computer.value.typ) {
+    showToast('Bitte Typ angeben!', 'danger')
+    console.warn('[WARN] Kein Typ angegeben!')
+    return
+  }
+
+  // 🟢 Fix für dhcp
+  let toSave = { ...computer.value }
+  if (toSave.dhcp === 'ja') toSave.dhcp = true
+  if (toSave.dhcp === 'nein') toSave.dhcp = false
+  console.log('[DEBUG] Daten die an das Backend gehen:', JSON.stringify(toSave, null, 2))
+
+  // Token check
+  console.log('[DEBUG] Token im LocalStorage:', localStorage.getItem('token'))
+
   try {
-    await http.post('/computer', computer.value)
+    const response = await http.post('/computer', toSave)
+    console.log('[DEBUG] Backend Response:', response)
     showToast('✅ Computer erfolgreich gespeichert')
     router.push('/computer')
   } catch (err) {
     showToast('❌ Fehler beim Speichern', 'danger')
+    // Fehler-Handling detailliert ausgeben
+    if (err.response) {
+      console.error('[ERROR] Response Error:', err.response)
+      console.error('[ERROR] Status:', err.response.status)
+      console.error('[ERROR] Data:', err.response.data)
+    } else if (err.request) {
+      console.error('[ERROR] Keine Antwort vom Server:', err.request)
+    } else {
+      console.error('[ERROR] Allgemeiner Fehler:', err.message)
+    }
   }
 }
 </script>
+
 
 <style scoped>
 .text-gradient {

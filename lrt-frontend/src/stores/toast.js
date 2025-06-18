@@ -6,8 +6,8 @@ export const useToastStore = defineStore('toast', {
         toasts: []
     }),
     actions: {
-        show(message, timeout = 4000) {
-            this.toasts.push({ message })
+        show(message, type = 'info', timeout = 4000) {
+            this.toasts.push({ message, type })
             setTimeout(() => this.toasts.shift(), timeout)
         },
         remove(index) {

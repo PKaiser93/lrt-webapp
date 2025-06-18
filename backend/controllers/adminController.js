@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 const Computer = require('../models/Computer');
 const Betriebssystem = require('../models/Betriebssystem');
 const Kategorie = require('../models/Kategorie');
@@ -27,15 +28,49 @@ exports.createUser = asyncHandler(async (req, res) => {
     if (!username || !password || !role) {
         return res.status(400).json({ error: 'Alle Felder erforderlich!' });
     }
-    const user = new User({ username, password, role });
+
+    // Passwort hashen
+    const saltRounds = 12;
+    const hashedPwd  = await bcrypt.hash(password, saltRounds);
+
+    const user = new User({
+        username,
+        password: hashedPwd,
+        role
+    });
+
     await user.save();
-    res.json({ message: 'User erstellt', user: { username: user.username, role: user.role } });
+
+    res.json({
+        message: 'User erstellt',
+        user: { username: user.username, role: user.role }
+    });
+});
+
+// --- ADMIN: User löschen ---
+exports.deleteUser = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const deleted = await User.findByIdAndDelete(id);
+    if (!deleted) {
+        return res.status(404).json({ error: 'User nicht gefunden.' });
+    }
+    res.status(200).json({ message: 'User erfolgreich gelöscht.' });
 });
 
 // --- ADMIN: User anzeigen ---
 exports.listUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}, '-password');
+    const users = await User.find({}, 'username isAdmin').lean();
     res.json(users);
+});
+
+// --- ADMIN: Toggle admin ---
+exports.toggleAdmin = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ error: 'User nicht gefunden' });
+    user.isAdmin = !user.isAdmin;
+    await user.save();
+    res.json({ username: user.username, isAdmin: user.isAdmin });
 });
 
 // --- ADMIN: Passwort-Reset für User ---
@@ -43,9 +78,19 @@ exports.resetPassword = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: 'User nicht gefunden' });
+
+    // neues Passwort generieren
     const newPw = randomPassword();
-    user.password = newPw;
+
+    // Passwort hashen
+    const saltRounds  = 12;
+    const hashedPw    = await bcrypt.hash(newPw, saltRounds);
+
+    // gehashtes Passwort speichern
+    user.password = hashedPw;
     await user.save();
+
+    // im Response nur das Klartext-Passwort zurückgeben
     res.json({ message: 'Passwort zurückgesetzt', password: newPw });
 });
 

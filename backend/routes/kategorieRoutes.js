@@ -13,7 +13,7 @@ router.get('/', kategorie.listKategorien);
 router.post('/', requireAuth, requireAdmin, kategorie.createKategorie);
 
 // Aktualisieren (nur Admin)
-router.put('/:id', requireAuth, requireAdmin, kategorie.updateKategorie);
+router.patch('/:id', requireAuth, requireAdmin, kategorie.updateKategorie);
 
 // Soft Delete (nur Admin)
 router.patch('/:id/soft-delete', requireAuth, requireAdmin, kategorie.softDeleteKategorie);
@@ -26,5 +26,8 @@ router.get('/trash/list', requireAuth, requireAdmin, kategorie.listTrashKategori
 
 // Hard Delete Trash (Papierkorb leeren, nur Admin)
 router.delete('/trash', requireAuth, requireAdmin, kategorie.deleteTrash);
+
+// Hard Delete Single Kategorie (nur Admin)
+router.delete('/:id', kategorie.deleteSingle);
 
 module.exports = router;

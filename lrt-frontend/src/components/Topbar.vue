@@ -3,7 +3,10 @@
     <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
       <!-- Brand -->
       <div class="d-flex align-items-center">
-        <router-link class="navbar-brand d-flex align-items-center gap-2" :to="auth.isAuthenticated ? '/home' : '/'">
+        <router-link
+            class="navbar-brand d-flex align-items-center gap-2"
+            :to="auth.isAuthenticated ? '/home' : '/'"
+        >
           <i class="bi bi-cpu-fill fs-4 text-primary"></i>
           <span class="fw-bold logo-text">LRT WebApp</span>
         </router-link>
@@ -58,11 +61,21 @@
             </li>
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+              >
                 <i class="bi bi-person-circle me-1"></i>
                 {{ auth.user?.username }}
               </a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass">
+              <ul
+                  class="dropdown-menu dropdown-menu-end dropdown-menu-glass"
+                  aria-labelledby="userDropdown"
+              >
                 <li>
                   <button @click="auth.logout" class="dropdown-item text-danger">
                     <i class="bi bi-box-arrow-right me-1"></i> Logout

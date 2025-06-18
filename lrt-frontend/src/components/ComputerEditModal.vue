@@ -157,8 +157,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import http from '../api/http'
-import { showToast } from '../utils/toast'
+import http from '@/api/http'
+import { useToastStore } from '@/stores/toast'
 
 import Field from './FormField.vue'
 import FormSelect from './FormSelect.vue'

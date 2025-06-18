@@ -57,12 +57,12 @@ const routes = [
     },
     {
         path: '/kategorie/neu',
-        component: () => import('@/features/kategorie/views/KategorieCreate.vue'),
+        component: () => import('@/features/kategorie/views/old/KategorieCreate.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/kategorie/:id',
-        component: () => import('@/features/kategorie/views/KategorieCreate.vue'),
+        component: () => import('@/features/kategorie/views/old/KategorieCreate.vue'),
         meta: { requiresAuth: true }
     },
     {
@@ -82,7 +82,7 @@ const routes = [
     },
     {
         path: '/trash',
-        component: () => import('@/views/TrashPage.vue')
+        component: () => import('@/features/papierkorb/views/TrashPage.vue')
     },
     {
         path: '/admin',

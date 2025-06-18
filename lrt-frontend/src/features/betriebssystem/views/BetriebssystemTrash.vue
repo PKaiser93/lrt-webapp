@@ -11,68 +11,125 @@ function restoreItem(id) {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-fuchsia-200 via-indigo-100 to-blue-100 p-4">
-    <div class="relative w-full max-w-2xl rounded-3xl shadow-2xl bg-white/30 backdrop-blur-xl border border-white/40 overflow-hidden p-0">
-      <!-- Glow-Gradient Hintergrund -->
-      <div class="absolute inset-0 z-0 pointer-events-none"
-           style="background: radial-gradient(circle at 70% 30%,rgba(236,72,153,0.13) 0,transparent 70%),radial-gradient(circle at 20% 60%,rgba(59,130,246,0.11) 0,transparent 80%);"></div>
-
-      <div class="relative z-10 px-10 pt-10 pb-4">
-        <div class="flex items-center gap-4 mb-2">
-          <span class="flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-tr from-pink-400 via-fuchsia-500 to-blue-400 shadow-lg shadow-pink-200/30">
-            <i class="bi bi-trash3 text-white text-4xl drop-shadow"></i>
-          </span>
-          <div>
-            <h2 class="text-3xl font-extrabold bg-gradient-to-r from-pink-500 via-fuchsia-500 to-blue-500 bg-clip-text text-transparent drop-shadow-sm">
-              Gelöschte Betriebssysteme
-            </h2>
-            <div class="text-fuchsia-700/80 text-base font-medium mt-1">
-              Hier kannst du gelöschte Betriebssysteme wiederherstellen
-            </div>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto w-full mt-8">
-          <table class="w-full rounded-2xl overflow-hidden backdrop-blur-md bg-white/30">
-            <thead>
-            <tr>
-              <th class="py-3 px-6 text-lg font-bold text-fuchsia-600 bg-white/40">Name</th>
-              <th class="py-3 px-6 text-lg font-bold text-fuchsia-600 bg-white/40">Aktion</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-                v-for="bs in store.trash"
-                :key="bs._id"
-                class="transition hover:scale-105 hover:shadow-xl bg-white/70 hover:bg-white/90"
-            >
-              <td class="py-6 px-6 flex items-center gap-4 text-lg font-semibold">
-                  <span class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-fuchsia-100 via-pink-200 to-blue-100 shadow-inner shadow-pink-200">
-                    <i class="bi bi-hdd-network text-fuchsia-600 text-2xl"></i>
-                  </span>
-                {{ bs.name }}
-              </td>
-              <td class="py-6 px-6 text-right">
-                <button
-                    class="flex items-center gap-2 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-blue-500 text-white font-semibold text-lg rounded-2xl px-7 py-3 shadow-lg hover:scale-105 hover:shadow-pink-200 transition-all focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40"
-                    @click="restoreItem(bs._id)"
-                    title="Wiederherstellen"
-                >
-                  <i class="bi bi-arrow-clockwise text-2xl"></i>
-                  <span class="hidden sm:inline">Wiederherstellen</span>
-                </button>
-              </td>
-            </tr>
-            <tr v-if="!store.trash.length">
-              <td colspan="2" class="py-12 px-6 text-center text-fuchsia-400 text-2xl font-semibold bg-white/70">
-                <i class="bi bi-emoji-laughing text-4xl mb-3"></i><br>
-                Nichts im Papierkorb!
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
+  <div class="os-list-container shadow-lg">
+    <div class="os-list-header d-flex justify-content-between align-items-center flex-wrap mb-2">
+      <div>
+        <h2 class="gradient-text mb-1 d-flex align-items-center">
+          <i class="bi bi-trash3 me-2"></i>
+          Gelöschte Betriebssysteme
+        </h2>
+        <div class="subtitle mb-2">Hier kannst du gelöschte Betriebssysteme wiederherstellen</div>
       </div>
+    </div>
+
+    <div class="table-responsive rounded-4 shadow-sm mt-3">
+      <table class="table table-hover align-middle mb-0 os-table">
+        <thead>
+        <tr>
+          <th style="width:60px"><i class="bi bi-hash"></i></th>
+          <th><i class="bi bi-ubuntu me-2"></i>Name</th>
+          <th style="width:180px" class="text-end">Aktion</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(bs, i) in store.trash" :key="bs._id">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <i class="bi bi-hdd-network me-2 text-primary"></i>
+            {{ bs.name }}
+          </td>
+          <td class="text-end">
+            <button
+                class="btn btn-gradient d-inline-flex align-items-center gap-2 px-4 py-2"
+                @click="restoreItem(bs._id)"
+                title="Wiederherstellen"
+            >
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </td>
+        </tr>
+        <tr v-if="!store.trash.length">
+          <td colspan="3" class="py-5 text-center text-secondary fs-5">
+            <i class="bi bi-emoji-laughing text-primary fs-2 mb-2 d-block"></i>
+            Nichts im Papierkorb!
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
+
+<style scoped>
+.os-list-container {
+  background: #fafdff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(32,78,118,.09), 0 1.5px 8px rgba(0,210,255,0.08);
+  padding: 32px 20px 30px;
+  margin-top: 36px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.os-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.gradient-text {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  font-weight: bold;
+}
+.subtitle {
+  color: #3a7bd5bb;
+  font-size: 1rem;
+  margin-left: 3px;
+}
+.btn-gradient {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 8px 20px;
+  box-shadow: 0 2px 12px #00d2ff13;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-gradient:hover, .btn-gradient:focus {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
+  color: #fff;
+  box-shadow: 0 4px 18px #3a7bd525;
+}
+.os-table th, .os-table td {
+  vertical-align: middle !important;
+  font-size: 1.08em;
+}
+.os-table th {
+  font-weight: 600;
+  user-select: none;
+  border-top: none;
+  background: linear-gradient(90deg,#eaf6fb,#e3f5ff 100%);
+}
+.os-table tbody tr:hover {
+  background: #e3f6ff !important;
+  transition: background 0.1s;
+}
+.os-table td {
+  background: none !important;
+}
+@media (max-width: 700px) {
+  .os-list-container {
+    padding: 13px 4px 15px;
+  }
+  .os-table th, .os-table td {
+    font-size: 0.96em;
+  }
+}
+</style>

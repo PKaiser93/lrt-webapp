@@ -52,3 +52,14 @@ exports.deleteTrash = asyncHandler(async (req, res) => {
     const result = await Kategorie.deleteMany({ deleted: true });
     res.status(200).json({ message: `${result.deletedCount} Kategorien gelöscht.` });
 });
+
+// --- HARD DELETE SINGLE KATEGORIE ---
+exports.deleteSingle = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const deleted = await Kategorie.findOneAndDelete({ _id: id, deleted: true });
+    if (!deleted) {
+        return res.status(404).json({ error: 'Kategorie nicht gefunden oder nicht gelöscht.' });
+    }
+    res.status(200).json({ message: 'Kategorie dauerhaft gelöscht.' });
+});
+

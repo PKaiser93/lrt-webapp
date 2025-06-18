@@ -1,52 +1,107 @@
 <template>
-  <div class="welcome-wrapper container d-flex flex-column align-items-center justify-content-center text-center py-5 animate-fadein">
-    <h1 class="display-4 fw-bold mb-3">🖥️ LRT Computerverwaltung 2025</h1>
+  <div class="welcome-wrapper container d-flex flex-column align-items-center text-center py-5">
+    <h1 class="display-4 text-gradient fw-bold mb-3">
+      🖥️ LRT Computerverwaltung 2025
+    </h1>
 
-    <StatusBadge class="mb-3" />
+    <StatusBadge class="mb-4" />
 
-    <p class="lead mb-3">
-      Willkommen zur zentralen Verwaltungsplattform für <strong>Rechner, Betriebssysteme und Netzwerkgeräte</strong> im LRT.
+    <p class="lead mb-4">
+      Willkommen zur zentralen Verwaltungsplattform für
+      <strong>Rechner, Betriebssysteme und Netzwerkgeräte</strong> im LRT.
     </p>
-    <p class="text-muted">
-      Effizient verwalten, auswerten und organisieren – mit moderner UI, intelligenter Logik und umfassendem CSV-Import.
+    <p class="text-muted mb-5">
+      Effizient verwalten, auswerten und organisieren – mit moderner UI, intelligenter Logik und umfassendem CSV‑Import.
     </p>
 
-    <div class="d-flex gap-3 mt-4">
-      <router-link to="/login" class="btn btn-primary btn-lg shadow">
-        🔐 Jetzt einloggen
+    <div class="d-flex gap-3 mb-4 flex-wrap justify-content-center">
+      <router-link
+          to="/login"
+          class="btn btn-gradient btn-lg d-flex align-items-center gap-2 shadow-sm"
+      >
+        <i class="bi bi-lock-fill"></i>
+        Jetzt einloggen
       </router-link>
-      <router-link to="/admin" class="btn btn-outline-secondary btn-lg shadow">
-        📊 Admin-Dashboard
+      <router-link
+          to="/admin"
+          class="btn btn-outline-gradient btn-lg d-flex align-items-center gap-2 shadow-sm"
+      >
+        <i class="bi bi-bar-chart-line-fill"></i>
+        Admin‑Dashboard
       </router-link>
     </div>
 
-    <div class="mt-5 text-muted small">
-      <i class="bi bi-info-circle me-1"></i> Zugriff auf diese Plattform erfordert gültige Anmeldedaten.
+    <div class="text-muted small">
+      <i class="bi bi-info-circle me-1"></i>
+      Zugriff auf diese Plattform erfordert gültige Anmeldedaten.
     </div>
   </div>
 </template>
 
 <script setup>
-import StatusBadge from '../components/StatusBadge.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
 </script>
 
 <style scoped>
 .welcome-wrapper {
-  background: linear-gradient(145deg, #f9fafb, #eef1f5);
-  border-radius: 20px;
+  background: #fafdff;
+  border-radius: 1.5rem;
   padding: 60px 30px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 1s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(32px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 12px 28px;
+  box-shadow: 0 2px 12px #00d2ff22;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-gradient:hover,
+.btn-gradient:focus {
+  background: linear-gradient(90deg, #00d2ff, #3a7bd5 70%);
+  box-shadow: 0 4px 18px #00d2ff33;
+}
+
+.btn-outline-gradient {
+  border: 2px solid #3a7bd5;
+  color: #3a7bd5;
+  background: #fafdff;
+  font-weight: 500;
+  border-radius: 14px;
+  padding: 12px 28px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px #00d2ff11;
+}
+
+.btn-outline-gradient:hover,
+.btn-outline-gradient:focus {
+  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
+  color: #fff;
+  box-shadow: 0 2px 10px #00d2ff22;
 }
 </style>

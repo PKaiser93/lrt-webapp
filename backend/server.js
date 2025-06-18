@@ -24,7 +24,9 @@ const limiter = rateLimit({
     max: 100, // limit each IP
     message: { error: 'Zu viele Anfragen – bitte warte kurz!' }
 });
-app.use('/api/', limiter);
+if (process.env.NODE_ENV === 'production') {
+    app.use('/api/', limiter);
+} // In DEV gar nicht aktivieren!
 
 // Login Limiting (z.B. 10 Versuche pro 15 Minuten pro IP)
 const loginLimiter = rateLimit({

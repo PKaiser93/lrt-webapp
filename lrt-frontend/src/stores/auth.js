@@ -1,3 +1,4 @@
+// stores/auth.js
 import { defineStore } from 'pinia'
 import http from '../api/http'
 
@@ -39,13 +40,22 @@ export const useAuthStore = defineStore('auth', {
         },
 
         logout() {
+            // 1) State zurücksetzen
             this.token = null
             this.user = null
+
+            // 2) HTTP-Header entfernen
             delete http.defaults.headers.common.Authorization
+
+            // 3) Token aus localStorage entfernen
+            localStorage.removeItem('token')
+
+            // 4) Persisted State komplett löschen (Standard-Key: 'pinia')
+            localStorage.removeItem('pinia')
         },
 
         init() {
-            // Token aus LocalStorage laden, falls vorhanden
+            // Token aus localStorage laden, falls vorhanden
             const storedToken = localStorage.getItem('token')
             if (storedToken) {
                 this.token = storedToken
@@ -54,5 +64,6 @@ export const useAuthStore = defineStore('auth', {
         }
     },
 
+    // Pinia-Persisted-State aktiv
     persist: true
 })

@@ -126,8 +126,10 @@ exports.createComputer = asyncHandler(async (req, res) => {
         const mapped = kategorieLookup[body.kategorie.trim().toLowerCase()];
         if (mapped) body.kategorie = mapped;
     }
-    if (body.dhcp === "Ja") body.dhcp = true;
-    if (body.dhcp === "Nein") body.dhcp = false;
+    if (typeof body.dhcp === 'string') {
+        if (body.dhcp.toLowerCase() === "ja") body.dhcp = true;
+        else if (body.dhcp.toLowerCase() === "nein") body.dhcp = false;
+    }
     const computer = new Computer(body);
     await computer.save();
     const populated = await Computer.findById(computer._id)
@@ -181,6 +183,27 @@ exports.getComputerById = asyncHandler(async (req, res) => {
 exports.hardDeleteAll = asyncHandler(async (req, res) => {
     const result = await Computer.deleteMany({ deleted: true });
     res.status(200).json({ message: `${result.deletedCount} Computer gelöscht.` });
+});
+
+// --- HARD DELETE EINZELN ---
+exports.deleteSingle = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Computer.findOneAndDelete({ _id: id, deleted: true });
+        if (!deleted) return res.status(404).json({ error: 'Computer nicht gefunden oder nicht gelöscht.' });
+        res.json({ message: 'Computer endgültig gelöscht.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Fehler beim Löschen.' });
+    }
+};
+
+// --- LIST TRASH (nur Computer mit deleted: true) ---
+exports.listTrash = asyncHandler(async (req, res) => {
+    const list = await Computer.find({ deleted: true })
+        .populate('kategorie')
+        .populate('betriebssystem')
+        .lean();
+    res.status(200).json(list);
 });
 
 // --- BULK IMPORT ---

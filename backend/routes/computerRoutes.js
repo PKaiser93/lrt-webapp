@@ -13,7 +13,7 @@ router.get('/', computer.advancedSearchComputers);
 router.get('/all', computer.listAll);
 
 // Einzelnen Computer holen
-router.get('/:id', requireAuth, computer.getComputerById);
+router.get('/:id', computer.getComputerById);
 
 // Computer anlegen
 router.post('/', requireAuth, requireAdmin, computer.createComputer);
@@ -29,5 +29,11 @@ router.patch('/:id/restore', requireAuth, requireAdmin, computer.restoreComputer
 
 // Hard Delete ALL (Papierkorb leeren, nur Admin)
 router.delete('/hard-delete-all', requireAuth, requireAdmin, computer.hardDeleteAll);
+
+// Gelöschte Betriebssysteme auflisten (nur Admin)
+router.get('/trash/list', requireAuth, requireAdmin, computer.listTrash);
+
+// Hard Delete Single computer (nur Admin)
+router.delete('/:id', computer.deleteSingle);
 
 module.exports = router;

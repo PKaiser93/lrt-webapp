@@ -41,90 +41,142 @@ function resetFilters() {
 </script>
 
 <template>
-  <!-- Desktop: Filter horizontal, Buttons nebeneinander -->
   <form
-      class="filter-toolbar d-none d-md-flex align-items-end flex-wrap gap-2 mb-3"
+      class="filter-toolbar d-flex align-items-center flex-wrap gap-2 mb-3 py-2 px-3 shadow-sm bg-white rounded-4"
       @submit.prevent="applyFilters"
       autocomplete="off"
   >
-    <input
-        v-model="localSearch"
-        class="form-control"
-        style="max-width: 220px"
-        placeholder="🔍 Suche, z.B. DNS:lrt076 RAM<16"
-        @keyup.enter="applyFilters"
-    />
-    <div class="form-check form-switch mb-0 ms-1">
-      <input class="form-check-input" type="checkbox" id="regexSwitch" v-model="localRegex" />
-      <label class="form-check-label ms-1" for="regexSwitch">Regex</label>
+    <!-- Suchfeld -->
+    <div class="input-group searchbox">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="bi bi-search"></i>
+      </span>
+      <input
+          v-model="localSearch"
+          class="form-control border-start-0"
+          placeholder="Suche, z.B. DNS:lrt076"
+      />
     </div>
-    <select v-model="localKategorie" class="form-select" style="max-width: 180px">
-      <option value="">📁 Kategorie (alle)</option>
-      <option v-for="k in kategorieList" :key="k?._id" :value="k?.bezeichnung">{{ k?.bezeichnung }}</option>
-    </select>
-    <select v-model="localOS" class="form-select" style="max-width: 180px">
-      <option value="">💽 OS (alle)</option>
-      <option v-for="os in osList" :key="os?._id" :value="os?.name">{{ os?.name }}</option>
-    </select>
-    <div class="d-flex gap-2">
-      <button type="submit" class="btn btn-primary">Filter anwenden</button>
-      <button type="button" class="btn btn-outline-secondary" @click="resetFilters">Reset</button>
-    </div>
-  </form>
-
-  <!-- Mobile: Offcanvas Sidebar -->
-  <div class="d-flex d-md-none mb-3">
+    <!-- Kompakter Regex-Switch als Icon -->
     <button
-        class="btn btn-outline-primary"
         type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasFilter"
-        aria-controls="offcanvasFilter"
+        class="btn btn-icon-switch"
+        :class="{'active': localRegex}"
+        @click="localRegex = !localRegex"
+        title="Regex-Suche aktivieren"
+        aria-label="Regex"
     >
-      <i class="bi bi-funnel"></i> Filter
+      <i class="bi bi-code-slash"></i>
     </button>
-  </div>
-  <div
-      class="offcanvas offcanvas-start"
-      tabindex="-1"
-      id="offcanvasFilter"
-      aria-labelledby="offcanvasFilterLabel"
-  >
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasFilterLabel">Filter</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <!-- Kategorie -->
+    <div class="input-group" style="max-width: 180px;">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="bi bi-folder2"></i>
+      </span>
+      <select v-model="localKategorie" class="form-select border-start-0">
+        <option value="">Kategorie (alle)</option>
+        <option v-for="k in kategorieList" :key="k?._id" :value="k?.bezeichnung">{{ k?.bezeichnung }}</option>
+      </select>
     </div>
-    <div class="offcanvas-body">
-      <form @submit.prevent="applyFilters" autocomplete="off">
-        <input
-            v-model="localSearch"
-            class="form-control mb-3"
-            placeholder="🔍 Suche, z.B. DNS:lrt076 RAM<16"
-        />
-        <div class="form-check form-switch mb-3">
-          <input class="form-check-input" type="checkbox" id="regexSwitchMobile" v-model="localRegex" />
-          <label class="form-check-label" for="regexSwitchMobile">Regex/Teilwortsuche</label>
-        </div>
-        <select v-model="localKategorie" class="form-select mb-3">
-          <option value="">📁 Kategorie (alle)</option>
-          <option v-for="k in kategorieList" :key="k?._id" :value="k?.bezeichnung">{{ k?.bezeichnung }}</option>
-        </select>
-        <select v-model="localOS" class="form-select mb-3">
-          <option value="">💽 OS (alle)</option>
-          <option v-for="os in osList" :key="os?._id" :value="os?.name">{{ os?.name }}</option>
-        </select>
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary flex-fill">Anwenden</button>
-          <button type="button" class="btn btn-outline-secondary flex-fill" @click="resetFilters">Reset</button>
-        </div>
-      </form>
+    <!-- OS -->
+    <div class="input-group" style="max-width: 170px;">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="bi bi-hdd-network"></i>
+      </span>
+      <select v-model="localOS" class="form-select border-start-0">
+        <option value="">OS (alle)</option>
+        <option v-for="os in osList" :key="os._id || os.name || os" :value="os.name || os">
+          {{ os.name || os }}
+        </option>
+      </select>
     </div>
-  </div>
+    <!-- Suche Button -->
+    <button type="submit" class="btn btn-gradient d-flex align-items-center gap-1">
+      <i class="bi bi-funnel"></i>
+    </button>
+    <!-- Clear Button -->
+    <button type="button" class="btn btn-outline-gradient" @click="resetFilters" title="Filter zurücksetzen">
+      <i class="bi bi-x-circle"></i>
+    </button>
+  </form>
 </template>
 
 <style scoped>
-.filter-toolbar input,
-.filter-toolbar select {
-  min-width: 120px;
+.filter-toolbar {
+  border-radius: 1.3rem;
+  box-shadow: 0 2px 16px #2563eb12;
+  background: #fafdff;
+  flex-wrap: wrap;
+  gap: 0.75rem !important;
+}
+
+.input-group.searchbox {
+  min-width: 210px;
+  max-width: 320px;
+  flex: 1 1 220px;
+}
+.input-group input,
+.input-group select {
+  border-radius: 0 0.75rem 0.75rem 0 !important;
+}
+.input-group-text {
+  border-radius: 0.75rem 0 0 0.75rem !important;
+  background: #fff;
+  font-size: 1.08em;
+}
+.btn-icon-switch {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  background: #fafdff;
+  border: 2px solid #eee;
+  color: #a2b1c6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.16s;
+  box-shadow: 0 1px 6px #3a7bd508;
+  font-size: 1.19em;
+}
+.btn-icon-switch.active,
+.btn-icon-switch:focus,
+.btn-icon-switch:hover {
+  border-color: #3a7bd5;
+  background: #e3f6ff;
+  color: #1879e6;
+  box-shadow: 0 2px 8px #3a7bd525;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 8px 18px;
+  box-shadow: 0 2px 12px #00d2ff13;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-gradient:hover, .btn-gradient:focus {
+  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
+  color: #fff;
+  box-shadow: 0 4px 18px #3a7bd525;
+}
+
+.btn-outline-gradient {
+  border: 2px solid #3a7bd5;
+  color: #3a7bd5;
+  background: #fafdff;
+  font-weight: 500;
+  border-radius: 14px;
+  padding: 8px 16px;
+  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px #00d2ff11;
+}
+.btn-outline-gradient:hover, .btn-outline-gradient:focus {
+  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  color: #fff;
+  box-shadow: 0 2px 10px #00d2ff22;
 }
 </style>

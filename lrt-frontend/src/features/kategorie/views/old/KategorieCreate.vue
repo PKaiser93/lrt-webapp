@@ -36,9 +36,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import http from '../../../api/http'
+import http from '../../../../api/http'
 import { useRouter } from 'vue-router'
-import { showToast } from '../../../utils/toast'
+import { showToast } from '../../../../utils/toast'
 
 const kategorie = ref({
   bezeichnung: '',

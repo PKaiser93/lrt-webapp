@@ -27,4 +27,7 @@ router.delete('/hard-delete-all', requireAuth, requireAdmin, bs.hardDeleteAll);
 // Gelöschte Betriebssysteme auflisten (nur Admin)
 router.get('/trash/list', requireAuth, requireAdmin, bs.listTrash);
 
+// Hard Delete Single Betriebssystem (nur Admin)
+router.delete('/:id', bs.deleteSingle);
+
 module.exports = router;

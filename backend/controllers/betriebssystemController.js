@@ -62,6 +62,19 @@ exports.hardDeleteAll = asyncHandler(async (req, res) => {
     res.status(200).json({ message: `${result.deletedCount} Betriebssystem(e) gelöscht.` });
 });
 
+// --- HARD DELETE EINZELN ---
+exports.deleteSingle = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deleted = await Betriebssystem.findOneAndDelete({ _id: id, deleted: true });
+        if (!deleted) return res.status(404).json({ error: 'Betriebssystem nicht gefunden oder nicht gelöscht.' });
+        res.json({ message: 'Betriebssystem endgültig gelöscht.' });
+    } catch (err) {
+        res.status(500).json({ error: 'Fehler beim Löschen.' });
+    }
+};
+
+
 exports.listTrash = asyncHandler(async (req, res) => {
     const list = await Betriebssystem.find({ deleted: true });
     res.status(200).json(list);
