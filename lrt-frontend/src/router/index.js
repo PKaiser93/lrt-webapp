@@ -76,6 +76,16 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/tickets',
+        component: () => import('@/features/ticket/views/TicketList.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/tickets/:id',
+        component: () => import('@/features/ticket/views/TicketDetail.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/student/neu',
         component: () => import('@/features/student/views/StudentCreate.vue'),
         meta: { requiresAuth: true }

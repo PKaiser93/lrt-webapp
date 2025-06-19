@@ -78,6 +78,7 @@ app.use('/api/betriebssystem', require('./routes/betriebssystemRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/studenten', require('./routes/studentenRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/admin/privacy', require('./routes/privacyRoutes'));
 app.use('/api/admin/metrics', require('./routes/metricsRoutes'));

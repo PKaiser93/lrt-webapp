@@ -49,6 +49,11 @@
               </router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" to="/tickets">
+                <i class="bi bi-ticket me-1"></i> Tickets
+              </router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" to="/trash">
                 <i class="bi bi-trash3 me-1"></i> Papierkorb
               </router-link>
