@@ -48,28 +48,34 @@ exports.getStats = asyncHandler(async (req, res) => {
 
 // --- ADMIN: User anlegen ---
 exports.createUser = asyncHandler(async (req, res) => {
-    const { username, password, role } = req.body;
-    if (!username || !password || !role) {
+    const { username, email, password, isAdmin } = req.body;
+    if (!username || !email || !password) {
         return res.status(400).json({ error: 'Alle Felder erforderlich!' });
     }
 
-    // Passwort hashen
+    const exists = await User.findOne({ username });
+    if (exists) {
+        return res.status(400).json({ error: 'Benutzername existiert bereits!' });
+    }
+
     const saltRounds = 12;
-    const hashedPwd  = await bcrypt.hash(password, saltRounds);
+    const hashedPwd = await bcrypt.hash(password, saltRounds);
 
     const user = new User({
         username,
+        email,
         password: hashedPwd,
-        role
+        isAdmin: !!isAdmin
     });
 
     await user.save();
 
     res.json({
         message: 'User erstellt',
-        user: { username: user.username, role: user.role }
+        user: { username: user.username, email: user.email, isAdmin: user.isAdmin }
     });
 });
+
 
 // --- ADMIN: User löschen ---
 exports.deleteUser = asyncHandler(async (req, res) => {
@@ -83,7 +89,7 @@ exports.deleteUser = asyncHandler(async (req, res) => {
 
 // --- ADMIN: User anzeigen ---
 exports.listUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}, 'username isAdmin').lean();
+    const users = await User.find({}, 'username email isAdmin').lean();
     res.json(users);
 });
 

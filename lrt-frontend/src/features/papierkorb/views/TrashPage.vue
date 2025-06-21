@@ -4,80 +4,98 @@
       <i class="bi bi-trash3 me-2"></i>Papierkorb
     </h2>
 
+    <!-- Tabs mit Count-Badges -->
     <ul class="nav nav-tabs mb-3" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{active: tab==='computer'}" @click="tab='computer'" role="tab">
-          <i class="bi bi-pc-display me-1"></i> Computer
+        <button class="nav-link d-flex align-items-center gap-2" :class="{active: tab==='computer'}" @click="tab='computer'" role="tab">
+          <i class="bi bi-pc-display"></i> Computer
+          <span class="badge bg-primary-soft">{{ trash.computer.length }}</span>
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{active: tab==='kategorie'}" @click="tab='kategorie'" role="tab">
-          <i class="bi bi-tags me-1"></i> Kategorien
+        <button class="nav-link d-flex align-items-center gap-2" :class="{active: tab==='kategorie'}" @click="tab='kategorie'" role="tab">
+          <i class="bi bi-tags"></i> Kategorien
+          <span class="badge bg-warning-soft">{{ trash.kategorie.length }}</span>
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{active: tab==='os'}" @click="tab='os'" role="tab">
-          <i class="bi bi-windows me-1"></i> Betriebssysteme
+        <button class="nav-link d-flex align-items-center gap-2" :class="{active: tab==='os'}" @click="tab='os'" role="tab">
+          <i class="bi bi-windows"></i> Betriebssysteme
+          <span class="badge bg-info-soft">{{ trash.os.length }}</span>
         </button>
       </li>
     </ul>
 
+    <!-- Papierkorb leeren Button -->
     <div class="d-flex justify-content-end mb-3" v-if="trash[tab].length">
-      <button class="btn btn-outline-danger d-flex align-items-center gap-2" @click="deleteAll(tab)">
+      <button class="btn btn-outline-danger d-flex align-items-center gap-2 px-3" @click="deleteAll(tab)">
         <i class="bi bi-trash3"></i> Papierkorb leeren
       </button>
     </div>
 
+    <!-- Table or EmptyState -->
     <TrashTable
-        v-if="tab === 'computer'"
-        :items="trash.computer"
-        :loading="loading.computer"
-        type="computer"
-        :fields="[
-        {key:'dnsName', label:'DNS'},
-        {key:'marke', label:'Marke'},
-        {key:'ram', label:'RAM'}
-      ]"
+        v-if="trash[tab].length"
+        :items="trash[tab]"
+        :loading="loading[tab]"
+        :type="tab"
+        :fields="fieldsForTab"
         @restore="restore"
         @delete="deleteSingle"
     />
-    <TrashTable
-        v-else-if="tab === 'kategorie'"
-        :items="trash.kategorie"
-        :loading="loading.kategorie"
-        type="kategorie"
-        :fields="[
-        {key:'bezeichnung', label:'Bezeichnung'},
-        {key:'farbe', label:'Farbe', badge:true}
-      ]"
-        @restore="restore"
-        @delete="deleteSingle"
-    />
-    <TrashTable
+
+    <!-- Empty State falls leer -->
+    <EmptyState
         v-else
-        :items="trash.os"
-        :loading="loading.os"
-        type="os"
-        :fields="[
-        {key:'name', label:'Name'}
-      ]"
-        @restore="restore"
-        @delete="deleteSingle"
+        :icon="iconForTab"
+        title="Nichts im Papierkorb"
+        :description="emptyDesc"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import http from '@/api/http'
 import { useToastStore } from '@/stores/toast'
-import TrashTable from '@/features/papierkorb/components/TrashTable.vue' // Falls ausgelagert
+import TrashTable from '@/features/papierkorb/components/TrashTable.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const toast = useToastStore()
-
 const tab = ref('computer')
 const trash = ref({ computer: [], kategorie: [], os: [] })
 const loading = ref({ computer: false, kategorie: false, os: false })
+
+const fields = {
+  computer: [
+    {key:'dnsName', label:'DNS'},
+    {key:'marke', label:'Marke'},
+    {key:'ram', label:'RAM'}
+  ],
+  kategorie: [
+    {key:'bezeichnung', label:'Bezeichnung'},
+    {key:'farbe', label:'Farbe', badge:true}
+  ],
+  os: [
+    {key:'name', label:'Name'}
+  ]
+}
+const fieldsForTab = computed(() => fields[tab.value])
+
+const icons = {
+  computer: 'bi bi-pc-display',
+  kategorie: 'bi bi-tags',
+  os: 'bi bi-windows'
+}
+const iconForTab = computed(() => icons[tab.value])
+
+const emptyDesc = computed(() =>
+    ({
+      computer: 'Kein gelöschter Computer gefunden.',
+      kategorie: 'Keine gelöschte Kategorie im Papierkorb.',
+      os: 'Keine gelöschten Betriebssysteme.'
+    })[tab.value]
+)
 
 function loadAll() { loadComputer(); loadKategorie(); loadOS(); }
 async function loadComputer() {
@@ -106,10 +124,13 @@ async function restore(type, id) {
   if (type === 'os') endpoint = `/betriebssystem/${id}/restore`
   try {
     await http.patch(endpoint)
-    toast.show('Wiederhergestellt!', 3500)
+    toast.show(
+        (type === 'computer' ? 'Computer' : type === 'kategorie' ? 'Kategorie' : 'Betriebssystem')
+        + ' wiederhergestellt!', 'success'
+    )
     loadAll()
   } catch {
-    toast.show('Fehler beim Wiederherstellen', 3500)
+    toast.show('Fehler beim Wiederherstellen', 'danger')
   }
 }
 
@@ -121,10 +142,10 @@ async function deleteSingle(type, id) {
   if (type === 'os') endpoint = `/betriebssystem/${id}`
   try {
     await http.delete(endpoint)
-    toast.show('Endgültig gelöscht!', 3500)
+    toast.show('Endgültig gelöscht!', 'success')
     loadAll()
   } catch {
-    toast.show('Fehler beim Löschen', 3500)
+    toast.show('Fehler beim Löschen', 'danger')
   }
 }
 
@@ -136,10 +157,10 @@ async function deleteAll(type) {
   if (type === 'os') endpoint = `/betriebssystem/hard-delete-all`
   try {
     await http.delete(endpoint)
-    toast.show('Papierkorb geleert!', 3500)
+    toast.show('Papierkorb geleert!', 'success')
     loadAll()
   } catch {
-    toast.show('Fehler beim Leeren', 3500)
+    toast.show('Fehler beim Leeren', 'danger')
   }
 }
 
@@ -160,4 +181,14 @@ onMounted(loadAll)
   background-clip: text;
   text-fill-color: transparent;
 }
+.badge {
+  font-size: 1em;
+  font-weight: 500;
+  border-radius: 0.77em;
+  padding: 0.32em 1em;
+  box-shadow: 0 2px 9px #b6cfff13;
+}
+.bg-primary-soft { background: #e7f4ff; color: #2c7be5; }
+.bg-warning-soft { background: #fff9e6; color: #ffc542; }
+.bg-info-soft { background: #eaf6fb; color: #45b6fe; }
 </style>

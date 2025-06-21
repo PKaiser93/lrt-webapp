@@ -35,7 +35,16 @@
               <input v-model="form.creator" class="form-control" required/>
             </div>
             <div class="mb-3"><label>Assignee</label>
-              <input v-model="form.assignee" class="form-control"/>
+              <select v-model="form.assignee" class="form-select">
+                <option value="">– keiner –</option>
+                <option
+                    v-for="user in users"
+                    :key="user._id"
+                    :value="user.username"
+                >
+                  {{ user.username }}
+                </option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
@@ -49,12 +58,15 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useTicketStore } from '@/features/ticket/store/ticketStore.js';
+import http from '@/api/http';
 
 const props = defineProps({ ticket: Object });
 const emit  = defineEmits(['close','saved']);
 const store = useTicketStore();
+
+const users = ref([]);
 
 const form = reactive({
   title:       props.ticket?.title || '',
@@ -63,6 +75,16 @@ const form = reactive({
   priority:    props.ticket?.priority || 'medium',
   creator:     props.ticket?.creator || '',
   assignee:    props.ticket?.assignee || ''
+});
+
+onMounted(async () => {
+  try {
+    // Passe ggf. den Endpoint an
+    const res = await http.get('/admin/users');
+    users.value = res.data;
+  } catch (e) {
+    users.value = [];
+  }
 });
 
 async function save() {

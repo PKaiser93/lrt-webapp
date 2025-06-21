@@ -5,75 +5,47 @@
       <i class="bi bi-bar-chart-line me-2"></i>Admin Dashboard
     </h2>
 
-    <!-- Health‑Check, Backup & API‑Monitoring nebeneinander -->
+    <!-- Health‑Check, Backup & API‑Monitoring -->
     <div class="row g-4 mb-4">
-      <!-- Health‑Check Card -->
+      <!-- Health-Check -->
       <div class="col-md-3">
-        <div
-            class="card shadow-sm rounded-4 h-100"
-            :class="health.status === 'ok' ? 'border-success' : 'border-danger'"
-        >
+        <div class="card shadow-sm rounded-4 h-100" :class="health.status === 'ok' ? 'border-success' : 'border-danger'">
           <div class="card-body">
-            <h5 class="card-title mb-3">
-              <i class="bi bi-heart-pulse me-2"></i>Health Check
-            </h5>
+            <h5 class="card-title mb-3"><i class="bi bi-heart-pulse me-2"></i>Health Check</h5>
             <p class="mb-1">
               Status:
-              <span :class="health.status === 'ok' ? 'text-success' : 'text-danger'">
-                {{ health.status.toUpperCase() }}
-              </span>
+              <span :class="health.status === 'ok' ? 'text-success' : 'text-danger'">{{ health.status.toUpperCase() }}</span>
             </p>
             <p class="mb-1">
               DB:
-              <span :class="health.db === 'connected' ? 'text-success' : 'text-danger'">
-                {{ health.db }}
-              </span>
+              <span :class="health.db === 'connected' ? 'text-success' : 'text-danger'">{{ health.db }}</span>
             </p>
-            <p class="mb-1">
-              Uptime: {{ formattedUptime }}
-            </p>
-            <p class="text-muted small mb-0">
-              Aktualisiert: {{ health.timestamp }}
-            </p>
+            <p class="mb-1">Uptime: {{ formattedUptime }}</p>
+            <p class="text-muted small mb-0">Aktualisiert: {{ health.timestamp }}</p>
           </div>
         </div>
       </div>
-
-      <!-- Backup‑Card -->
+      <!-- Backup -->
       <div class="col-md-3">
         <div class="card shadow-sm rounded-4 h-100 border border-primary">
           <div class="card-body d-flex flex-column justify-content-center">
-            <h5 class="card-title mb-3">
-              <i class="bi bi-hdd-stack me-2"></i>Backup
-            </h5>
-            <button
-                class="btn btn-gradient d-flex align-items-center gap-1"
-                @click="createBackup"
-            >
+            <h5 class="card-title mb-3"><i class="bi bi-hdd-stack me-2"></i>Backup</h5>
+            <button class="btn btn-gradient d-flex align-items-center gap-1" @click="createBackup">
               <i class="bi bi-hdd-stack"></i> Backup erstellen
             </button>
           </div>
         </div>
       </div>
-
-      <!-- API‑Monitoring Card -->
+      <!-- API Monitoring -->
       <div class="col-md-3">
         <div class="card shadow-sm rounded-4 h-100 border-info">
           <div class="card-body">
-            <h5 class="card-title mb-3">
-              <i class="bi bi-bar-chart me-2"></i>API Monitoring
-            </h5>
+            <h5 class="card-title mb-3"><i class="bi bi-bar-chart me-2"></i>API Monitoring</h5>
             <p class="mb-1">
-              Requests gesamt:
-              <strong>{{ metrics.totalRequests }}</strong>
+              Requests gesamt: <strong>{{ metrics.totalRequests }}</strong>
             </p>
-            <p class="mb-1">
-              Ø Latenz:
-              <strong>{{ overallAvg }} ms</strong>
-            </p>
-            <p class="text-muted small mb-0">
-              Routen: {{ metrics.routes.length }}
-            </p>
+            <p class="mb-1">Ø Latenz: <strong>{{ overallAvg }} ms</strong></p>
+            <p class="text-muted small mb-0">Routen: {{ metrics.routes.length }}</p>
           </div>
         </div>
       </div>
@@ -89,7 +61,7 @@
 
     <!-- OS‑Verteilung & Users Management -->
     <div class="row g-4">
-      <!-- Pie‑Chart Karte -->
+      <!-- Pie Chart -->
       <div class="col-md-5">
         <div class="card shadow-sm rounded-4 h-100 border-0">
           <div class="card-body">
@@ -104,19 +76,24 @@
           </div>
         </div>
       </div>
-
-      <!-- Users Management Karte -->
+      <!-- Users Management -->
       <div class="col-md-7">
         <div class="card shadow-sm rounded-4 h-100 border-0">
           <div class="card-body">
-            <h5 class="card-title text-gradient mb-3 d-flex align-items-center gap-2">
-              <i class="bi bi-people"></i>Users Management
-            </h5>
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+              <h5 class="card-title text-gradient mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-people"></i>Users Management
+              </h5>
+              <button class="btn btn-gradient d-flex align-items-center gap-1" @click="showAddUser = true">
+                <i class="bi bi-person-plus"></i> Benutzer hinzufügen
+              </button>
+            </div>
             <div class="table-responsive">
               <table class="table table-striped align-middle mb-0 rounded-4">
                 <thead class="table-light">
                 <tr>
                   <th>Username</th>
+                  <th>E-Mail</th>
                   <th>isAdmin</th>
                   <th class="text-end">Aktionen</th>
                 </tr>
@@ -124,7 +101,8 @@
                 <tbody>
                 <tr v-for="u in users" :key="u._id">
                   <td>{{ u.username }}</td>
-                  <td>{{ u.isAdmin }}</td>
+                  <td>{{ u.email }}</td>
+                  <td>{{ u.isAdmin ? 'Ja' : 'Nein' }}</td>
                   <td class="text-end">
                     <button
                         class="btn btn-sm"
@@ -136,13 +114,54 @@
                   </td>
                 </tr>
                 <tr v-if="!users.length">
-                  <td colspan="3" class="text-center text-muted py-3">
+                  <td colspan="4" class="text-center text-muted py-3">
                     Keine User gefunden.
                   </td>
                 </tr>
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benutzer hinzufügen Modal -->
+    <div v-if="showAddUser">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block">
+        <div class="modal-dialog">
+          <div class="modal-content rounded-4">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Neuer Benutzer</h5>
+              <button class="btn-close" @click="showAddUser = false"></button>
+            </div>
+            <form @submit.prevent="addUser">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label>Username</label>
+                  <input v-model="addUserForm.username" class="form-control" required autocomplete="off"/>
+                </div>
+                <div class="mb-3">
+                  <label>E-Mail</label>
+                  <input v-model="addUserForm.email" type="email" class="form-control" required autocomplete="off"/>
+                </div>
+                <div class="mb-3">
+                  <label>Passwort</label>
+                  <input v-model="addUserForm.password" type="password" class="form-control" required autocomplete="new-password"/>
+                </div>
+                <div class="mb-2">
+                  <label>
+                    <input type="checkbox" v-model="addUserForm.isAdmin" class="form-check-input me-1"/>
+                    Als Admin anlegen
+                  </label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" @click="showAddUser = false">Abbrechen</button>
+                <button type="submit" class="btn btn-gradient">Benutzer anlegen</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -156,11 +175,9 @@ import http from '@/api/http'
 import { useToastStore } from '@/stores/toast'
 import Chart from 'chart.js/auto'
 
-const toast = useToastStore()
-
-// StatCard‑Komponente
+// StatCard‑Komponente für KPIs
 const StatCard = {
-  props: ['icon','title','value','color'],
+  props: ['icon', 'title', 'value', 'color'],
   template: `
     <div class="col-6 col-md-3">
       <div :class="'card shadow-sm rounded-4 h-100 border-' + color">
@@ -173,16 +190,13 @@ const StatCard = {
     </div>`
 }
 
-// Health‑State
-const health = ref({
-  status: 'unknown',
-  db: 'unknown',
-  uptime: 0,
-  timestamp: ''
-})
+const toast = useToastStore()
+
+// Health
+const health = ref({ status: 'unknown', db: 'unknown', uptime: 0, timestamp: '' })
 const formattedUptime = computed(() => {
   const s = Math.floor(health.value.uptime)
-  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60
   return `${h}h ${m}m ${sec}s`
 })
 async function fetchHealth() {
@@ -194,7 +208,7 @@ async function fetchHealth() {
   }
 }
 
-// Backup‑Funktion
+// Backup
 async function createBackup() {
   try {
     await http.post('/admin/backup')
@@ -205,13 +219,13 @@ async function createBackup() {
 }
 
 // Statistiken
-const stats = ref({ computer:0, betriebssysteme:0, kategorien:0, studenten:0 })
+const stats = ref({ computer: 0, betriebssysteme: 0, kategorien: 0, studenten: 0 })
 async function fetchStats() {
   const res = await http.get('/admin/stats')
   stats.value = res.data
 }
 
-// OS‑Statistik
+// OS Statistik
 const osLabels = ref([])
 const osCounts = ref([])
 const osChart = ref(null)
@@ -225,11 +239,8 @@ function drawChart() {
   if (window._osPieChart) window._osPieChart.destroy()
   window._osPieChart = new Chart(osChart.value, {
     type: 'pie',
-    data: { labels: osLabels.value, datasets:[{
-        data: osCounts.value,
-        backgroundColor:['#388bfd','#38d6ae','#ffc107','#fd7e14','#dc3545','#6c757d','#8e44ad']
-      }]},
-    options:{ plugins:{ legend:{ display:true, position:'bottom' } } }
+    data: { labels: osLabels.value, datasets: [{ data: osCounts.value, backgroundColor: ['#388bfd', '#38d6ae', '#ffc107', '#fd7e14', '#dc3545', '#6c757d', '#8e44ad'] }] },
+    options: { plugins: { legend: { display: true, position: 'bottom' } } }
   })
 }
 
@@ -247,9 +258,24 @@ async function toggleAdmin(u) {
   try {
     const res = await http.patch(`/admin/users/toggle-admin/${u._id}`)
     u.isAdmin = res.data.isAdmin
-    toast.show(`User "${u.username}" ist nun ${u.isAdmin?'Admin':'kein Admin'}.`,3000)
+    toast.show(`User "${u.username}" ist nun ${u.isAdmin ? 'Admin' : 'kein Admin'}.`, 3000)
   } catch {
-    toast.show('Fehler beim Umschalten',3000)
+    toast.show('Fehler beim Umschalten', 3000)
+  }
+}
+
+// Benutzer hinzufügen Modal
+const showAddUser = ref(false)
+const addUserForm = ref({ username: '', email: '', password: '', isAdmin: false })
+async function addUser() {
+  try {
+    await http.post('/admin/users', addUserForm.value)
+    toast.show('Benutzer angelegt!', 3000)
+    showAddUser.value = false
+    addUserForm.value = { username: '', email: '', password: '', isAdmin: false }
+    fetchUsers()
+  } catch (e) {
+    toast.show('Fehler beim Anlegen des Benutzers', 3500)
   }
 }
 
@@ -265,13 +291,13 @@ async function fetchMetrics() {
       )
     }
   } catch {
-    toast.show('Fehler beim Laden der Metriken',3000)
+    toast.show('Fehler beim Laden der Metriken', 3000)
   }
 }
 const overallAvg = computed(() => {
   if (!metrics.value.routes.length) return 0
-  const sum = metrics.value.routes.reduce((a,b)=> a + b.avgLatency, 0)
-  return (sum/metrics.value.routes.length).toFixed(1)
+  const sum = metrics.value.routes.reduce((a, b) => a + b.avgLatency, 0)
+  return (sum / metrics.value.routes.length).toFixed(1)
 })
 
 // Lifecycle
@@ -313,14 +339,9 @@ onMounted(async () => {
   border-radius: .8rem;
   overflow: hidden;
 }
-.btn-outline-primary {
+.btn-outline-primary, .btn-outline-danger {
   border-radius: .75rem;
-  border-color: #0d6efd;
-  color: #0d6efd;
 }
-.btn-outline-danger {
-  border-radius: .75rem;
-  border-color: #dc3545;
-  color: #dc3545;
-}
+.modal-backdrop { z-index: 1050; }
+.modal.fade.show.d-block { z-index: 1100; background: transparent; }
 </style>
