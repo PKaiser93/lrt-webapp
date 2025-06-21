@@ -110,13 +110,14 @@ import { useComputerStore } from '@/features/computer/store/computerStore';
 import SortArrow from '@/features/computer/components/SortArrow.vue';
 import TableRow from '@/features/computer/components/TableRow.vue';
 import FilterSidebar from '@/features/computer/components/FilterSidebar.vue';
-import { useBetriebssystemStore } from '@/features/betriebssystem/store/betriebssystemStore'
-import { useKategorieStore } from '@/features/kategorie/store/kategorieStore'
-import { showToast } from '@/utils/toast';
+import { useBetriebssystemStore } from '@/features/betriebssystem/store/betriebssystemStore';
+import { useKategorieStore } from '@/features/kategorie/store/kategorieStore';
+import { useToastStore } from '@/stores/toast';
 
 const computerStore = useComputerStore();
 const betriebssystemStore = useBetriebssystemStore();
 const kategorieStore = useKategorieStore();
+const toast = useToastStore();
 
 onMounted(() => {
   kategorieStore.fetchAll();
@@ -215,10 +216,10 @@ async function deleteComputer(id) {
   deletingId.value = id;
   try {
     await computerStore.delete(id);
-    showToast('Computer gelöscht', 'success');
+    toast.show('Computer gelöscht', 'success');
     fetchComputers();
   } catch (err) {
-    showToast(computerStore.error || 'Löschen fehlgeschlagen', 'danger');
+    toast.show(computerStore.error || 'Löschen fehlgeschlagen', 'danger');
   } finally {
     deletingId.value = null;
   }
@@ -231,7 +232,6 @@ const kategorieList = computed(() =>
 const osList = computed(() =>
     Array.isArray(betriebssystemStore.items) ? betriebssystemStore.items : []
 );
-
 </script>
 
 <style scoped>

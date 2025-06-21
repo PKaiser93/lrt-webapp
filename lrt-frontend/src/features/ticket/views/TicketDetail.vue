@@ -10,7 +10,6 @@
       <!-- Haupt‑Card -->
       <div class="card shadow-sm rounded-4 mb-4 border-0">
         <div class="card-body">
-
           <!-- Titel & Ersteller -->
           <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
             <div>
@@ -34,7 +33,6 @@
                 <i :class="store.current.status === 'closed' ? 'bi bi-box-arrow-in-up-right' : 'bi bi-x-circle'"></i>
                 {{ store.current.status === 'closed' ? 'Öffnen' : 'Schließen' }}
               </button>
-
               <div class="input-group input-group-sm">
                 <select v-model="selectedAssignee" class="form-select">
                   <option value="">– keiner –</option>
@@ -48,14 +46,12 @@
               </div>
             </div>
           </div>
-
           <!-- Inner Card für Content -->
           <div class="card bg-light shadow-sm rounded-4 mb-3 border-0">
             <div class="card-body">
               <p class="mb-0">{{ store.current.description }}</p>
             </div>
           </div>
-
           <!-- Badges für Status / Priorität / Assignee -->
           <div class="d-flex flex-wrap align-items-center gap-3">
             <span class="badge" :class="statusClass">
@@ -71,7 +67,6 @@
               Zugewiesen an: <strong>{{ currentAssigneeName || '– niemand –' }}</strong>
             </span>
           </div>
-
         </div>
       </div>
 
@@ -167,36 +162,48 @@ onMounted(async () => {
     const res = await http.get('/admin/users')
     users.value = res.data
   } catch {
-    toast.show('Benutzerliste konnte nicht geladen werden', 3000)
+    toast.show('Benutzerliste konnte nicht geladen werden', 'danger')
   }
   await loadAll()
 })
 
 // Kommentar absenden (als angemeldeter User)
 async function addComment() {
-  await store.comment(route.params.id, auth.user.username, message.value)
-  message.value = ''
-  await loadAll()
+  try {
+    await store.comment(route.params.id, auth.user.username, message.value)
+    message.value = ''
+    toast.show('Kommentar gespeichert', 'success')
+    await loadAll()
+  } catch {
+    toast.show('Kommentar konnte nicht gespeichert werden', 'danger')
+  }
 }
 
 // Status umschalten
 async function toggleStatus() {
-  if (store.current.status === 'closed') {
-    await store.reopenTicket(route.params.id)
-  } else {
-    await store.closeTicket(route.params.id)
+  try {
+    if (store.current.status === 'closed') {
+      await store.reopen(route.params.id)
+      toast.show('Ticket wieder geöffnet', 'success')
+    } else {
+      await store.close(route.params.id)
+      toast.show('Ticket geschlossen', 'success')
+    }
+    await loadAll()
+  } catch (e) {
+    console.error("Status-Umschalt-Fehler:", e)
+    toast.show('Fehler beim Umschalten des Status', 'danger')
   }
-  await loadAll()
 }
 
 // Assignee setzen
 async function assignTo() {
   try {
     await store.update(route.params.id, { assignee: selectedAssignee.value })
-    toast.show('Zuweisung aktualisiert', 3000)
+    toast.show('Zuweisung aktualisiert', 'success')
     await loadAll()
   } catch {
-    toast.show('Zuweisung fehlgeschlagen', 3000)
+    toast.show('Zuweisung fehlgeschlagen', 'danger')
   }
 }
 
@@ -239,9 +246,11 @@ const priorityClass = computed(() => {
   margin-top: 30px;
 }
 .text-gradient {
-  background: linear-gradient(90deg, #ff9360 10%, #388bfd 80%);
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 .card {
   border-radius: 1.3rem;

@@ -1,4 +1,6 @@
 import axios from 'axios'
+import {useAuthStore} from "@/stores/auth.js";
+import {useToastStore} from "@/stores/toast.js";
 
 const http = axios.create({
     baseURL: 'http://localhost:3000/api'
@@ -14,5 +16,16 @@ http.interceptors.request.use(config => {
     }
     return config
 })
+
+http.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            useAuthStore().logout() // oder: router.push('/login')
+            useToastStore().show('Nicht eingeloggt! Bitte neu anmelden.', 'danger')
+        }
+        return Promise.reject(error)
+    }
+)
 
 export default http

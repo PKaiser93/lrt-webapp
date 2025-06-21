@@ -85,6 +85,12 @@
                   aria-labelledby="userDropdown"
               >
                 <li>
+                  <router-link class="dropdown-item" to="/profile">
+                    <i class="bi bi-person me-1"></i> Profil
+                  </router-link>
+                </li>
+                <hr class="dropdown-divider">
+                <li>
                   <button @click="auth.logout" class="dropdown-item text-danger">
                     <i class="bi bi-box-arrow-right me-1"></i> Logout
                   </button>

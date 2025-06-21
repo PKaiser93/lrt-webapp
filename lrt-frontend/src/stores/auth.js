@@ -1,6 +1,6 @@
 // stores/auth.js
 import { defineStore } from 'pinia'
-import http from '../api/http'
+import http from '@/api/http'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', {
 
     actions: {
         async login(credentials) {
-            console.log('📥 Login-Daten:', credentials)
+            // console.log('📥 Login-Daten:', credentials)
             const response = await http.post('/auth/login', credentials)
             this.token = response.data.token
 
@@ -32,9 +32,9 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const res = await http.get('/auth/me')
                 this.user = res.data
-                console.log('👤 Benutzer geladen:', this.user)
+                // console.log('👤 Benutzer geladen:', this.user)
             } catch (err) {
-                console.error('⚠️ Fehler bei fetchUser:', err)
+                // console.error('⚠️ Fehler bei fetchUser:', err)
                 this.logout()
             }
         },

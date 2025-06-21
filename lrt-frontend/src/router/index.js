@@ -5,6 +5,16 @@ const routes = [
     { path: '/', component: () => import('@/views/Welcome.vue') },
     { path: '/login', component: () => import('@/views/LoginForm.vue') },
     {
+        path: '/profile',
+        component: () => import('@/features/profile/views/ProfileView.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/profile/password',
+        component: () => import('@/features/profile/components/ChangePasswordModal.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/home',
         component: () => import('@/views/Home.vue'),
         meta: { requiresAuth: true }

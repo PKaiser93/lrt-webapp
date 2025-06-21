@@ -87,8 +87,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import http from '@/api/http'
-import { showToast } from '@/utils/toast'
+import { useToastStore } from '@/stores/toast'
 import KategorieFormModal from '@/features/kategorie/components/KategorieForm.vue'
+
+const toast = useToastStore();
 
 const showForm = ref(false);
 const editItem = ref(null);
@@ -105,15 +107,15 @@ async function saveKategorie(data) {
   try {
     if (data._id) {
       await http.patch(`/kategorie/${data._id}`, data);
-      showToast('Kategorie aktualisiert', 'success');
+      toast.show('Kategorie aktualisiert', 'success');
     } else {
       await http.post('/kategorie', data);
-      showToast('Kategorie angelegt', 'success');
+      toast.show('Kategorie angelegt', 'success');
     }
     closeForm();
     await load();
   } catch {
-    showToast('Fehler beim Speichern', 'danger');
+    toast.show('Fehler beim Speichern', 'danger');
   }
 }
 
@@ -123,7 +125,7 @@ const load = async () => {
   try {
     kategorien.value = (await http.get('/kategorie')).data
   } catch {
-    showToast('Fehler beim Laden der Kategorien', 'danger')
+    toast.show('Fehler beim Laden der Kategorien', 'danger')
   }
 }
 
@@ -131,17 +133,16 @@ const softDelete = async (id) => {
   if (!confirm('Wirklich löschen?')) return
   try {
     await http.patch(`/kategorie/${id}/soft-delete`)
-    showToast('Kategorie verschoben in den Papierkorb')
+    toast.show('Kategorie verschoben in den Papierkorb', 'success')
     await load()
   } catch {
-    showToast('Fehler beim Löschen', 'danger')
+    toast.show('Fehler beim Löschen', 'danger')
   }
 }
 
 // Dynamisch kontrastierende Farbe für Badge
 function colorForBadge(hex) {
   if (!hex) return "#333"
-  // Simple Luminanz-Check für hell/dunkel
   let c = hex.replace("#", "")
   if (c.length === 3) c = c.split('').map(x=>x+x).join('')
   const rgb = parseInt(c, 16)

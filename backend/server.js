@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
+const connectDB = require('./config/db')
 require('dotenv').config();
 
 const app = express();
@@ -82,6 +83,7 @@ app.use('/api/tickets', require('./routes/ticketRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/admin/privacy', require('./routes/privacyRoutes'));
 app.use('/api/admin/metrics', require('./routes/metricsRoutes'));
+app.use('/api/profile', require('./routes/profileRoutes'));
 
 // 404-Handler
 app.use((req, res, next) => {
@@ -95,17 +97,12 @@ app.use((err, req, res, next) => {
 });
 
 // MongoDB-Verbindung & Serverstart
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log('🟢 MongoDB verbunden');
-        app.listen(process.env.PORT || 3000, () =>
-            console.log(`🚀 Server läuft auf Port ${process.env.PORT || 3000}`)
+(async () => {
+    await connectDB();
+    app.listen(process.env.PORT || 3000, () =>
+        console.log(`🚀 Server läuft auf Port ${process.env.PORT || 3000}`)
         );
-    })
-    .catch(err => {
-        console.error('❌ Fehler beim DB-Start:', err);
-        process.exit(1);
-    });
+})();
 
 // Unbehandelte Promise-Rejections global abfangen
 process.on('unhandledRejection', err => {

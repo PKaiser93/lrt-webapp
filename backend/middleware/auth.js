@@ -12,6 +12,12 @@ exports.requireAuth = (req, res, next) => {
     try {
         const token = auth.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Automatisch auf _id mappen, falls nur id vorhanden
+        if (decoded.id && !decoded._id) {
+            decoded._id = decoded.id;
+        }
+
         req.user = decoded;
         next();
     } catch (err) {
@@ -19,6 +25,7 @@ exports.requireAuth = (req, res, next) => {
         return res.status(401).json({ error: isExpired ? 'Token abgelaufen!' : 'Token ungültig!' });
     }
 };
+
 
 /**
  * Prüft, ob der eingeloggte User Admin-Rechte hat (req.user muss vorhanden sein!).

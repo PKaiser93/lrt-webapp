@@ -39,10 +39,14 @@ exports.addComment = asyncHandler(async (req, res) => {
     res.json(t);
 });
 
-exports.delete = asyncHandler(async (req, res) => {
-    await Ticket.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Ticket gelöscht' });
-});
+exports.delete = async (req, res) => {
+    try {
+        await Ticket.findByIdAndDelete(req.params.id)
+        res.status(204).send()
+    } catch (err) {
+        res.status(500).json({ error: 'Löschen fehlgeschlagen' })
+    }
+}
 
 // ─── Ticket schließen ───
 exports.closeTicket = asyncHandler(async (req, res) => {

@@ -50,7 +50,7 @@
 
 <script setup>
 import { reactive } from 'vue';
-import { useTicketStore } from '@/features/ticket/store/ticketStore';
+import { useTicketStore } from '@/features/ticket/store/ticketStore.js';
 
 const props = defineProps({ ticket: Object });
 const emit  = defineEmits(['close','saved']);

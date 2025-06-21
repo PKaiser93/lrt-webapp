@@ -11,7 +11,7 @@
 
 <script setup>
 import FlatPickr from 'vue-flatpickr-component'
-import { German } from 'flatpickr/dist/l10n/de.js'
+import { German } from 'flatpickr/dist/l10n/de'
 import 'flatpickr/dist/flatpickr.min.css'
 import { computed } from 'vue'
 

@@ -9,40 +9,11 @@
     </main>
 
     <!-- 🔔 Toast-Container -->
-    <div
-        v-for="(toast, index) in toasts"
-        :key="index"
-        :class="['toast', 'show', 'text-bg-' + (toast.type || 'info'), 'border-0', 'shadow-lg', 'rounded']"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-    >
-      <div class="toast-body d-flex justify-content-between align-items-center">
-        <span>{{ toast.message }}</span>
-        <button
-            type="button"
-            class="btn-close ms-3"
-            aria-label="Close"
-            @click="removeToast(index)"
-        ></button>
-      </div>
-    </div>
+    <Toasts />
   </div>
 </template>
 
 <script setup>
 import TopBar from '@/components/TopBar.vue'
-import { useToastStore } from '@/stores/toast'
-
-const toastStore = useToastStore()
-const toasts = toastStore.toasts
-const removeToast = toastStore.remove
+import Toasts  from '@/components/Toasts.vue'  // <-- hier einbinden
 </script>
-
-<style>
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f1f3f5;
-  color: #212529;
-}
-</style>
