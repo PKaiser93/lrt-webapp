@@ -1,9 +1,99 @@
 const Computer = require('../models/Computer');
 const Kategorie = require('../models/Kategorie');
 const Betriebssystem = require('../models/Betriebssystem');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 // Optional: asyncHandler zentral nutzen
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
+// Storage für Multer: /uploads/:id
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const dir = path.join(__dirname, '../uploads', req.params.id);
+        fs.mkdirSync(dir, { recursive: true });
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const clean = file.originalname.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+        cb(null, Date.now() + '-' + clean);
+    }
+});
+const upload = multer({
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024, files: 10 }, // z.B. 10 MB je Datei, max 10 Dateien
+    fileFilter: (req, file, cb) => {
+        // Nur PDFs, Bilder, Office etc. zulassen:
+        const allowed = ['.pdf', '.jpg', '.jpeg', '.png', '.docx', '.xlsx'];
+        if (allowed.includes(path.extname(file.originalname).toLowerCase())) {
+            cb(null, true);
+        } else {
+            cb(new Error('Dateityp nicht erlaubt'), false);
+        }
+    }
+});
+
+exports.uploadDocuments = [
+    upload.array('documents', 10), // max. 10 Dateien auf einmal
+    async (req, res) => {
+        // Dokumente zum Computer-Datensatz hinzufügen (optional)
+        const Computer = require('../models/Computer');
+        const computer = await Computer.findById(req.params.id);
+        if (!computer) return res.status(404).json({ error: 'Computer nicht gefunden' });
+        req.files.forEach(f => {
+            if (!computer.documents) computer.documents = [];
+            computer.documents.push(f.filename);
+        });
+        await computer.save();
+        res.json({ message: 'Dateien hochgeladen', files: req.files.map(f => f.filename) });
+    }
+];
+
+exports.listDocuments = async (req, res) => {
+    const dir = path.join(__dirname, '../uploads', req.params.id);
+    if (!fs.existsSync(dir)) return res.json([]);
+    const files = fs.readdirSync(dir);
+    const baseUrl = `${req.protocol}://${req.get('host')}/uploads/${req.params.id}/`;
+    res.json(files.map(filename => ({
+        filename,
+        url: baseUrl + encodeURIComponent(filename)
+    })));
+};
+
+exports.listAll = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (page - 1) * limit;
+    const [list, count] = await Promise.all([
+        Computer.find({ deleted: { $ne: true } })
+            .populate('kategorie')
+            .populate('betriebssystem')
+            .skip(skip)
+            .limit(Number(limit))
+            .lean(),
+        Computer.countDocuments({ deleted: { $ne: true } })
+    ]);
+    res.status(200).json({ list, count });
+});
+
+exports.downloadDocument = (req, res) => {
+    const filePath = path.join(__dirname, '../uploads', req.params.id, req.params.filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Datei nicht gefunden' });
+    res.download(filePath);
+};
+
+exports.deleteDocument = async (req, res) => {
+    const filePath = path.join(__dirname, '../uploads', req.params.id, req.params.filename);
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        // Optional: Aus Computer.documents entfernen
+        const Computer = require('../models/Computer');
+        await Computer.findByIdAndUpdate(req.params.id, { $pull: { documents: req.params.filename } });
+        res.json({ message: 'Datei gelöscht' });
+    } else {
+        res.status(404).json({ error: 'Datei nicht gefunden' });
+    }
+};
 
 // --- Hilfsfunktionen ---
 let kategorieCache = null;

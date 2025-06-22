@@ -52,6 +52,21 @@ const ComputerSchema = new mongoose.Schema({
     info: String,
     todo: String,
     ablauf: String,
+
+    // Status
+    status: {
+        type: String,
+        enum: ['in_betrieb', 'bald_ersetzen', 'ausser_betrieb'],
+        default: 'in_betrieb'
+    },
+    documents: [String] // Optional: Array aller Dateinamen
 }, { timestamps: true });
+
+// Indexe
+ComputerSchema.index({ deleted: 1 });
+ComputerSchema.index({ status: 1 });
+ComputerSchema.index({ kategorie: 1 });
+ComputerSchema.index({ betriebssystem: 1 });
+ComputerSchema.index({ beschaffungsjahr: 1 });
 
 module.exports = mongoose.model('Computer', ComputerSchema);

@@ -111,6 +111,13 @@
                     >
                       {{ u.isAdmin ? 'Entziehen' : 'Zum Admin machen' }}
                     </button>
+                    <button
+                        class="btn btn-sm btn-outline-secondary ms-1"
+                        title="Passwort zurücksetzen"
+                        @click="resetUserPassword(u)"
+                    >
+                      <i class="bi bi-key"></i>
+                    </button>
                   </td>
                 </tr>
                 <tr v-if="!users.length">
@@ -125,6 +132,16 @@
         </div>
       </div>
     </div>
+
+    <div v-if="resetPwInfo.pw" class="alert alert-success mt-3 d-flex align-items-center gap-2">
+      <span><i class="bi bi-key"></i> Neues Passwort:</span>
+      <code style="font-size:1.15em">{{ resetPwInfo.pw }}</code>
+      <button class="btn btn-sm btn-outline-primary ms-2" @click="copyPw(resetPwInfo.pw)">
+        <i class="bi bi-clipboard"></i> Kopieren
+      </button>
+      <button class="btn btn-close ms-2" @click="resetPwInfo = {}" aria-label="Schließen"></button>
+    </div>
+
 
     <!-- Benutzer hinzufügen Modal -->
     <div v-if="showAddUser">
@@ -191,6 +208,22 @@ const StatCard = {
 }
 
 const toast = useToastStore()
+const resetPwInfo = ref({})
+
+async function resetUserPassword(user) {
+  if (!confirm(`Passwort für "${user.username}" wirklich zurücksetzen?`)) return
+  try {
+    const res = await http.patch(`/admin/users/reset-password/${user._id}`)
+    resetPwInfo.value = { id: user._id, pw: res.data.password }
+    toast.show('Passwort zurückgesetzt', 3500)
+  } catch {
+    toast.show('Fehler beim Zurücksetzen', 3500)
+  }
+}
+function copyPw(pw) {
+  navigator.clipboard.writeText(pw)
+  toast.show('Kopiert!', 2000)
+}
 
 // Health
 const health = ref({ status: 'unknown', db: 'unknown', uptime: 0, timestamp: '' })

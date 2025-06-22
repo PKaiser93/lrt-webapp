@@ -115,10 +115,12 @@
 import { ref, onMounted } from 'vue'
 import http from '@/api/http'
 import { useRouter } from 'vue-router'
-import { showToast } from '@/utils/toast'
+import { useToastStore } from '@/stores/toast'
 import Field from '@/components/FormField.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import FormDate from '@/components/FormDate.vue'
+
+const toast = useToastStore()
 
 const computer = ref({
   marke: '', typ: '', seriennummer: '', cpu: '', ram: '', hddssd: '', grafikkarte: '', chipsatz: '',
@@ -146,7 +148,6 @@ const tabs = [
 
 onMounted(async () => {
   try {
-    console.log('[DEBUG] onMounted ausgelöst')
     const osRes = await http.get('/betriebssystem')
     const katRes = await http.get('/kategorie')
     osList.value = osRes.data
@@ -154,54 +155,34 @@ onMounted(async () => {
       _id: k._id,
       name: k.bezeichnung
     }))
-    console.log('[DEBUG] OS-Liste:', osList.value)
-    console.log('[DEBUG] Kategorie-Liste:', kategorieList.value)
   } catch (err) {
-    showToast('Fehler beim Laden von Optionen', 'danger')
-    console.error('[ERROR] Fehler beim Laden von Optionen:', err)
+    toast.show('Fehler beim Laden von Optionen', 'danger')
+    // Detaillierte Fehlerausgabe (optional)
+    // console.error('[ERROR] Fehler beim Laden von Optionen:', err)
   }
 })
 
 const submit = async () => {
-  console.log('===== [DEBUG] Submit ausgelöst =====')
-  console.log('[DEBUG] Aktueller Computer-Wert:', JSON.stringify(computer.value, null, 2))
-
   if (!computer.value.typ) {
-    showToast('Bitte Typ angeben!', 'danger')
-    console.warn('[WARN] Kein Typ angegeben!')
+    toast.show('Bitte Typ angeben!', 'danger')
     return
   }
-
   // 🟢 Fix für dhcp
   let toSave = { ...computer.value }
   if (toSave.dhcp === 'ja') toSave.dhcp = true
   if (toSave.dhcp === 'nein') toSave.dhcp = false
-  console.log('[DEBUG] Daten die an das Backend gehen:', JSON.stringify(toSave, null, 2))
-
-  // Token check
-  console.log('[DEBUG] Token im LocalStorage:', localStorage.getItem('token'))
 
   try {
-    const response = await http.post('/computer', toSave)
-    console.log('[DEBUG] Backend Response:', response)
-    showToast('✅ Computer erfolgreich gespeichert')
+    await http.post('/computer', toSave)
+    toast.show('✅ Computer erfolgreich gespeichert', 'success')
     router.push('/computer')
   } catch (err) {
-    showToast('❌ Fehler beim Speichern', 'danger')
-    // Fehler-Handling detailliert ausgeben
-    if (err.response) {
-      console.error('[ERROR] Response Error:', err.response)
-      console.error('[ERROR] Status:', err.response.status)
-      console.error('[ERROR] Data:', err.response.data)
-    } else if (err.request) {
-      console.error('[ERROR] Keine Antwort vom Server:', err.request)
-    } else {
-      console.error('[ERROR] Allgemeiner Fehler:', err.message)
-    }
+    toast.show('❌ Fehler beim Speichern', 'danger')
+    // Detaillierte Fehlerausgabe (optional)
+    // if (err.response) { ... }
   }
 }
 </script>
-
 
 <style scoped>
 .text-gradient {

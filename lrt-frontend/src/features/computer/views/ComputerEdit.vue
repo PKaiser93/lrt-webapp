@@ -148,7 +148,10 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import http from '@/api/http'
-import { showToast } from '@/utils/toast'
+import { useToastStore } from '@/stores/toast'
+
+// Pinia Store für Toast holen
+const toast = useToastStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -194,6 +197,7 @@ onMounted(async () => {
     kategorieList.value = katRes.data
     osList.value        = osRes.data
 
+    // IDs extrahieren falls populated
     if (typeof form.value.betriebssystem === 'object' && form.value.betriebssystem)
       form.value.betriebssystem = form.value.betriebssystem._id
     if (typeof form.value.kategorie === 'object' && form.value.kategorie)
@@ -211,11 +215,11 @@ async function saveComputer() {
   error.value  = ''
   try {
     await http.patch(`/computer/${route.params.id}`, form.value)
-    showToast('Änderungen gespeichert', 'success')
+    toast.show('Änderungen gespeichert', 'success')
     router.push('/computer')
   } catch (err) {
     error.value = err?.response?.data?.error || 'Speichern fehlgeschlagen.'
-    showToast(error.value, 'danger')
+    toast.show(error.value, 'danger')
   } finally {
     saving.value = false
   }

@@ -52,6 +52,7 @@ export const useAuthStore = defineStore('auth', {
 
             // 4) Persisted State komplett löschen (Standard-Key: 'pinia')
             localStorage.removeItem('pinia')
+
         },
 
         init() {

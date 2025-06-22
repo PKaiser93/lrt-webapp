@@ -21,6 +21,12 @@ app.use(helmet());
 // Komprimierung für bessere Performance
 app.use(compression());
 
+app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.url}`);
+    next();
+});
+
+
 // Rate Limiting (z.B. 100 Requests pro 15 Minuten pro IP)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 Minuten

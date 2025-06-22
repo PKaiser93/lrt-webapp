@@ -4,6 +4,10 @@ const computer = require('../controllers/computerController');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 // CRUD für Computer
+router.post('/:id/upload', computer.uploadDocuments);
+router.get('/:id/documents', computer.listDocuments);
+router.get('/:id/documents/:filename', computer.downloadDocument);
+router.delete('/:id/documents/:filename', computer.deleteDocument);
 
 // Suche/Filter
 router.get('/search', requireAuth, computer.advancedSearchComputers);

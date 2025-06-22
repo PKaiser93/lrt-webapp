@@ -63,7 +63,7 @@
                 </li>
                 <hr class="dropdown-divider">
                 <li>
-                  <button @click="auth.logout" class="dropdown-item text-danger">
+                  <button @click="handleLogout" class="dropdown-item text-danger">
                     <i class="bi bi-box-arrow-right me-1"></i> Logout
                   </button>
                 </li>
@@ -92,6 +92,14 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 const auth = useAuthStore()
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+function handleLogout() {
+  auth.logout()
+  router.push('/')   // Oder '/' je nach Ziel!
+}
+
 </script>
 
 <style scoped>
