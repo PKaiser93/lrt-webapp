@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import * as path from "node:path";
+import * as path from 'node:path'
 
 export default defineConfig({
     plugins: [
@@ -16,9 +16,16 @@ export default defineConfig({
         port: 5173,
         proxy: {
             '/api': {
-                target: 'http://localhost:3000', // Hier läuft dein Express-Backend!
+                target: 'http://localhost:3000',
                 changeOrigin: true
             }
         }
+    },
+    build: {
+        // Damit Top-Level-Await unterstützt wird
+        target: 'esnext',
+        // Baue direkt in das public-Verzeichnis deines Backends
+        outDir: '../backend/public',
+        emptyOutDir: true
     }
 })

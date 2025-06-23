@@ -8,6 +8,9 @@
       <router-view />
     </main>
 
+    <!-- 🔝 Zentrale FooterBar -->
+    <FooterBar />
+
     <!-- 🔔 Toast-Container -->
     <Toasts />
   </div>
@@ -16,4 +19,5 @@
 <script setup>
 import TopBar from '@/components/TopBar.vue'
 import Toasts  from '@/components/Toasts.vue'  // <-- hier einbinden
+import FooterBar from '@/components/FooterBar.vue'
 </script>

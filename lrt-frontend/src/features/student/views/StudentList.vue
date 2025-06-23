@@ -22,8 +22,8 @@
     </div>
 
     <div v-else>
-      <!-- Table -->
-      <div class="table-responsive shadow-sm rounded-4">
+      <!-- Wenn es Student*innen gibt, Tabelle anzeigen -->
+      <div v-if="students.length" class="table-responsive shadow-sm rounded-4">
         <table class="table table-striped table-hover align-middle mb-0">
           <thead class="table-light">
           <tr>
@@ -81,14 +81,17 @@
               </div>
             </td>
           </tr>
-          <tr v-if="!students.length">
-            <td colspan="7" class="text-center text-muted py-4">
-              <i class="bi bi-emoji-frown me-2"></i>Keine Student*innen gefunden.
-            </td>
-          </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Empty State, wenn keine Student*innen da sind -->
+      <EmptyState
+          v-else
+          icon="bi bi-emoji-frown"
+          title="Keine Student*innen gefunden"
+          description="Lege über den 'Neu anlegen'-Button eine*n neue*n Student*in an."
+      />
     </div>
 
     <!-- Modal Create/Edit -->
@@ -106,6 +109,7 @@ import { ref, onMounted } from 'vue'
 import http from '@/api/http'
 import { useToastStore } from '@/stores/toast'
 import StudentEditModal from './StudentEditModal.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 const toast    = useToastStore()
 const students = ref([])
@@ -130,7 +134,7 @@ async function fetchStudents() {
     const res = await http.get('/studenten')
     students.value = res.data
 
-    // 3) Rechner‑Objekt nachladen, falls nötig, und OS ID→Name mappen
+    // 3) Rechner‑Objekt nachladen und OS ID→Name mappen
     for (const s of students.value) {
       if (s.rechner && /^[0-9a-f]{24}$/.test(s.rechner)) {
         s.computerObj = await http
@@ -138,7 +142,6 @@ async function fetchStudents() {
             .then(r => r.data)
             .catch(() => null)
       }
-      // Wenn betriebssystem eine ID ist, mappen wir auf den Namen
       if (s.betriebssystem && typeof s.betriebssystem === 'string') {
         const name = osMap[s.betriebssystem]
         if (name) {
@@ -185,14 +188,14 @@ async function delStudent(id) {
 
 // OS‑Name → Icon‑Klasse
 function getOSIcon(osName) {
-  if (!osName || typeof osName !== 'string') return 'bi-laptop'
+  if (!osName || typeof osName !== 'string') return 'bi bi-laptop'
   const n = osName.toLowerCase()
-  if (n.includes('windows')) return 'bi-windows'
-  if (n.includes('ubuntu'))  return 'bi-ubuntu'
-  if (n.includes('linux'))   return 'bi-hdd-network'
-  if (n.includes('mac') || n.includes('ios') || n.includes('ipad')) return 'bi-apple'
-  if (n.includes('android')) return 'bi-android'
-  return 'bi-laptop'
+  if (n.includes('windows')) return 'bi bi-windows'
+  if (n.includes('ubuntu'))  return 'bi bi-ubuntu'
+  if (n.includes('linux'))   return 'bi bi-hdd-network'
+  if (n.includes('mac') || n.includes('ios') || n.includes('ipad')) return 'bi bi-apple'
+  if (n.includes('android')) return 'bi bi-android'
+  return 'bi bi-laptop'
 }
 
 onMounted(fetchStudents)
@@ -229,7 +232,6 @@ onMounted(fetchStudents)
 .btn {
   border-radius: 0.75rem !important;
 }
-/* btn-gradient wie in KategorieList.vue */
 .btn-gradient {
   background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
   color: #fff;
@@ -245,8 +247,6 @@ onMounted(fetchStudents)
   background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
   color: #fff;
 }
-
-/* Optional: btn-outline-gradient, falls Du es auch brauchst */
 .btn-outline-gradient {
   border: 2px solid #3a7bd5;
   color: #3a7bd5;
@@ -262,7 +262,6 @@ onMounted(fetchStudents)
   color: #fff;
   box-shadow: 0 2px 10px #00d2ff22;
 }
-
 .badge {
   border-radius: 0.75rem;
   font-size: 0.97em;

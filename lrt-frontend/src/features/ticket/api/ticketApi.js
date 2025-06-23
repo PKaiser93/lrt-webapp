@@ -25,3 +25,21 @@ export function closeTicket(id) {
 export function reopenTicket(id) {
     return http.patch(`/tickets/${id}/reopen`)
 }
+
+/**
+ * Status eines Tickets ändern
+ * @param {string} id      Ticket‑ID
+ * @param {object} payload { status: 'in_progress' }
+ */
+export function changeStatus(id, payload) {
+    return http.patch(`/tickets/${id}/status`, payload);
+}
+
+/**
+ * Ticket an einen Nutzer zuweisen
+ * @param {string} id      Ticket‑ID
+ * @param {object} payload { assignee: userId }
+ */
+export function assignTicket(id, payload) {
+    return http.patch(`/tickets/${id}/assign`, payload);
+}

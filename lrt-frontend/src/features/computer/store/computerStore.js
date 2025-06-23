@@ -90,19 +90,6 @@ export const useComputerStore = defineStore('computer', {
                 this.isLoading = false;
             }
         },
-        async bulkImport(data) {
-            this.isLoading = true;
-            try {
-                await api.bulkImportComputers(data);
-                await this.fetchAll();
-                this.error = null;
-            } catch (err) {
-                this.error = err.response?.data?.error || 'Unbekannter Fehler';
-                throw err;
-            } finally {
-                this.isLoading = false;
-            }
-        },
         clearSelected() {
             this.selected = null;
         }

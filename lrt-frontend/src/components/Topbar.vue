@@ -30,18 +30,43 @@
         <ul class="navbar-nav align-items-center gap-2 ms-auto">
           <template v-if="auth.isAuthenticated">
             <!-- Direktlinks -->
-            <li class="nav-item"><router-link class="nav-link" to="/computer"><i class="bi bi-pc-display-horizontal me-1"></i>Computer</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/betriebssystem"><i class="bi bi-windows me-1"></i>Betriebssysteme</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/kategorie"><i class="bi bi-tags me-1"></i>Kategorien</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/student"><i class="bi bi-mortarboard me-1"></i>Studenten</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/tickets"><i class="bi bi-ticket me-1"></i>Tickets</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/trash"><i class="bi bi-trash3 me-1"></i>Papierkorb</router-link></li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/computer">
+                <i class="bi bi-pc-display-horizontal me-1"></i>Computer
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/betriebssystem">
+                <i class="bi bi-windows me-1"></i>Betriebssysteme
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/kategorie">
+                <i class="bi bi-tags me-1"></i>Kategorien
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/student">
+                <i class="bi bi-mortarboard me-1"></i>Studenten
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/tickets">
+                <i class="bi bi-ticket me-1"></i>Tickets
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/trash">
+                <i class="bi bi-trash3 me-1"></i>Papierkorb
+              </router-link>
+            </li>
             <!-- Admin Dashboard -->
             <li class="nav-item" v-if="auth.user?.isAdmin">
               <router-link class="nav-link" to="/admin">
-                <i class="bi bi-bar-chart-line me-1"></i> Dashboard
+                <i class="bi bi-bar-chart-line me-1"></i>Dashboard
               </router-link>
             </li>
+
             <!-- User Dropdown -->
             <li class="nav-item dropdown">
               <a
@@ -58,28 +83,39 @@
               <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass" aria-labelledby="userDropdown">
                 <li>
                   <router-link class="dropdown-item" to="/profile">
-                    <i class="bi bi-person me-1"></i> Profil
+                    <i class="bi bi-person me-1"></i>Profil
                   </router-link>
                 </li>
+                <li v-if="auth.user?.isAdmin">
+                  <router-link class="dropdown-item" to="/settings">
+                    <i class="bi bi-gear me-1"></i>Einstellungen
+                  </router-link>
+                </li>
+                <!-- Hier die neuen Links -->
+                <li v-if="auth.user?.isAdmin">
+                  <router-link class="dropdown-item" to="/documentation">
+                    <i class="bi bi-journal-text me-1"></i>Dokumentation
+                  </router-link>
+                </li>
+<!--                <li v-if="auth.user?.isAdmin">
+                  <router-link class="dropdown-item" to="/api-docs">
+                    <i class="bi bi-code-slash me-1"></i>API Docs
+                  </router-link>
+                </li>-->
                 <hr class="dropdown-divider">
                 <li>
                   <button @click="handleLogout" class="dropdown-item text-danger">
-                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    <i class="bi bi-box-arrow-right me-1"></i>Logout
                   </button>
                 </li>
               </ul>
             </li>
-            <!-- Avatar Initiale -->
-<!--            <li class="nav-item d-none d-lg-flex align-items-center">
-              <div class="avatar-circle ms-2">
-                {{ auth.user?.username?.[0]?.toUpperCase() || '?' }}
-              </div>
-            </li>-->
           </template>
+
           <template v-else>
             <li class="nav-item">
               <router-link class="nav-link" to="/login">
-                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
               </router-link>
             </li>
           </template>
@@ -91,15 +127,15 @@
 
 <script setup>
 import { useAuthStore } from '@/stores/auth'
-const auth = useAuthStore()
 import { useRouter } from 'vue-router'
+
+const auth   = useAuthStore()
 const router = useRouter()
 
 function handleLogout() {
   auth.logout()
-  router.push('/')   // Oder '/' je nach Ziel!
+  router.push('/')
 }
-
 </script>
 
 <style scoped>

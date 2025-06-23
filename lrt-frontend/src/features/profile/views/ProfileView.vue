@@ -1,83 +1,97 @@
 <template>
   <div class="profile-wrapper container py-4">
-    <!-- Kopfbereich mit Avatar, Name, Actions -->
-    <div class="profile-header card shadow-sm border-0 rounded-4 mb-4 px-0">
-      <div class="card-body d-flex flex-column flex-md-row align-items-center gap-4 p-4 pb-3">
-        <div class="profile-avatar">
+    <!-- Header Card -->
+    <div class="profile-header card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+      <div class="bg-gradient-header p-4 d-flex flex-column flex-md-row align-items-center gap-4">
+        <!-- Avatar -->
+        <div class="profile-avatar flex-shrink-0">
           <div class="avatar-circle shadow-lg">
             <i class="bi bi-person-circle"></i>
           </div>
         </div>
-        <div class="flex-grow-1 w-100">
-          <h2 class="mb-1 text-gradient fw-bold d-flex align-items-center gap-2 fs-2">
+
+        <!-- Name & Meta -->
+        <div class="flex-grow-1 text-center text-md-start">
+          <h2 class="mb-1 text-gradient fw-bold d-flex align-items-center gap-2 justify-content-center justify-content-md-start">
             {{ profile?.firstName || '' }} {{ profile?.lastName || '' }}
-            <span v-if="profile?.isAdmin" class="badge badge-admin ms-2">Admin</span>
+            <span v-if="profile?.isAdmin" class="badge badge-admin">Admin</span>
           </h2>
-          <div class="text-muted mb-2 d-flex align-items-center gap-3 flex-wrap">
-            <span><i class="bi bi-person"></i> <strong>{{ profile?.username }}</strong></span>
-            <span><i class="bi bi-envelope"></i> {{ profile?.email }}</span>
+          <div class="meta-info text-muted d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start">
+            <span><i class="bi bi-person me-1"></i><strong>{{ profile?.username }}</strong></span>
+            <span><i class="bi bi-envelope me-1"></i>{{ profile?.email }}</span>
           </div>
         </div>
-        <!-- Buttons kompakt, nebeneinander -->
-        <div class="d-flex flex-row gap-2 flex-shrink-0">
-          <button class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm" @click="showEdit = true">
+
+        <!-- Actions -->
+        <div class="action-buttons d-flex gap-2">
+          <button class="btn btn-gradient" @click="showEdit = true">
             <i class="bi bi-pencil"></i> Bearbeiten
           </button>
-          <button class="btn btn-outline-gradient d-flex align-items-center gap-2 shadow-sm" @click="showPassword = true">
+          <button class="btn btn-outline-gradient" @click="showPassword = true">
             <i class="bi bi-key"></i> Passwort ändern
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Lade-Spinner -->
+    <!-- Loading Spinner -->
     <div v-if="loading" class="text-center my-5">
-      <span class="spinner-border text-primary"></span>
+      <div class="spinner-border text-primary" role="status"></div>
     </div>
 
-    <!-- Profil-Details -->
+    <!-- Profile Details Card -->
     <div v-else-if="profile" class="profile-details card shadow-sm rounded-4 border-0">
-      <div class="card-body">
-        <div class="row g-4">
+      <div class="card-body p-4">
+        <div class="row gx-4 gy-3">
+          <!-- Nutzerinformationen -->
           <div class="col-12 col-md-6">
-            <h6 class="mb-2 text-uppercase text-muted small">Nutzerinformationen</h6>
-            <dl class="row mb-0">
-              <dt class="col-5">Benutzername:</dt>
-              <dd class="col-7">{{ profile.username }}</dd>
-              <dt class="col-5">E‑Mail:</dt>
-              <dd class="col-7">{{ profile.email }}</dd>
-              <dt class="col-5">Rolle:</dt>
-              <dd class="col-7">
-                <span class="badge bg-primary-soft text-primary text-capitalize px-3 py-1">{{ profile.isAdmin ? 'Admin' : 'Nutzer' }}</span>
-              </dd>
-            </dl>
+            <div class="section-card p-3">
+              <h5 class="section-title mb-3"><i class="bi bi-info-circle me-2"></i>Nutzer­informationen</h5>
+              <dl class="row mb-0">
+                <dt class="col-5">Benutzername</dt>
+                <dd class="col-7">{{ profile.username }}</dd>
+                <dt class="col-5">E‑Mail</dt>
+                <dd class="col-7">{{ profile.email }}</dd>
+                <dt class="col-5">Rolle</dt>
+                <dd class="col-7">
+                  <span class="badge bg-primary-soft text-primary text-capitalize px-3 py-1">
+                    {{ profile.isAdmin ? 'Admin' : 'Nutzer' }}
+                  </span>
+                </dd>
+              </dl>
+            </div>
           </div>
+          <!-- Persönliche Daten -->
           <div class="col-12 col-md-6">
-            <h6 class="mb-2 text-uppercase text-muted small">Persönlich</h6>
-            <dl class="row mb-0">
-              <dt class="col-5">Vorname:</dt>
-              <dd class="col-7">{{ profile.firstName || '–' }}</dd>
-              <dt class="col-5">Nachname:</dt>
-              <dd class="col-7">{{ profile.lastName || '–' }}</dd>
-            </dl>
+            <div class="section-card p-3">
+              <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Persön­lich</h5>
+              <dl class="row mb-0">
+                <dt class="col-5">Vorname</dt>
+                <dd class="col-7">{{ profile.firstName || '–' }}</dd>
+                <dt class="col-5">Nachname</dt>
+                <dd class="col-7">{{ profile.lastName || '–' }}</dd>
+              </dl>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Fehler-Status -->
+    <!-- Error State -->
     <div v-else class="alert alert-danger text-center py-4">
       <i class="bi bi-exclamation-triangle me-2"></i>
       Profil konnte nicht geladen werden.
     </div>
 
-    <!-- Modals -->
+    <!-- Profile Edit Modal -->
     <ProfileEditModal
         v-if="showEdit"
         :initial-profile="profile"
         @close="showEdit = false"
         @saved="onProfileSaved"
     />
+
+    <!-- Change Password Modal -->
     <ChangePasswordModal
         v-if="showPassword"
         @close="showPassword = false"
@@ -122,100 +136,107 @@ onMounted(fetchProfile)
 <style scoped>
 .profile-wrapper {
   background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44,62,80,0.07);
-  margin-top: 30px;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.05);
+  margin-top: 2rem;
 }
 .profile-header {
-  background: linear-gradient(90deg,#fafdff 40%,#e7f1fa 100%);
-  border-radius: 1.3rem;
-  box-shadow: 0 3px 16px #3a7bd515;
+  overflow: hidden;
 }
-.profile-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.bg-gradient-header {
+  background: linear-gradient(120deg, #fafdff 30%, #e7f1fa 100%);
 }
 .avatar-circle {
-  width: 82px;
-  height: 82px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg,#388bfd20 50%,#fafdff 100%);
+  background: linear-gradient(135deg, rgba(56, 139, 253,0.2) 50%, #fff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.3rem;
+  font-size: 3rem;
   color: #388bfd;
-  box-shadow: 0 3px 13px #388bfd25;
-}
-.profile-details {
-  margin-top: 16px;
-  background: #fff;
-  border-radius: 1.3rem;
-}
-.badge-admin {
-  background: #388bfd18;
-  color: #1464c7;
-  font-size: 0.99em;
-  letter-spacing: .03em;
-  border-radius: 1.2em;
-  padding: 0.38em 1.15em;
-  font-weight: 600;
-}
-.bg-primary-soft {
-  background: #e7f4ff;
-  color: #2c7be5;
+  box-shadow: 0 4px 16px rgba(56, 139, 253, 0.2);
 }
 .text-gradient {
-  background: linear-gradient(90deg,#388bfd 10%,#38d6ae 90%);
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
-.card {
-  border-radius: 1.3rem;
+.action-buttons .btn {
+  min-width: 0;
+  width: auto;
+  font-size: 0.95rem;
 }
 .btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
   color: #fff;
   font-weight: 600;
   border: none;
-  border-radius: 1.2em;
-  padding: 8px 22px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s;
-  min-width: 0;
-  width: auto;
+  border-radius: 1.2rem;
+  padding: 0.6rem 1.4rem;
+  transition: background 0.3s, box-shadow 0.3s;
 }
-.btn-gradient:hover, .btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #00d2ff, #3a7bd5 70%);
 }
 .btn-outline-gradient {
   border: 2px solid #3a7bd5;
   color: #3a7bd5;
   background: #fafdff;
   font-weight: 500;
-  border-radius: 1.2em;
-  transition: background 0.15s, color 0.15s;
-  min-width: 0;
-  width: auto;
+  border-radius: 1.2rem;
+  padding: 0.5rem 1.2rem;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
-.btn-outline-gradient:hover, .btn-outline-gradient:focus {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
+.btn-outline-gradient:hover {
+  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
   color: #fff;
 }
-@media (max-width: 700px) {
-  .profile-header, .profile-details, .profile-wrapper { padding: 10px 2px !important; }
-  .profile-header { flex-direction: column !important; }
-  .avatar-circle { width: 65px; height: 65px; font-size: 2.4rem; }
-  /* Buttons untereinander auf Mobile */
-  .profile-header .d-flex.flex-row {
-    flex-direction: column !important;
-    width: 100%;
-    gap: 9px !important;
-    margin-top: 6px;
+.badge-admin {
+  background: rgba(56, 139, 253, 0.15);
+  color: #1464c7;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  border-radius: 1rem;
+  padding: 0.25em 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.meta-info span {
+  display: inline-flex;
+  align-items: center;
+}
+.profile-details {
+  background: #fff;
+  margin-bottom: 2rem;
+}
+.section-card {
+  background: #f8fafc;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(58, 123, 213, 0.08);
+}
+.section-title {
+  font-size: 1rem;
+  color: #3a7bd5;
+  font-weight: 600;
+}
+.dl dt {
+  font-weight: 600;
+}
+.badge.bg-primary-soft {
+  background: #e7f4ff;
+}
+.badge.bg-primary-soft.text-primary {
+  color: #2c7be5;
+}
+@media (max-width: 768px) {
+  .meta-info {
+    justify-content: center !important;
+    text-align: center;
+  }
+  .action-buttons {
+    justify-content: center;
   }
 }
 </style>

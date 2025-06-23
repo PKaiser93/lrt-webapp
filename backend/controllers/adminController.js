@@ -8,12 +8,45 @@ const Computer = require('../models/Computer');
 const Betriebssystem = require('../models/Betriebssystem');
 const Kategorie = require('../models/Kategorie');
 const Student = require('../models/Student');
+const AppSetting   = require('../models/AppSetting')
+const FeatureFlag  = require('../models/FeatureFlag')
 const mongoose = require('mongoose');
 
 // Hilfsfunktion: Random-Password
 const randomPassword = () => Math.random().toString(36).slice(-10);
 
-const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req,res,next)).catch(next)
+
+exports.getSettings = asyncHandler(async (req, res) => {
+    const maintenance = await AppSetting.findOne({ key: 'maintenanceMode' })
+    const flags       = await FeatureFlag.find().lean()
+    res.json({
+        maintenanceMode: maintenance?.value || false,
+        featureFlags: flags
+    })
+})
+
+exports.updateMaintenance = asyncHandler(async (req, res) => {
+    const { enabled } = req.body
+    const upd = await AppSetting.findOneAndUpdate(
+        { key: 'maintenanceMode' },
+        { value: !!enabled },
+        { upsert: true, new: true }
+    )
+    res.json({ maintenanceMode: upd.value })
+})
+
+exports.updateFlag = asyncHandler(async (req, res) => {
+    const { name } = req.params
+    const { enabled } = req.body
+    const flag = await FeatureFlag.findOneAndUpdate(
+        { name },
+        { enabled: !!enabled },
+        { new: true }
+    )
+    if (!flag) return res.status(404).json({ error: 'Feature-Flag nicht gefunden' })
+    res.json(flag)
+})
 
 exports.backupDatabase = asyncHandler(async (req, res) => {
     // Verzeichnis für Backups (env oder Standard)
@@ -33,6 +66,48 @@ exports.backupDatabase = asyncHandler(async (req, res) => {
         message: 'Backup erfolgreich erstellt',
         path: outPath
     });
+});
+
+// --- ADMIN: Letzte Backup ---
+exports.getBackup = asyncHandler(async (req, res) => {
+    // Verzeichnis, in dem deine Backups liegen
+    const backupDir = process.env.BACKUP_DIR || path.resolve(__dirname, '../backups');
+
+    try {
+        // Prüfen, ob das Verzeichnis existiert
+        await fs.promises.access(backupDir);
+
+        // alle Einträge (Dateien/Ordner) einlesen
+        const entries = await fs.promises.readdir(backupDir);
+        if (entries.length === 0) {
+            return res.status(404).json({ error: 'Keine Backups vorhanden' });
+        }
+
+        // mtime aller Einträge ermitteln
+        const stats = await Promise.all(
+            entries.map(async name => {
+                const fullPath = path.join(backupDir, name);
+                const st = await fs.promises.stat(fullPath);
+                return { name, mtime: st.mtime };
+            })
+        );
+
+        // Eintrag mit dem neuesten mtime finden
+        stats.sort((a, b) => b.mtime - a.mtime);
+        const latest = stats[0];
+
+        // Antwort
+        res.json({
+            filename: latest.name,
+            timestamp: latest.mtime.toISOString()
+        });
+    } catch (err) {
+        console.error('Error in getBackup:', err);
+        if (err.code === 'ENOENT') {
+            return res.status(404).json({ error: 'Backup-Verzeichnis nicht gefunden' });
+        }
+        res.status(500).json({ error: 'Fehler beim Abrufen des letzten Backups' });
+    }
 });
 
 // --- ADMIN: Statistiken ---

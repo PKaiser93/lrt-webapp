@@ -29,7 +29,7 @@
     <div v-else>
       <div v-if="computerStore.error" class="alert alert-danger mb-3">{{ computerStore.error }}</div>
       <div class="table-responsive shadow-sm rounded-4">
-        <table class="table table-hover align-middle mb-0 table-striped text-center">
+        <table class="table table-striped table-hover align-middle">
           <thead class="table-light">
           <tr>
             <th @click="sortBy('dnsName')" style="cursor:pointer">

@@ -7,23 +7,42 @@
           <span class="visually-hidden">Lade...</span>
         </div>
       </div>
+
       <!-- Fehleranzeige -->
       <div v-else-if="error" class="alert alert-danger">
         <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
       </div>
+
       <!-- Computer-Daten -->
       <div v-else-if="computer">
-        <!-- Kopfzeile mit Typ, QR und Status -->
+        <!-- Kopfzeile mit Typ, Barcode und Status -->
         <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
           <i class="bi bi-pc-display fs-2 text-primary"></i>
           <h2 class="mb-0 text-gradient fw-bold">
-            {{ computer.marke || 'Unbekannt' }}
-            <span v-if="computer.typ" class="badge bg-light text-secondary ms-2 fs-6">{{ computer.typ }}</span>
+            {{ displayValue(computer.marke) }}
+            <span v-if="computer.typ" class="badge bg-light text-secondary ms-2 fs-6">
+              {{ displayValue(computer.typ) }}
+            </span>
           </h2>
-          <div v-if="computer.seriennummer" class="mb-2">
+          <!-- Barcode + Download -->
+          <div v-if="computer.seriennummer" class="mb-2 d-flex align-items-center">
             <svg ref="barcodeSvg"></svg>
+            <button
+                class="btn btn-sm btn-outline-secondary ms-2"
+                @click="downloadBarcode"
+                title="Barcode herunterladen"
+            >
+              <i class="bi bi-download"></i>
+            </button>
+            <button
+                class="btn btn-sm btn-outline-secondary ms-1"
+                @click="downloadBarcodeSvg"
+                title="SVG herunterladen"
+            >
+              <i class="bi bi-filetype-svg"></i>
+            </button>
           </div>
-          <!-- Status-Badge farbig -->
+          <!-- Status-Badge -->
           <span
               v-if="computer.status"
               class="badge status-badge ms-2"
@@ -34,7 +53,7 @@
           </span>
         </div>
 
-        <!-- Dokumente-Bereich (schönes UI) -->
+        <!-- Dokumente-Bereich -->
         <div class="mb-4">
           <h5 class="section-title"><i class="bi bi-folder2-open me-2"></i>Dokumente</h5>
           <div v-if="documents.length">
@@ -69,43 +88,34 @@
             </ul>
           </div>
           <div v-else class="text-muted mb-2">Keine Dokumente vorhanden.</div>
-          <!-- Upload-Formular -->
-          <form @submit.prevent="uploadDocs" class="d-flex align-items-center gap-2 mt-2">
-            <input
-                type="file"
-                ref="fileInput"
-                multiple
-                class="form-control form-control-sm"
-                style="max-width: 330px"
-                @change="onFileChange"
-                accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx"
-            />
-            <button class="btn btn-sm btn-success" type="submit" :disabled="!files.length">
-              <i class="bi bi-upload me-1"></i> Hochladen
-            </button>
-          </form>
         </div>
 
-        <!-- Blöcke: Allgemein, Hardware, Netzwerk, System/Kategorie, Nutzer/Betreuung, Termine/Aufgaben -->
+        <!-- Detail-Blöcke -->
         <div class="row g-4">
-          <!-- Allgemein -->
           <div class="col-md-6">
             <div class="section-card">
               <h5 class="section-title"><i class="bi bi-info-circle me-2"></i>Allgemein</h5>
               <ul class="list-group list-group-flush">
-                <li v-for="key in ['marke','typ','laufendeNummer','inventarnummer','fauInventarnummer','beschaffungsjahr','wannErsetzen','seriennummer']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['marke','typ','laufendeNummer','inventarnummer','fauInventarnummer','beschaffungsjahr','wannErsetzen','seriennummer']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
               </ul>
             </div>
           </div>
-          <!-- Hardware -->
           <div class="col-md-6">
             <div class="section-card">
               <h5 class="section-title"><i class="bi bi-cpu me-2"></i>Hardware</h5>
               <ul class="list-group list-group-flush">
-                <li v-for="key in ['cpu','ram','hddssd','grafikkarte','chipsatz','tpm','bios']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['cpu','ram','hddssd','grafikkarte','chipsatz','tpm','bios']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
@@ -115,32 +125,44 @@
         </div>
 
         <div class="row g-4 mt-2">
-          <!-- Netzwerk & Remote -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-wifi me-2"></i>Netzwerk & Remote</h5>
+              <h5 class="section-title"><i class="bi bi-wifi me-2"></i>Netzwerk &amp; Remote</h5>
               <ul class="list-group list-group-flush">
-                <li v-for="key in ['dnsName','ipAdresse','macAdresse','dhcp','remote']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['dnsName','ipAdresse','macAdresse','dhcp','remote']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
               </ul>
             </div>
           </div>
-          <!-- System & Kategorie -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-windows me-2"></i>System & Kategorie</h5>
+              <h5 class="section-title"><i class="bi bi-windows me-2"></i>System &amp; Kategorie</h5>
               <ul class="list-group list-group-flush">
-                <li>
+                <li class="list-group-item">
                   <strong>Betriebssystem:</strong>
-                  <span class="ms-2"><i class="bi bi-windows"></i> {{ computer.betriebssystem?.name || '–' }}</span>
+                  <span class="ms-2">
+                    <i class="bi bi-windows"></i>
+                    {{ displayValue(stripQuotes(computer.betriebssystem?.name)) }}
+                  </span>
                 </li>
-                <li>
+                <li class="list-group-item">
                   <strong>Kategorie:</strong>
-                  <span class="ms-2"><i class="bi bi-tags"></i> {{ computer.kategorie?.bezeichnung || '–' }}</span>
+                  <span class="ms-2">
+                    <i class="bi bi-tags"></i>
+                    {{ displayValue(stripQuotes(computer.kategorie?.bezeichnung)) }}
+                  </span>
                 </li>
-                <li v-for="key in ['version','abstraktionsebene','artDerArbeit']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['version','abstraktionsebene','artDerArbeit']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
@@ -150,28 +172,61 @@
         </div>
 
         <div class="row g-4 mt-2">
-          <!-- Nutzer & Betreuung -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-person me-2"></i>Nutzer & Betreuung</h5>
+              <h5 class="section-title"><i class="bi bi-person me-2"></i>Nutzer &amp; Betreuung</h5>
               <ul class="list-group list-group-flush">
-                <li v-for="key in ['benutzer','idmKennung','betreuer','raumnummer','studPCs','studienzuschuss']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['benutzer','idmKennung','betreuer','raumnummer','studPCs','studienzuschuss']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
               </ul>
             </div>
           </div>
-          <!-- Termine, Aufgaben, Infos -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-calendar3 me-2"></i>Aufgaben & Notizen</h5>
+              <h5 class="section-title"><i class="bi bi-calendar3 me-2"></i>Aufgaben &amp; Notizen</h5>
               <ul class="list-group list-group-flush">
-                <li v-for="key in ['startdatum','abgabe','todo','ablauf','info']" :key="key" class="list-group-item">
+                <li
+                    v-for="key in ['startdatum','abgabe','todo','ablauf','info']"
+                    :key="key"
+                    class="list-group-item"
+                >
                   <strong>{{ fieldLabels[key] }}:</strong>
                   <span class="ms-2">{{ displayValue(computer[key]) }}</span>
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload-Card -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="section-card bg-light upload-card">
+              <h5 class="section-title"><i class="bi bi-cloud-upload me-2"></i>Neue Dokumente hochladen</h5>
+              <form @submit.prevent="uploadDocs" class="d-flex align-items-center gap-2">
+                <input
+                    type="file"
+                    ref="fileInput"
+                    multiple
+                    class="form-control form-control-sm"
+                    style="max-width: 330px"
+                    @change="onFileChange"
+                    accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx"
+                />
+                <button
+                    class="btn btn-sm btn-success d-flex align-items-center"
+                    type="submit"
+                    :disabled="!files.length"
+                >
+                  <i class="bi bi-upload me-1"></i> Hochladen
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -192,7 +247,8 @@
           </router-link>
         </div>
       </div>
-      <!-- Fallback falls Computer nicht gefunden -->
+
+      <!-- Fallback: nicht gefunden -->
       <div v-else class="alert alert-secondary">
         <i class="bi bi-question-circle me-2"></i>Computer nicht gefunden.
       </div>
@@ -214,7 +270,67 @@ const isLoading = ref(true)
 const barcodeSvg = ref(null)
 const error = ref('')
 
-// Status UI-Mapping (Badge/Icon/Label)
+const documents = ref([])
+const files = ref([])
+const fileInput = ref(null)
+const id = route.params.id
+
+const downloadBarcode = () => {
+  const svgEl = barcodeSvg.value;
+  if (!svgEl) return;
+
+  // 1. SVG serialisieren
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svgEl);
+  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  // 2. Bild laden
+  const img = new Image();
+  img.onload = () => {
+    // 3. Canvas in höherer Auflösung anlegen
+    const scale = 4;                         // 4× Auflösung
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext('2d');
+
+    // 4. Canvas skalieren, dann zeichnen
+    ctx.scale(scale, scale);
+    ctx.drawImage(img, 0, 0);
+
+    URL.revokeObjectURL(url);
+
+    // 5. PNG exportieren
+    const pngUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = pngUrl;
+    a.download = `${computer.value.seriennummer}@${scale}x.png`;
+    a.click();
+  };
+  img.src = url;
+};
+
+const downloadBarcodeSvg = () => {
+  const svgEl = barcodeSvg.value;
+  if (!svgEl) return;
+
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svgEl);
+  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${computer.value.seriennummer}.svg`;
+  a.click();
+
+  // Optional: URL wieder freigeben
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+
+// Status UI‑Mapping
 const statusLabel = s =>
     ({ in_betrieb: 'In Betrieb', bald_ersetzen: 'Bald ersetzen', ausser_betrieb: 'Außer Betrieb' }[s] || s)
 const statusClass = s =>
@@ -222,12 +338,7 @@ const statusClass = s =>
 const statusIcon = s =>
     ({ in_betrieb: 'bi bi-check-circle', bald_ersetzen: 'bi bi-exclamation-circle', ausser_betrieb: 'bi bi-x-octagon' }[s] || 'bi bi-circle')
 
-// Dokument-Upload, -List, -Delete
-const documents = ref([])
-const files = ref([])
-const fileInput = ref(null)
-const id = route.params.id
-
+// Dokumente laden
 const loadDocs = async () => {
   try {
     const res = await http.get(`/computer/${id}/documents`)
@@ -236,9 +347,10 @@ const loadDocs = async () => {
     documents.value = []
   }
 }
-const onFileChange = e => {
-  files.value = Array.from(e.target.files)
-}
+
+// Upload und Delete
+const onFileChange = e => files.value = Array.from(e.target.files)
+
 const uploadDocs = async () => {
   if (!files.value.length) return
   const formData = new FormData()
@@ -254,7 +366,7 @@ const uploadDocs = async () => {
   }
 }
 
-const deleteDoc = async (doc) => {
+const deleteDoc = async doc => {
   const filename = typeof doc === 'string' ? doc : doc.filename
   if (!confirm(`Datei "${filename}" wirklich löschen?`)) return
   try {
@@ -266,31 +378,24 @@ const deleteDoc = async (doc) => {
   }
 }
 
+const downloadUrl = doc =>
+    `/computer/${id}/documents/${encodeURIComponent(typeof doc === 'string' ? doc : doc.filename)}`
 
-// Download-Link (je nach API ggf. Prefix anpassen!)
-const downloadUrl = doc => `/computer/${id}/documents/${encodeURIComponent(typeof doc === 'string' ? doc : doc.filename)}`
-
-
-// Dateinamen kürzen für bessere Lesbarkeit
 function truncate(str, len = 32) {
   if (str.length <= len) return str
   return str.slice(0, len - 7) + '...' + str.slice(-7)
 }
-// Icon je nach Dateityp
+
 function iconForFile(doc) {
-  // doc kann entweder String oder Objekt sein!
   const filename = typeof doc === 'string' ? doc : doc.filename
-  if (!filename || typeof filename !== 'string') return 'bi bi-file-earmark'
-  const ext = filename.split('.').pop().toLowerCase()
+  const ext = (filename || '').split('.').pop().toLowerCase()
   if (['pdf'].includes(ext)) return 'bi bi-file-earmark-pdf text-danger'
-  if (['jpg', 'jpeg', 'png'].includes(ext)) return 'bi bi-file-image text-info'
-  if (['doc', 'docx'].includes(ext)) return 'bi bi-file-earmark-word text-primary'
-  if (['xls', 'xlsx'].includes(ext)) return 'bi bi-file-earmark-excel text-success'
+  if (['jpg','jpeg','png'].includes(ext)) return 'bi bi-file-image text-info'
+  if (['doc','docx'].includes(ext)) return 'bi bi-file-earmark-word text-primary'
+  if (['xls','xlsx'].includes(ext)) return 'bi bi-file-earmark-excel text-success'
   return 'bi bi-file-earmark'
 }
 
-
-// Labels für alle Felder (1:1 Copy aus deinem Modell)
 const fieldLabels = {
   seriennummer:        'Seriennummer',
   marke:               'Marke',
@@ -329,13 +434,17 @@ const fieldLabels = {
   todo:                'ToDo',
   ablauf:              'Ablauf'
 }
-// Hilfsfunktion: Null/leer als Strich
+
 function displayValue(val) {
   if (val === null || val === undefined || val === '') return '–'
   return val
 }
 
-// Initialdaten laden
+function stripQuotes(str) {
+  if (!str || typeof str !== 'string') return str
+  return str.replace(/^['"](.+)['"]$/, '$1')
+}
+
 onMounted(async () => {
   isLoading.value = true
   error.value     = ''
@@ -353,12 +462,21 @@ onMounted(async () => {
   if (computer.value?.seriennummer && barcodeSvg.value) {
     JsBarcode(barcodeSvg.value, computer.value.seriennummer, {
       format: "CODE128",
-      width: 2,
-      height: 48,
-      displayValue: true
+      width: 2.5,             // etwas breitere Striche
+      height: 60,             // höhere Bars für mehr Präsenz
+      displayValue: true,
+      fontOptions: "bold",    // fette Schrift
+      fontSize: 14,           // größere Schrift
+      textAlign: "center",    // zentrierter Text
+      textPosition: "bottom", // Text unter den Bars
+      textMargin: 8,          // Abstand Text ↔ Bars
+      margin: 12,             // Außenabstand um den Barcode
+      lineColor: "#333",      // dunkles Grau statt Schwarz
+      background: "#fff"      // weißer Hintergrund
     })
   }
 })
+
 </script>
 
 <style scoped>
@@ -429,10 +547,19 @@ onMounted(async () => {
   color: #fff;
   border: 2px solid #22a6b3;
 }
-/* Status-Badge eigene Farben */
 .status-badge.bg-success { background: #50d285 !important; color: #fff !important; }
 .status-badge.bg-warning { background: #ffc107 !important; color: #111 !important; }
 .status-badge.bg-danger  { background: #ff6b6b !important; color: #fff !important; }
-/* Dateinamen-Formatierung */
 .filename { font-size: 1.03em; word-break: break-all; }
+.upload-card {
+  background-color: #e9ecef;
+  padding: 1rem;
+}
+/* Barcode zentrieren und nicht zu groß werden lassen */
+svg[ref="barcodeSvg"] {
+  display: block;
+  margin: 0.5rem auto;
+  max-width: 100%;
+}
+
 </style>

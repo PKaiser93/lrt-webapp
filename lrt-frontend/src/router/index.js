@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useSettingsStore } from '@/stores/settings'
 
 const routes = [
     { path: '/', component: () => import('@/views/Welcome.vue') },
+    { path: '/maintenance', component: () => import('@/views/Maintenance.vue') },
     { path: '/login', component: () => import('@/views/LoginForm.vue') },
+    { path: '/documentation', component: () => import('@/features/docs/DocumentationHub.vue') },
+    { path: '/api-docs',     component: () => import('@/views/SwaggerView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
     {
         path: '/profile',
         component: () => import('@/features/profile/views/ProfileView.vue'),
@@ -27,11 +31,11 @@ const routes = [
     {
         path: '/computer/:id',
         name: 'ComputerDetail',
-        component: () => import('@/features/computer/views/ComputerDetail.vue'),
+        component: () => import('@/features/computer/views/ComputerDetail.vue')
     },
     {
         path: '/computer/:id/edit',
-        component: () => import('@/features/computer/views/ComputerEdit.vue'),
+        component: () => import('@/features/computer/views/ComputerEdit.vue')
     },
     {
         path: '/computer/neu',
@@ -67,12 +71,12 @@ const routes = [
     },
     {
         path: '/kategorie/neu',
-        component: () => import('@/features/kategorie/views/old/KategorieCreate.vue'),
+        component: () => import('@/features/kategorie/components/KategorieForm.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/kategorie/:id',
-        component: () => import('@/features/kategorie/views/old/KategorieCreate.vue'),
+        component: () => import('@/features/kategorie/components/KategorieForm.vue'),
         meta: { requiresAuth: true }
     },
     {
@@ -106,7 +110,12 @@ const routes = [
     },
     {
         path: '/admin',
-        component: () => import('@/views/AdminDashboard.vue'),
+        component: () => import('@/features/admin/views/AdminDashboard.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/settings',
+        component: () => import('@/features/admin/views/AdminSettings.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {
@@ -121,19 +130,30 @@ const router = createRouter({
     routes
 })
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
-    const auth = useAuthStore()
+router.beforeEach(async (to, from, next) => {
+    const auth     = useAuthStore()
+    const isAdmin  = Boolean(auth.user?.isAdmin)
+    const settings = useSettingsStore()
 
+    // 1) Einmalig die Einstellungen laden
+    await settings.fetch()
+
+    // 2) Maintenance‑Mode: Normale Nutzer umleiten
+    if (settings.maintenanceMode && !isAdmin && to.path !== '/maintenance') {
+        return next({ path: '/maintenance' })
+    }
+
+    // 3) Authentifizierung prüfen
     if (to.meta.requiresAuth && !auth.token) {
-        next({ path: '/login', query: { redirect: to.fullPath } })
+        return next({ path: '/login', query: { redirect: to.fullPath } })
     }
-    else if (to.meta.requiresAdmin && !auth.user?.isAdmin) {
-        next('/home')
+
+    // 4) Admin‑Recht prüfen
+    if (to.meta.requiresAdmin && !isAdmin) {
+        return next('/home')
     }
-    else {
-        next()
-    }
+
+    next()
 })
 
 export default router

@@ -19,6 +19,12 @@ router.patch('/users/reset-password/:id', requireAuth, requireAdmin, admin.reset
 router.patch('/users/toggle-admin/:id', requireAuth, requireAdmin, admin.toggleAdmin);
 
 // ** neu: One‑Click Backup **
+router.get('/backup/last',          requireAuth, requireAdmin, admin.getBackup);
 router.post('/backup',          requireAuth, requireAdmin, admin.backupDatabase);
+
+router.get   ('/settings',               requireAuth, requireAdmin, admin.getSettings)
+router.patch ('/settings/maintenance',   requireAuth, requireAdmin, admin.updateMaintenance)
+router.patch ('/settings/flag/:name',    requireAuth, requireAdmin, admin.updateFlag)
+
 
 module.exports = router;

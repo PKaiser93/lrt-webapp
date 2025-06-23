@@ -4,7 +4,10 @@
       <h2 class="mb-0 text-gradient fw-bold">
         <i class="bi bi-trash3 me-2"></i> Gelöschte Kategorien
       </h2>
-      <button class="btn btn-danger d-flex align-items-center gap-2 shadow-sm rounded-pill" @click="deleteAll">
+      <button
+          class="btn btn-danger d-flex align-items-center gap-2 shadow-sm rounded-pill"
+          @click="deleteAll"
+      >
         <i class="bi bi-trash-fill"></i> Alle endgültig löschen
       </button>
     </div>
@@ -29,17 +32,25 @@
               <span v-else class="fst-italic text-secondary">–</span>
             </td>
             <td>
-                <span class="badge shadow-sm px-2 d-inline-flex align-items-center gap-1"
-                      :style="{ backgroundColor: k.farbe, color: colorForBadge(k.farbe) }">
+                <span
+                    class="badge shadow-sm px-2 d-inline-flex align-items-center gap-1"
+                    :style="{ backgroundColor: k.farbe, color: colorForBadge(k.farbe) }"
+                >
                   <i class="bi bi-droplet-half"></i>
                   {{ k.farbe }}
                 </span>
             </td>
             <td>
-                <span v-if="k.deleted" class="badge bg-danger-subtle text-danger d-inline-flex align-items-center gap-1">
+                <span
+                    v-if="k.deleted"
+                    class="badge bg-danger-subtle text-danger d-inline-flex align-items-center gap-1"
+                >
                   <i class="bi bi-trash3"></i> Gelöscht
                 </span>
-              <span v-else class="badge bg-success-subtle text-success d-inline-flex align-items-center gap-1">
+              <span
+                  v-else
+                  class="badge bg-success-subtle text-success d-inline-flex align-items-center gap-1"
+              >
                   <i class="bi bi-check-circle"></i> Aktiv
                 </span>
             </td>
@@ -78,9 +89,10 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useToastStore } from '@/stores/toast'
 import http from '@/api/http'
-import { showToast } from '@/utils/toast'
 
+const toast = useToastStore()
 const kategorien = ref([])
 
 const load = async () => {
@@ -88,17 +100,17 @@ const load = async () => {
     const res = await http.get('/kategorie/trash/list')
     kategorien.value = res.data
   } catch {
-    showToast('Fehler beim Laden des Papierkorbs', 'danger')
+    toast.show('Fehler beim Laden des Papierkorbs', 'danger')
   }
 }
 
 const restore = async (id) => {
   try {
     await http.patch(`/kategorie/${id}/restore`)
-    showToast('✔️ Kategorie wiederhergestellt')
+    toast.show('Kategorie wiederhergestellt', 'success')
     await load()
   } catch {
-    showToast('❌ Fehler beim Wiederherstellen', 'danger')
+    toast.show('Fehler beim Wiederherstellen', 'danger')
   }
 }
 
@@ -106,34 +118,35 @@ const deleteAll = async () => {
   if (!confirm('Wirklich alle gelöschten Kategorien endgültig löschen?')) return
   try {
     const res = await http.delete('/kategorie/trash')
-    showToast(res.data.message)
+    toast.show(res.data.message, 'success')
     await load()
   } catch {
-    showToast('❌ Fehler beim endgültigen Löschen', 'danger')
+    toast.show('Fehler beim endgültigen Löschen', 'danger')
   }
 }
 
-// Eintrag endgültig löschen
 const deleteSingle = async (id) => {
   if (!confirm('Wirklich diese Kategorie endgültig löschen?')) return
   try {
     await http.delete(`/kategorie/${id}`)
-    showToast('Kategorie dauerhaft gelöscht', 'success')
+    toast.show('Kategorie dauerhaft gelöscht', 'success')
     await load()
   } catch {
-    showToast('❌ Fehler beim endgültigen Löschen', 'danger')
+    toast.show('Fehler beim endgültigen Löschen', 'danger')
   }
 }
 
 // Dynamisch kontrastierende Farbe für Badge
 function colorForBadge(hex) {
-  if (!hex) return "#333"
-  let c = hex.replace("#", "")
-  if (c.length === 3) c = c.split('').map(x=>x+x).join('')
+  if (!hex) return '#333'
+  let c = hex.replace('#', '')
+  if (c.length === 3) c = c.split('').map(x => x + x).join('')
   const rgb = parseInt(c, 16)
-  const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = rgb & 0xff
-  const luminance = 0.2126*r + 0.7152*g + 0.0722*b
-  return luminance > 140 ? "#111" : "#fff"
+  const r = (rgb >> 16) & 0xff,
+      g = (rgb >> 8) & 0xff,
+      b = rgb & 0xff
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return luminance > 140 ? '#111' : '#fff'
 }
 
 onMounted(load)
@@ -150,8 +163,6 @@ onMounted(load)
   background: linear-gradient(90deg, #ff9360 10%, #388bfd 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
 .card {
   border-radius: 1.3rem;
