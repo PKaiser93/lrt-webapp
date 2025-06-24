@@ -11,8 +11,7 @@
           class="btn btn-primary d-flex align-items-center gap-sm"
           title="Neuen Computer anlegen"
       >
-        <i class="bi bi-plus-circle"></i>
-         Neuen Computer anlegen
+        <i class="bi bi-plus-circle"></i> &nbsp; Neuen Computer anlegen
       </router-link>
     </div>
 

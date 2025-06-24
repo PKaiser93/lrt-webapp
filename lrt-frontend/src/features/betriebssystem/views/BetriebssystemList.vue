@@ -10,14 +10,8 @@
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-primary d-flex align-items-center gap-2" @click="openForm()">
-          <i class="bi bi-plus-circle"></i>
+          <i class="bi bi-plus-circle"></i>&nbsp;Neues OS anlegen
         </button>
-        <router-link
-            to="/betriebssystem/trash"
-            class="btn btn-outline d-flex align-items-center gap-2"
-        >
-          <i class="bi bi-trash3"></i>
-        </router-link>
       </div>
     </div>
 

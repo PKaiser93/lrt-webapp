@@ -1,17 +1,13 @@
 <template>
   <div class="studentlist-wrapper container py-4">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
       <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
         <i class="bi bi-mortarboard-fill me-2"></i>Studenten
       </h2>
       <!-- Neu anlegen Button mit Label -->
-      <button
-          class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm"
-          @click="openForm()"
-      >
-        <i class="bi bi-person-plus"></i>
-        Neu anlegen
+      <button class="btn btn-primary d-flex align-items-center gap-2" @click="openForm()">
+        <i class="bi bi-plus-circle"></i>&nbsp;Neuen Studenten anlegen
       </button>
     </div>
 
@@ -192,10 +188,11 @@ onMounted(fetchStudents)
 
 <style scoped>
 .studentlist-wrapper {
-  background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.07);
-  margin-top: 30px;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
 }
 
 .mb-4:last-of-type {
@@ -203,27 +200,47 @@ onMounted(fetchStudents)
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  background: linear-gradient(90deg, var(--clr-primary-start), var(--clr-primary-end));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.btn-gradient {
-  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
-  color: #fff;
-  border: none;
+/* Tabelle: kompakt, klare Linien */
+.table {
+  width: 100%;
+  border-collapse: collapse;
 }
-
-.table-responsive {
-  border-radius: 1.3rem;
-  overflow: hidden;
+.table thead th {
+  background: var(--clr-card-bg);
+  border-bottom: 2px solid var(--clr-border);
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 600;
+  text-align: left;
 }
-
-.table-light th {
-  background: #f1f5fa;
+.table tbody td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--clr-border);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: rgba(79,147,255,0.05);
 }
 
 .shadow-sm {
   box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+@media (max-width: 700px) {
+  .studentlist-wrapper {
+    padding: var(--space-sm);
+  }
+  .table thead th,
+  .table tbody td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--fs-xs);
+  }
 }
 </style>

@@ -278,13 +278,13 @@ const form = ref({
 })
 
 const tabs = [
-  { key: 'info',  label: 'Geräte‑Info',     icon: 'bi bi-cpu' },
-  { key: 'os',    label: 'Betriebssystem',   icon: 'bi bi-windows' },
-  { key: 'net',   label: 'Netzwerk',         icon: 'bi bi-diagram-3' },
-  { key: 'user',  label: 'Benutzer',         icon: 'bi bi-person-circle' },
-  { key: 'proc',  label: 'Beschaffung',      icon: 'bi bi-bag' },
-  { key: 'kat',   label: 'Kategorie',        icon: 'bi bi-tag' },
-  { key: 'other', label: 'Sonstiges',        icon: 'bi bi-info-circle' },
+  { key: 'info',  label: 'Hardware',          icon: 'bi bi-cpu' },
+  { key: 'os',    label: 'OS',                icon: 'bi bi-windows' },
+  { key: 'net',   label: 'Netzwerk',          icon: 'bi bi-diagram-3' },
+  { key: 'user',  label: 'Benutzer',          icon: 'bi bi-person-circle' },
+  { key: 'proc',  label: 'Beschaffung',       icon: 'bi bi-bag' },
+  { key: 'kat',   label: 'Kategorie',         icon: 'bi bi-tag' },
+  { key: 'other', label: 'Sonstiges',         icon: 'bi bi-info-circle' },
 ]
 
 const activeTab = ref('info')

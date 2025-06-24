@@ -41,7 +41,7 @@ function kategorieColor(kategorie) {
         >
           <i class="bi bi-eye"></i>
         </router-link>
-
+        &nbsp;
         <!-- Bearbeiten -->
         <router-link
             :to="`/computer/${comp._id}/edit`"
@@ -50,7 +50,7 @@ function kategorieColor(kategorie) {
         >
           <i class="bi bi-pencil"></i>
         </router-link>
-
+        &nbsp;
         <!-- Löschen -->
         <button
             class="btn btn-outline btn-sm"

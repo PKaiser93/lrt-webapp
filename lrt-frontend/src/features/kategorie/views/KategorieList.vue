@@ -6,15 +6,9 @@
         Kategorien
       </h2>
       <div class="d-flex flex-wrap gap-2">
-        <button class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm" @click="openForm()">
-          <i class="bi bi-plus-circle"></i>
+        <button class="btn btn-primary d-flex align-items-center gap-2" @click="openForm()">
+          <i class="bi bi-plus-circle"></i>&nbsp;Neue Kategorie anlegen
         </button>
-        <router-link
-            to="/kategorie/trash"
-            class="btn btn-outline-gradient d-flex align-items-center gap-2 shadow-sm"
-        >
-          <i class="bi bi-trash3"></i>
-        </router-link>
       </div>
     </div>
 
