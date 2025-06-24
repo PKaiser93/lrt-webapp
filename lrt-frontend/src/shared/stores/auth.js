@@ -1,6 +1,6 @@
 // stores/auth.js
 import { defineStore } from 'pinia'
-import http from '@/api/http'
+import http from '@/shared/api/http'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({

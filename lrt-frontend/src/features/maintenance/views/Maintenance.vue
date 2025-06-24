@@ -28,7 +28,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/shared/stores/settings'
 
 const router   = useRouter()
 const settings = useSettingsStore()

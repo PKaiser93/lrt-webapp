@@ -7,7 +7,7 @@
       </h2>
       <button
           class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm"
-          style="min-width: 170px"
+          style="min-width: 170px;"
           @click="newTicket = true"
       >
         <i class="bi bi-plus-circle"></i> Neues Ticket
@@ -39,7 +39,12 @@
     <!-- Filterleiste -->
     <div class="row g-2 align-items-center mb-3">
       <div class="col-auto">
-        <input v-model="search" class="form-control" placeholder="Suchen…" @input="page = 1">
+        <input
+            v-model="search"
+            class="form-control"
+            placeholder="Suchen…"
+            @input="page = 1"
+        />
       </div>
       <div class="col-auto">
         <select v-model="selectedPriority" class="form-select">
@@ -69,7 +74,7 @@
       <div class="card shadow-sm rounded-4 border-0">
         <div class="card-body p-0">
           <table class="table table-hover align-middle mb-0 table-striped">
-            <thead class="table-light">
+            <thead>
             <tr>
               <th>Titel</th>
               <th>Status</th>
@@ -82,9 +87,7 @@
             <tr v-for="t in pagedTickets" :key="t._id">
               <td>{{ t.title }}</td>
               <td>
-                  <span :class="badgeClass(t.status)" class="me-1">
-                    {{ t.status }}
-                  </span>
+                <span :class="['badge', badgeClass(t.status)]">{{ t.status }}</span>
               </td>
               <td>{{ t.assignee?.username || '–' }}</td>
               <td>{{ t.priority }}</td>
@@ -103,16 +106,12 @@
                       @click="toggleStatus(t)"
                       title="Status umschalten"
                   >
-                    <i
-                        :class="t.status === 'closed'
-          ? 'bi bi-box-arrow-in-up-right'
-          : 'bi bi-x-circle'"
-                    ></i>
+                    <i :class="t.status === 'closed' ? 'bi bi-box-arrow-in-up-right' : 'bi bi-x-circle'"></i>
                   </button>
                   <button
                       class="btn btn-sm btn-outline-danger d-inline-flex align-items-center"
-                      title="Löschen"
                       @click="deleteTicket(t)"
+                      title="Löschen"
                   >
                     <i class="bi bi-trash"></i>
                   </button>
@@ -126,7 +125,11 @@
                     :title="emptyTitle"
                     :description="emptyDescription"
                 >
-                  <button v-if="activeTab === 'open'" class="btn btn-gradient mt-3" @click="newTicket = true">
+                  <button
+                      v-if="activeTab === 'open'"
+                      class="btn btn-gradient mt-3"
+                      @click="newTicket = true"
+                  >
                     <i class="bi bi-plus-circle"></i> Ticket anlegen
                   </button>
                 </EmptyState>
@@ -141,7 +144,7 @@
       <nav v-if="totalPages > 1" class="mt-4">
         <ul class="pagination justify-content-center">
           <li class="page-item" :class="{ disabled: page === 1 }">
-            <button class="page-link" @click="page > 1 && (page--)" aria-label="Vorherige">«</button>
+            <button class="page-link" @click="page > 1 && --page" aria-label="Vorherige">«</button>
           </li>
           <li
               class="page-item"
@@ -152,7 +155,7 @@
             <button class="page-link" @click="page = n">{{ n }}</button>
           </li>
           <li class="page-item" :class="{ disabled: page === totalPages }">
-            <button class="page-link" @click="page < totalPages && (page++)" aria-label="Nächste">»</button>
+            <button class="page-link" @click="page < totalPages && ++page" aria-label="Nächste">»</button>
           </li>
         </ul>
       </nav>
@@ -169,11 +172,11 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useToastStore } from '@/stores/toast'
+import { useToastStore } from '@/shared/stores/toast'
 import { useTicketStore } from '@/features/ticket/store/ticketStore'
-import TicketFormModal from '../components/TicketFormModal.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import http from '@/api/http'
+import TicketFormModal from '@/features/ticket/components/TicketFormModal.vue'
+import EmptyState from '@/shared/components/EmptyState.vue'
+import http from '@/shared/api/http'
 
 const store = useTicketStore()
 const toast = useToastStore()
@@ -186,7 +189,6 @@ const users = ref([])
 const page = ref(1)
 const perPage = 12
 
-// Assignees laden (beim ersten Mount)
 onMounted(async () => {
   try {
     const res = await http.get('/admin/users')
@@ -224,11 +226,10 @@ function onSaved() {
   loadTickets()
 }
 
-// Gefilterte Tickets nach Tab, Suchfeld, Filter
 const filteredTickets = computed(() =>
     store.list
         .filter(t => t.status === activeTab.value)
-        .filter(t => !search.value || (t.title?.toLowerCase().includes(search.value.toLowerCase()) || t.assignee?.username?.toLowerCase().includes(search.value.toLowerCase())))
+        .filter(t => !search.value || t.title.toLowerCase().includes(search.value.toLowerCase()))
         .filter(t => !selectedPriority.value || t.priority === selectedPriority.value)
         .filter(t => !selectedAssignee.value || t.assignee?.username === selectedAssignee.value)
 )
@@ -236,26 +237,24 @@ const filteredTickets = computed(() =>
 const pagedTickets = computed(() =>
     filteredTickets.value.slice((page.value - 1) * perPage, page.value * perPage)
 )
-const totalPages = computed(() =>
-    Math.max(1, Math.ceil(filteredTickets.value.length / perPage))
-)
+const totalPages = computed(() => Math.ceil(filteredTickets.value.length / perPage))
 watch([filteredTickets, activeTab], () => { page.value = 1 })
 
-// Empty State Inhalte dynamisch je Tab/Filter
 const emptyTitle = computed(() =>
-    search.value || selectedPriority.value || selectedAssignee.value
+    search.value || selectedPriority.value
         ? 'Keine Treffer'
-        : (activeTab.value === 'open' ? 'Noch keine offenen Tickets' : 'Keine geschlossenen Tickets')
+        : activeTab.value === 'open'
+            ? 'Noch keine offenen Tickets'
+            : 'Keine geschlossenen Tickets'
 )
 const emptyDescription = computed(() =>
-    search.value || selectedPriority.value || selectedAssignee.value
+    search.value || selectedPriority.value
         ? 'Mit den aktuellen Filtern wurden keine Tickets gefunden.'
-        : (activeTab.value === 'open'
+        : activeTab.value === 'open'
             ? 'Lege jetzt dein erstes Ticket an!'
-            : 'Im Moment gibt es keine geschlossenen Tickets.')
+            : 'Im Moment gibt es keine geschlossenen Tickets.'
 )
 
-// Toggle Open/Close in List
 async function toggleStatus(t) {
   try {
     if (t.status === 'closed') {
@@ -270,73 +269,80 @@ async function toggleStatus(t) {
   }
 }
 
-// Badge‑Klasse je Status
 function badgeClass(status) {
   switch (status) {
-    case 'open':         return 'badge bg-success'
-    case 'in-progress':  return 'badge bg-warning text-dark'
-    case 'on-hold':      return 'badge bg-secondary'
-    case 'resolved':     return 'badge bg-info'
-    case 'closed':       return 'badge bg-dark'
-    default:             return 'badge bg-light text-dark'
+    case 'open':        return 'bg-success text-white'
+    case 'in-progress': return 'bg-warning text-dark'
+    case 'on-hold':     return 'bg-secondary text-white'
+    case 'resolved':    return 'bg-info text-white'
+    case 'closed':      return 'bg-dark text-white'
+    default:            return 'bg-light text-dark'
   }
 }
 </script>
 
 <style scoped>
 .ticketlist-wrapper {
-  background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.07);
-  margin-top: 30px;
+  background: var(--clr-card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
 }
-.text-gradient {
-  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+
+/* Tabs */
+.nav-tabs {
+  border-bottom: 1px solid var(--clr-border);
 }
-.card {
-  border-radius: 1.3rem;
-}
-.table-hover > tbody > tr:hover {
-  background: #f0f4fa !important;
-}
-.btn {
-  border-radius: 0.8rem !important;
-}
-.btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  font-weight: 600;
-  border: none;
-  border-radius: 1.2em;
-  padding: 8px 22px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s;
-}
-.btn-gradient:hover, .btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
-}
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
+.nav-tabs .nav-link {
   font-weight: 500;
-  border-radius: 1.2em;
-  transition: background 0.15s, color 0.15s;
-}
-.btn-outline-gradient:hover, .btn-outline-gradient:focus {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
+  color: var(--clr-secondary);
 }
 .nav-tabs .nav-link.active {
+  color: var(--clr-primary-end);
+  background: var(--clr-bg-light);
+  border-color: var(--clr-border) var(--clr-border) var(--clr-bg-light);
+}
+
+/* Tabelle */
+.card {
+  border-radius: var(--radius-lg);
+}
+.table-hover tbody tr:hover {
+  background: rgba(56, 139, 253, 0.05);
+}
+.table thead th {
+  background: var(--clr-bg-light);
+  border-bottom: 2px solid var(--clr-border);
   font-weight: 600;
-  color: #388bfd !important;
-  background: #e7f1ff;
-  border-color: #b6d6ff #b6d6ff #fff;
-  border-bottom: 2px solid #388bfd !important;
+}
+.table tbody td {
+  border-bottom: 1px solid var(--clr-border);
+}
+
+/* Buttons */
+.btn-gradient {
+  /* global btn-gradient */
+}
+.btn-outline-primary,
+.btn-outline-danger {
+  /* global btn-outline */
+}
+
+/* Badges in rows */
+.badge {
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Pagination */
+.pagination .page-link {
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive filter inputs */
+.form-control,
+.form-select {
+  border-radius: var(--radius-sm);
 }
 </style>

@@ -108,8 +108,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 
 const toast = useToastStore()
 
@@ -121,7 +121,7 @@ const emit = defineEmits(['close', 'saved'])
 const form = ref({ ...props.initialProfile })
 const saving = ref(false)
 
-// Sync form when prop changes
+// Form neu setzen, wenn initialProfile sich ändert
 watch(() => props.initialProfile, val => {
   form.value = { ...val }
 }, { immediate: true })
@@ -189,7 +189,7 @@ async function save() {
   font-weight: 500;
   border-radius: 0.8rem;
   padding: 0.45rem 1.1rem;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  transition: background 0.3s, color 0.3s;
 }
 .btn-outline-gradient:hover {
   background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);

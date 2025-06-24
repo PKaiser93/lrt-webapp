@@ -16,7 +16,7 @@
 <script setup>
 import { ref } from 'vue'
 // Du kannst die Version zentral z. B. aus package.json importieren:
-import pkg from '@/../package.json'
+import pkg from '../../../package.json'
 
 const version = pkg.version
 const year    = ref(new Date().getFullYear())

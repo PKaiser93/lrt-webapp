@@ -18,12 +18,12 @@ const randomPassword = () => Math.random().toString(36).slice(-10);
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req,res,next)).catch(next)
 
 exports.getSettings = asyncHandler(async (req, res) => {
-    const maintenance = await AppSetting.findOne({ key: 'maintenanceMode' })
-    const flags       = await FeatureFlag.find().lean()
-    res.json({
-        maintenanceMode: maintenance?.value || false,
-        featureFlags: flags
-    })
+    const setting = await AppSetting.findOne({ key: 'maintenanceMode' })
+    if (setting) {
+        return res.json({ maintenanceMode: Boolean(setting.value) })
+    }
+    // Kein Eintrag → off
+    res.json({ maintenanceMode: false })
 })
 
 exports.updateMaintenance = asyncHandler(async (req, res) => {

@@ -1,11 +1,11 @@
 <template>
   <div class="admin-wrapper container-fluid p-4">
-    <!-- Seite Titel -->
+    <!-- Seiten-Titel -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="fs-3 text-gradient mb-0 d-flex align-items-center gap-2">
+      <h1 class="fs-lg text-gradient mb-0 d-flex align-items-center gap-2">
         <i class="bi bi-speedometer2"></i> Admin Dashboard
       </h1>
-      <button class="btn btn-gradient" @click="createBackup">
+      <button class="btn btn-primary" @click="createBackup">
         <i class="bi bi-hdd-stack-fill"></i> Backup jetzt
       </button>
     </div>
@@ -21,7 +21,7 @@
           <div class="card-body">
             <div class="d-flex align-items-center mb-3">
               <i
-                  class="bi bi-heart-pulse-fill fs-2 me-2"
+                  class="bi bi-heart-pulse-fill fs-xl me-2"
                   :class="health.status === 'ok' ? 'text-success' : 'text-danger'"
               ></i>
               <h5 class="mb-0">System Health</h5>
@@ -44,22 +44,21 @@
         </div>
       </div>
 
-      <!-- Backup Übersicht -->
+      <!-- Backup -->
       <div class="col-lg-4">
         <div class="card status-card h-100 border-primary">
           <div class="card-body d-flex flex-column justify-content-center align-items-center">
-            <i class="bi bi-hdd-stack-fill fs-1 mb-2 text-primary"></i>
+            <i class="bi bi-hdd-stack-fill fs-2 mb-2 text-primary"></i>
             <h5 class="mb-2">Letztes Backup</h5>
             <p v-if="lastBackup" class="mb-1">{{ formattedLastBackup }}</p>
-            <p v-else class="mb-1 text-muted">Kein Backup vorhanden</p>
+            <p v-else class="mb-1 text-muted">Kein Backup</p>
             <button
-                class="btn btn-gradient d-flex align-items-center gap-1 mt-2"
+                class="btn btn-primary mt-2"
                 @click="createBackup"
                 :disabled="savingBackup"
             >
               <span v-if="savingBackup" class="spinner-border spinner-border-sm me-1"></span>
-              <i class="bi bi-hdd-stack-fill"></i>
-              {{ savingBackup ? 'Erstelle …' : 'Backup erstellen' }}
+              Backup erstellen
             </button>
           </div>
         </div>
@@ -70,7 +69,7 @@
         <div class="card status-card h-100 border-info">
           <div class="card-body">
             <div class="d-flex align-items-center mb-3">
-              <i class="bi bi-bar-chart-line-fill fs-2 me-2 text-info"></i>
+              <i class="bi bi-bar-chart-line-fill fs-xl me-2 text-info"></i>
               <h5 class="mb-0">API Monitoring</h5>
             </div>
             <p><strong>Requests:</strong> {{ metrics.totalRequests }}</p>
@@ -89,13 +88,13 @@
       <StatCard icon="bi-mortarboard-fill" title="Studenten" :value="stats.studenten" color="warning" />
     </div>
 
-    <!-- Diagramm & Users -->
+    <!-- Chart & Users -->
     <div class="row g-4">
       <!-- OS‑Verteilung -->
       <div class="col-xl-5">
         <div class="card chart-card h-100">
           <div class="card-body">
-            <h5 class="card-title text-gradient d-flex align-items-center gap-2 mb-3">
+            <h5 class="fs-md text-gradient d-flex align-items-center gap-2 mb-3">
               <i class="bi bi-pie-chart-fill"></i> OS‑Verteilung
             </h5>
             <canvas ref="osChart" class="w-100" style="min-height:280px;"></canvas>
@@ -104,21 +103,21 @@
         </div>
       </div>
 
-      <!-- Users Management -->
+      <!-- Users -->
       <div class="col-xl-7">
         <div class="card table-card h-100">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="card-title text-gradient d-flex align-items-center gap-2 mb-0">
+              <h5 class="fs-md text-gradient d-flex align-items-center gap-2 mb-0">
                 <i class="bi bi-people-fill"></i> Users
               </h5>
-              <button class="btn btn-gradient btn-sm" @click="showAddUser = true">
+              <button class="btn btn-primary btn-sm" @click="showAddUser = true">
                 <i class="bi bi-person-plus-fill"></i> Neu
               </button>
             </div>
             <div class="table-responsive">
               <table class="table table-striped align-middle mb-0">
-                <thead class="table-light">
+                <thead>
                 <tr>
                   <th>Username</th>
                   <th>E‑Mail</th>
@@ -132,9 +131,7 @@
                   <td>{{ u.email }}</td>
                   <td>
                     <i
-                        :class="u.isAdmin
-                          ? 'bi bi-check-circle-fill text-success'
-                          : 'bi bi-x-circle-fill text-secondary'"
+                        :class="u.isAdmin ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle-fill text-secondary'"
                     ></i>
                   </td>
                   <td class="text-end">
@@ -160,13 +157,14 @@
                 </tbody>
               </table>
             </div>
+
             <div
                 v-if="resetPwInfo.pw"
                 class="alert alert-success mt-3 d-flex align-items-center justify-content-between"
             >
               <div><i class="bi bi-key-fill me-2"></i> {{ resetPwInfo.pw }}</div>
-              <div>
-                <button class="btn btn-sm btn-outline-primary me-2" @click="copyPw(resetPwInfo.pw)">
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" @click="copyPw(resetPwInfo.pw)">
                   <i class="bi bi-clipboard"></i>
                 </button>
                 <button class="btn btn-sm btn-close" @click="resetPwInfo = {}"></button>
@@ -182,15 +180,15 @@
       <div class="modal-backdrop fade show"></div>
       <div class="modal fade show d-block">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content rounded-4 shadow-lg overflow-hidden">
+          <div class="modal-content rounded-lg shadow-strong overflow-hidden">
             <form @submit.prevent="addUser">
-              <div class="modal-header border-0 bg-gradient-header text-white">
+              <div class="modal-header border-0 bg-primary text-white">
                 <h5 class="modal-title d-flex align-items-center gap-2">
                   <i class="bi bi-person-plus-fill"></i> Neuer User
                 </h5>
                 <button class="btn-close btn-close-white" @click="showAddUser = false"></button>
               </div>
-              <div class="modal-body p-4">
+              <div class="modal-body py-4 px-3">
                 <div class="mb-3">
                   <label class="form-label">Username</label>
                   <div class="input-group">
@@ -237,15 +235,15 @@
                   <label class="form-check-label" for="isAdmin">Als Admin anlegen</label>
                 </div>
               </div>
-              <div class="modal-footer border-0 px-4 pb-4 d-flex justify-content-end gap-2">
+              <div class="modal-footer border-0 d-flex justify-content-end gap-2">
                 <button
                     type="button"
-                    class="btn btn-outline-gradient"
+                    class="btn btn-outline-secondary"
                     @click="showAddUser = false"
                 >
                   Abbrechen
                 </button>
-                <button type="submit" class="btn btn-gradient">Anlegen</button>
+                <button type="submit" class="btn btn-primary">Anlegen</button>
               </div>
             </form>
           </div>
@@ -258,8 +256,8 @@
 
 <script setup>
 import { ref, onMounted, nextTick, computed } from 'vue'
-import http from '@/api/http.js'
-import { useToastStore } from '@/stores/toast.js'
+import http from '@/shared/api/http.js'
+import { useToastStore } from '@/shared/stores/toast.js'
 import Chart from 'chart.js/auto'
 
 // KPI‐Card
@@ -424,48 +422,23 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Keine Farben oder Abstände mehr hier, alles kommt jetzt aus main.css */
 .admin-wrapper {
-  background: #fafdff;
-  border-radius: 1rem;
-}
-.text-gradient {
-  background: linear-gradient(90deg, #ff9360, #388bfd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
 }
 .status-card {
   border-width: 2px !important;
 }
 .chart-card,
 .table-card {
-  border: 1px solid #e9ecef;
-}
-.bg-gradient-header {
-  background: linear-gradient(120deg, #3a7bd5 0%, #00d2ff 90%);
-}
-.btn-gradient {
-  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
-  color: #fff;
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
-}
-.btn-gradient:hover {
-  opacity: 0.9;
-}
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fff;
-  border-radius: 0.75rem;
-  padding: 0.3rem 0.75rem;
-}
-.spinner-border-sm {
-  width: 1rem;
-  height: 1rem;
+  border: 1px solid var(--clr-border);
 }
 .modal-backdrop {
   z-index: 1050;
 }
-.modal.fade.show.d-block { z-index: 1100; background: transparent; }
+.modal.fade.show.d-block {
+  z-index: 1100;
+  background: transparent;
+}
 </style>

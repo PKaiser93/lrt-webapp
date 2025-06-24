@@ -60,7 +60,7 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import { useTicketStore } from '@/features/ticket/store/ticketStore.js';
-import http from '@/api/http';
+import http from '@/shared/api/http';
 
 const props = defineProps({ ticket: Object });
 const emit  = defineEmits(['close','saved']);

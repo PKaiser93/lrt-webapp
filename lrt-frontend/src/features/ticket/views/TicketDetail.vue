@@ -30,7 +30,9 @@
                   :class="store.current.status === 'closed' ? 'btn-outline-success' : 'btn-outline-danger'"
                   @click="toggleStatus"
               >
-                <i :class="store.current.status === 'closed' ? 'bi bi-box-arrow-in-up-right' : 'bi bi-x-circle'"></i>
+                <i :class="store.current.status === 'closed'
+                  ? 'bi bi-box-arrow-in-up-right'
+                  : 'bi bi-x-circle'"></i>
                 {{ store.current.status === 'closed' ? 'Öffnen' : 'Schließen' }}
               </button>
               <div class="input-group input-group-sm">
@@ -46,13 +48,13 @@
               </div>
             </div>
           </div>
-          <!-- Inner Card für Content -->
-          <div class="card bg-light shadow-sm rounded-4 mb-3 border-0">
+          <!-- Beschreibung -->
+          <div class="card bg-white shadow-sm rounded-4 mb-3 border-1">
             <div class="card-body">
               <p class="mb-0">{{ store.current.description }}</p>
             </div>
           </div>
-          <!-- Badges für Status / Priorität / Assignee -->
+          <!-- Badges -->
           <div class="d-flex flex-wrap align-items-center gap-3">
             <span class="badge" :class="statusClass">
               <i class="bi bi-info-circle-fill me-1"></i>
@@ -78,11 +80,7 @@
             Kommentare ({{ store.current.comments.length }})
           </h5>
           <ul class="list-unstyled mb-0">
-            <li
-                v-for="c in store.current.comments"
-                :key="c._id"
-                class="mb-3 pb-3 border-bottom"
-            >
+            <li v-for="c in store.current.comments" :key="c._id" class="mb-3 pb-3 border-bottom">
               <div class="small text-muted d-flex align-items-center gap-2 mb-1">
                 <i class="bi bi-person-circle"></i>
                 <strong>{{ c.author }}</strong>
@@ -134,10 +132,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useTicketStore } from '@/features/ticket/store/ticketStore'
-import { useAuthStore } from '@/stores/auth'
-import http from '@/api/http'
+import { useAuthStore } from '@/shared/stores/auth'
+import http from '@/shared/api/http'
 import { format } from 'date-fns'
-import { useToastStore } from '@/stores/toast'
+import { useToastStore } from '@/shared/stores/toast'
 
 const store = useTicketStore()
 const auth = useAuthStore()
@@ -148,13 +146,11 @@ const users = ref([])
 const selectedAssignee = ref('')
 const message = ref('')
 
-// Lade Ticket + Benutzerliste
+// Lädt Ticket & aktuellen Assignee
 async function loadAll() {
   await store.load(route.params.id)
   const a = store.current.assignee
-  selectedAssignee.value = a
-      ? (typeof a === 'object' ? a._id : a)
-      : ''
+  selectedAssignee.value = a ? (typeof a === 'object' ? a._id : a) : ''
 }
 
 onMounted(async () => {
@@ -167,7 +163,7 @@ onMounted(async () => {
   await loadAll()
 })
 
-// Kommentar absenden (als angemeldeter User)
+// Kommentar absenden
 async function addComment() {
   try {
     await store.comment(route.params.id, auth.user.username, message.value)
@@ -190,13 +186,12 @@ async function toggleStatus() {
       toast.show('Ticket geschlossen', 'success')
     }
     await loadAll()
-  } catch (e) {
-    console.error("Status-Umschalt-Fehler:", e)
+  } catch {
     toast.show('Fehler beim Umschalten des Status', 'danger')
   }
 }
 
-// Assignee setzen
+// Assignee ändern
 async function assignTo() {
   try {
     await store.update(route.params.id, { assignee: selectedAssignee.value })
@@ -221,7 +216,6 @@ function formatDate(ts) {
   return format(new Date(ts), 'dd.MM.yyyy HH:mm')
 }
 
-// Badge‑Klassen für Status & Priorität
 const statusClass = computed(() => {
   switch (store.current.status) {
     case 'closed':      return 'bg-secondary text-white'
@@ -240,40 +234,41 @@ const priorityClass = computed(() => {
 
 <style scoped>
 .ticketdetail-wrapper {
-  background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44,62,80,0.07);
-  margin-top: 30px;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
 }
+
 .text-gradient {
-  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  background: linear-gradient(90deg, var(--clr-primary-start) 10%, var(--clr-primary-end) 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
+
 .card {
-  border-radius: 1.3rem;
+  border-radius: var(--radius-lg);
 }
+
+.card.bg-light {
+  background: var(--clr-card-bg);
+}
+
 .btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  border: none;
-  border-radius: 1.2em;
-  padding: 6px 14px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s, box-shadow 0.2s;
+  /* bereits global definiert */
 }
-.btn-gradient:hover,
-.btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  box-shadow: 0 4px 18px #3a7bd525;
-}
+
 .badge {
-  font-size: 0.9em;
-  padding: 0.45em 0.75em;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  padding: var(--space-xs) var(--space-sm);
 }
-.bg-light {
-  background-color: #f1f3f5 !important;
+
+.bg-white {
+  background: var(--clr-card-bg) !important;
+}
+
+.border-1 {
+  border: 1px solid var(--clr-border) !important;
 }
 </style>

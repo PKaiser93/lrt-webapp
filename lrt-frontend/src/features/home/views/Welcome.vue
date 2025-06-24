@@ -11,7 +11,7 @@
       <strong>Rechner, Betriebssysteme und Netzwerkgeräte</strong> im LRT.
     </p>
     <p class="text-muted mb-5">
-      Effizient verwalten, auswerten und organisieren – mit moderner UI, intelligenter Logik und umfassendem CSV‑Import.
+      Effizient verwalten, auswerten und organisieren – mit moderner UI und intelligenter Logik.
     </p>
 
     <div class="d-flex gap-3 mb-4 flex-wrap justify-content-center">
@@ -21,13 +21,6 @@
       >
         <i class="bi bi-lock-fill"></i>
         Jetzt einloggen
-      </router-link>
-      <router-link
-          to="/admin"
-          class="btn btn-outline-gradient btn-lg d-flex align-items-center gap-2 shadow-sm"
-      >
-        <i class="bi bi-bar-chart-line-fill"></i>
-        Admin‑Dashboard
       </router-link>
     </div>
 
@@ -39,7 +32,7 @@
 </template>
 
 <script setup>
-import StatusBadge from '@/components/StatusBadge.vue'
+import StatusBadge from '@/shared/components/StatusBadge.vue'
 </script>
 
 <style scoped>
@@ -48,7 +41,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
   border-radius: 1.5rem;
   padding: 60px 30px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  animation: fadeIn 0.8s ease-out;
+  animation: fadeIn 0.8s ease-out both;
 }
 
 @keyframes fadeIn {
@@ -66,8 +59,6 @@ import StatusBadge from '@/components/StatusBadge.vue'
   background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
 
 .btn-gradient {
@@ -85,23 +76,5 @@ import StatusBadge from '@/components/StatusBadge.vue'
 .btn-gradient:focus {
   background: linear-gradient(90deg, #00d2ff, #3a7bd5 70%);
   box-shadow: 0 4px 18px #00d2ff33;
-}
-
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
-  font-weight: 500;
-  border-radius: 14px;
-  padding: 12px 28px;
-  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
-  box-shadow: 0 1px 6px #00d2ff11;
-}
-
-.btn-outline-gradient:hover,
-.btn-outline-gradient:focus {
-  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
-  color: #fff;
-  box-shadow: 0 2px 10px #00d2ff22;
 }
 </style>

@@ -1,182 +1,161 @@
-<script setup>
-import { ref, watch } from 'vue';
-
-const props = defineProps({
-  kategorieList: { type: Array, default: () => [] },
-  osList: { type: Array, default: () => [] },
-  search: String,
-  useRegex: Boolean,
-  selectedKategorie: String,
-  selectedOS: String,
-});
-const emits = defineEmits([
-  'update:search', 'update:useRegex', 'update:selectedKategorie', 'update:selectedOS', 'apply'
-]);
-
-const localSearch = ref(props.search ?? '');
-const localRegex = ref(props.useRegex ?? false);
-const localKategorie = ref(props.selectedKategorie ?? '');
-const localOS = ref(props.selectedOS ?? '');
-
-watch(() => props.search, v => localSearch.value = v);
-watch(() => props.useRegex, v => localRegex.value = v);
-watch(() => props.selectedKategorie, v => localKategorie.value = v);
-watch(() => props.selectedOS, v => localOS.value = v);
-
-watch(localSearch, v => emits('update:search', v));
-watch(localRegex, v => emits('update:useRegex', v));
-watch(localKategorie, v => emits('update:selectedKategorie', v));
-watch(localOS, v => emits('update:selectedOS', v));
-
-function applyFilters() {
-  emits('apply');
-}
-function resetFilters() {
-  localSearch.value = '';
-  localRegex.value = false;
-  localKategorie.value = '';
-  localOS.value = '';
-  applyFilters();
-}
-</script>
-
 <template>
   <form
-      class="filter-toolbar d-flex align-items-center flex-wrap gap-2 mb-3 py-2 px-3 shadow-sm bg-white rounded-4"
+      class="filter-toolbar d-flex align-items-center flex-nowrap gap-2"
       @submit.prevent="applyFilters"
       autocomplete="off"
   >
     <!-- Suchfeld -->
-    <div class="input-group searchbox">
-      <span class="input-group-text bg-white border-end-0">
-        <i class="bi bi-search"></i>
-      </span>
+    <div class="input-group flex-grow-1">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
       <input
           v-model="localSearch"
-          class="form-control border-start-0"
-          placeholder="Suche, z.B. DNS:lrt076"
+          class="form-control form-control-sm"
+          placeholder="Suche…"
       />
     </div>
-    <!-- Kompakter Regex-Switch als Icon -->
+
+    <!-- Regex-Toggle -->
     <button
         type="button"
-        class="btn btn-icon-switch"
-        :class="{'active': localRegex}"
+        :class="['btn', 'btn-sm', 'btn-icon', { active: localRegex }]"
         @click="localRegex = !localRegex"
-        title="Regex-Suche aktivieren"
-        aria-label="Regex"
+        title="Regex-Suche"
     >
       <i class="bi bi-code-slash"></i>
     </button>
-    <!-- Kategorie -->
-    <div class="input-group" style="max-width: 180px;">
-      <span class="input-group-text bg-white border-end-0">
-        <i class="bi bi-folder2"></i>
-      </span>
-      <select v-model="localKategorie" class="form-select border-start-0">
+
+    <!-- Kategorie (breiter) -->
+    <div class="input-group select-kategorie">
+      <span class="input-group-text"><i class="bi bi-folder2"></i></span>
+      <select v-model="localKategorie" class="form-select form-select-sm">
         <option value="">Kategorie (alle)</option>
-        <option v-for="k in kategorieList" :key="k?._id" :value="k?.bezeichnung">{{ k?.bezeichnung }}</option>
+        <option
+            v-for="k in kategorieList"
+            :key="k._id"
+            :value="k.bezeichnung"
+        >{{ k.bezeichnung }}</option>
       </select>
     </div>
-    <!-- OS -->
-    <div class="input-group" style="max-width: 170px;">
-      <span class="input-group-text bg-white border-end-0">
-        <i class="bi bi-hdd-network"></i>
-      </span>
-      <select v-model="localOS" class="form-select border-start-0">
+
+    <!-- OS (breiter) -->
+    <div class="input-group select-os">
+      <span class="input-group-text"><i class="bi bi-hdd-network"></i></span>
+      <select v-model="localOS" class="form-select form-select-sm">
         <option value="">OS (alle)</option>
-        <option v-for="os in osList" :key="os._id || os.name || os" :value="os.name || os">
-          {{ os.name || os }}
-        </option>
+        <option
+            v-for="os in osList"
+            :key="os._id || os.name"
+            :value="os.name || os"
+        >{{ os.name || os }}</option>
       </select>
     </div>
-    <!-- Suche Button -->
-    <button type="submit" class="btn btn-gradient d-flex align-items-center gap-1">
-      <i class="bi bi-funnel"></i>
+
+    <!-- Filtern & Zurücksetzen -->
+    <button type="submit" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+      <i class="bi bi-funnel"></i> Filtern
     </button>
-    <!-- Clear Button -->
-    <button type="button" class="btn btn-outline-gradient" @click="resetFilters" title="Filter zurücksetzen">
+    <button type="button" class="btn btn-outline btn-sm" @click="resetFilters">
       <i class="bi bi-x-circle"></i>
     </button>
   </form>
 </template>
 
+<script setup>
+import { ref, watch } from 'vue';
+
+const props = defineProps({
+  kategorieList: { type: Array, default: () => [] },
+  osList:         { type: Array, default: () => [] },
+  search:         String,
+  useRegex:       Boolean,
+  selectedKategorie: String,
+  selectedOS:        String,
+});
+const emit = defineEmits([
+  'update:search',
+  'update:useRegex',
+  'update:selectedKategorie',
+  'update:selectedOS',
+  'apply'
+]);
+
+// lokale Refs für das v-model
+const localSearch     = ref(props.search ?? '');
+const localRegex      = ref(props.useRegex ?? false);
+const localKategorie  = ref(props.selectedKategorie ?? '');
+const localOS         = ref(props.selectedOS ?? '');
+
+// Props → lokale Refs
+watch(() => props.search, v => localSearch.value = v);
+watch(() => props.useRegex, v => localRegex.value = v);
+watch(() => props.selectedKategorie, v => localKategorie.value = v);
+watch(() => props.selectedOS, v => localOS.value = v);
+
+// lokale Refs → Emits
+watch(localSearch, v => emit('update:search', v));
+watch(localRegex, v => emit('update:useRegex', v));
+watch(localKategorie, v => emit('update:selectedKategorie', v));
+watch(localOS, v => emit('update:selectedOS', v));
+
+function applyFilters() {
+  emit('apply');
+}
+
+function resetFilters() {
+  localSearch.value     = '';
+  localRegex.value      = false;
+  localKategorie.value  = '';
+  localOS.value         = '';
+  applyFilters();
+}
+</script>
+
 <style scoped>
 .filter-toolbar {
-  border-radius: 1.3rem;
-  box-shadow: 0 2px 16px #2563eb12;
-  background: #fafdff;
-  flex-wrap: wrap;
-  gap: 0.75rem !important;
+  background: var(--clr-card-bg);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-light);
+  overflow-x: auto;
 }
 
-.input-group.searchbox {
-  min-width: 210px;
-  max-width: 320px;
-  flex: 1 1 220px;
+.flex-grow-1 {
+  flex: 1 1 auto;
+  min-width: 150px;
 }
-.input-group input,
-.input-group select {
-  border-radius: 0 0.75rem 0.75rem 0 !important;
-}
-.input-group-text {
-  border-radius: 0.75rem 0 0 0.75rem !important;
-  background: #fff;
-  font-size: 1.08em;
-}
-.btn-icon-switch {
-  width: 38px;
-  height: 38px;
+
+/* Regex‐Toggle Button */
+.btn-icon {
+  width: 2.2rem;
+  height: 2.2rem;
   padding: 0;
-  border-radius: 50%;
-  background: #fafdff;
-  border: 2px solid #eee;
-  color: #a2b1c6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.16s;
-  box-shadow: 0 1px 6px #3a7bd508;
-  font-size: 1.19em;
+  font-size: 1rem;
+  border: 1px solid var(--clr-border);
+  background: var(--clr-bg);
+  color: var(--clr-secondary);
+  transition: all 0.2s;
 }
-.btn-icon-switch.active,
-.btn-icon-switch:focus,
-.btn-icon-switch:hover {
-  border-color: #3a7bd5;
-  background: #e3f6ff;
-  color: #1879e6;
-  box-shadow: 0 2px 8px #3a7bd525;
+.btn-icon.active,
+.btn-icon:hover,
+.btn-icon:focus {
+  border-color: var(--clr-primary-start);
+  background: var(--clr-bg);
+  color: var(--clr-primary-start);
 }
 
-.btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  border-radius: 14px;
-  padding: 8px 18px;
-  box-shadow: 0 2px 12px #00d2ff13;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.btn-gradient:hover, .btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
-  box-shadow: 0 4px 18px #3a7bd525;
+/* Kategorie breiter */
+.select-kategorie {
+  flex: 0 0 180px;
 }
 
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
-  font-weight: 500;
-  border-radius: 14px;
-  padding: 8px 16px;
-  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
-  box-shadow: 0 1px 6px #00d2ff11;
+/* OS breiter */
+.select-os {
+  flex: 0 0 180px;
 }
-.btn-outline-gradient:hover, .btn-outline-gradient:focus {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  box-shadow: 0 2px 10px #00d2ff22;
+
+.form-control-sm,
+.form-select-sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--fs-sm);
 }
 </style>

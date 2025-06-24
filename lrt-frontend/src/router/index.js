@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { useSettingsStore } from '@/stores/settings'
+import { useAuthStore } from '@/shared/stores/auth'
+import { useSettingsStore } from '@/shared/stores/settings'
 
 const routes = [
-    { path: '/', component: () => import('@/views/Welcome.vue') },
-    { path: '/maintenance', component: () => import('@/views/Maintenance.vue') },
-    { path: '/login', component: () => import('@/views/LoginForm.vue') },
+    { path: '/', component: () => import('@/features/home/views/Welcome.vue'), meta: { public: true } },
+    { path: '/maintenance', component: () => import('@/features/maintenance/views/Maintenance.vue') },
+    { path: '/login', component: () => import('@/features/auth/views/LoginForm.vue'), meta: { public: true} },
     { path: '/documentation', component: () => import('@/features/docs/DocumentationHub.vue') },
-    { path: '/api-docs',     component: () => import('@/views/SwaggerView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+    { path: '/api-docs',     component: () => import('@/features/admin/views/SwaggerView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
     {
         path: '/profile',
         component: () => import('@/features/profile/views/ProfileView.vue'),
@@ -20,7 +20,7 @@ const routes = [
     },
     {
         path: '/home',
-        component: () => import('@/views/Home.vue'),
+        component: () => import('@/features/home/views/Home.vue'),
         meta: { requiresAuth: true }
     },
     {
@@ -132,28 +132,36 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
     const auth     = useAuthStore()
-    const isAdmin  = Boolean(auth.user?.isAdmin)
     const settings = useSettingsStore()
 
-    // 1) Einmalig die Einstellungen laden
-    await settings.fetch()
-
-    // 2) Maintenance‑Mode: Normale Nutzer umleiten
-    if (settings.maintenanceMode && !isAdmin && to.path !== '/maintenance') {
-        return next({ path: '/maintenance' })
+    // 0) Öffentliche Routen überspringen
+    //    hier alle Routen, die du ohne Login erlaubst
+    if (to.path === '/login' || to.path === '/maintenance' || to.meta.public) {
+        return next()
     }
 
-    // 3) Authentifizierung prüfen
+    // 1) Auth‑Check: wenn die Route Auth braucht, aber kein Token da ist
     if (to.meta.requiresAuth && !auth.token) {
         return next({ path: '/login', query: { redirect: to.fullPath } })
     }
 
-    // 4) Admin‑Recht prüfen
-    if (to.meta.requiresAdmin && !isAdmin) {
+    // 2) Nun, da wir eingeloggt sind, holen wir die Settings
+    await settings.fetch()
+    console.log('🔀 Guard sees maintenanceMode =', settings.maintenanceMode)
+
+    // 3) Maintenance‑Redirect (nur für angemeldete Nicht‑Admins)
+    if (settings.maintenanceMode && !auth.user?.isAdmin) {
+        return next({ path: '/maintenance' })
+    }
+
+    // 4) Admin‑Check (z.B. /admin/* braucht isAdmin)
+    if (to.meta.requiresAdmin && !auth.user?.isAdmin) {
         return next('/home')
     }
 
+    // 5) alles gut, weiter
     next()
 })
+
 
 export default router

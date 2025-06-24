@@ -1,6 +1,6 @@
 import axios from 'axios'
-import {useAuthStore} from "@/stores/auth.js";
-import {useToastStore} from "@/stores/toast.js";
+import {useAuthStore} from "@/shared/stores/auth.js";
+import {useToastStore} from "@/shared/stores/toast.js";
 
 const http = axios.create({
     baseURL: 'http://localhost:3000/api'
@@ -18,13 +18,18 @@ http.interceptors.request.use(config => {
 })
 
 http.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response?.status === 401) {
-            useAuthStore().logout() // oder: router.push('/login')
-            useToastStore().show('Nicht eingeloggt! Bitte neu anmelden.', 'danger')
+    res => res,
+    err => {
+        const status = err.response?.status
+        const url    = err.config?.url || ''
+
+        // Wenn 401 **und** NICHT /admin/settings, zeige den Toast
+        if (status === 401 && !url.endsWith('/admin/settings')) {
+            toast.show('Session abgelaufen – bitte erneut anmelden', 'warning')
+            auth.logout()
         }
-        return Promise.reject(error)
+
+        return Promise.reject(err)
     }
 )
 

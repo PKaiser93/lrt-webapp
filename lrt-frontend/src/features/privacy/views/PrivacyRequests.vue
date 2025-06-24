@@ -74,8 +74,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import http from '@/api/http';
-import { useToastStore } from '@/stores/toast';
+import http from '@/shared/api/http';
+import { useToastStore } from '@/shared/stores/toast';
 
 const toast = useToastStore();
 const requests = ref([]);

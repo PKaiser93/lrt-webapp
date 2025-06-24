@@ -3,17 +3,29 @@ import * as api from '@/features/computer/api/computerApi';
 
 export const useComputerStore = defineStore('computer', {
     state: () => ({
-        computers: [],
         selected: null,
         isLoading: false,
+        items: [],
+        total: 0,
         error: null
     }),
     actions: {
         async fetchAll(params = {}) {
             this.isLoading = true;
             try {
-                const { data } = await api.fetchComputers(params);
-                this.computers = data;
+                const response = await api.fetchComputers(params);
+                const data = response.data;
+
+                if (Array.isArray(data)) {
+                    // Fall A: Backend liefert Array direkt
+                    this.items = data;
+                    this.total = data.length;
+                } else {
+                    // Fall B: Backend liefert { items, total }
+                    this.items = data.items || [];
+                    this.total = data.total  || data.items?.length || 0;
+                }
+
                 this.error = null;
             } catch (err) {
                 this.error = err.response?.data?.error || 'Unbekannter Fehler';

@@ -1,6 +1,6 @@
 <template>
   <div class="computer-detail-wrapper container py-4">
-    <div class="card shadow-sm rounded-4 border-0 p-4">
+    <div class="card p-4">
       <!-- Lade-Spinner -->
       <div v-if="isLoading" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
@@ -16,16 +16,17 @@
       <!-- Computer-Daten -->
       <div v-else-if="computer">
         <!-- Kopfzeile mit Typ, Barcode und Status -->
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
           <i class="bi bi-pc-display fs-2 text-primary"></i>
-          <h2 class="mb-0 text-gradient fw-bold">
+          <h2 class="fw-bold text-gradient mb-0">
             {{ displayValue(computer.marke) }}
             <span v-if="computer.typ" class="badge bg-light text-secondary ms-2 fs-6">
               {{ displayValue(computer.typ) }}
             </span>
           </h2>
+
           <!-- Barcode + Download -->
-          <div v-if="computer.seriennummer" class="mb-2 d-flex align-items-center">
+          <div v-if="computer.seriennummer" class="d-flex align-items-center mb-2">
             <svg ref="barcodeSvg"></svg>
             <button
                 class="btn btn-sm btn-outline-secondary ms-2"
@@ -42,6 +43,7 @@
               <i class="bi bi-filetype-svg"></i>
             </button>
           </div>
+
           <!-- Status-Badge -->
           <span
               v-if="computer.status"
@@ -55,9 +57,11 @@
 
         <!-- Dokumente-Bereich -->
         <div class="mb-4">
-          <h5 class="section-title"><i class="bi bi-folder2-open me-2"></i>Dokumente</h5>
+          <h5 class="section-title d-flex align-items-center gap-2">
+            <i class="bi bi-folder2-open"></i> Dokumente
+          </h5>
           <div v-if="documents.length">
-            <ul class="list-group shadow-sm">
+            <ul class="list-group">
               <li
                   v-for="doc in documents"
                   :key="doc"
@@ -65,7 +69,9 @@
               >
                 <div class="d-flex align-items-center gap-2">
                   <i :class="iconForFile(doc)" class="fs-5"></i>
-                  <span class="filename">{{ truncate(typeof doc === 'string' ? doc : doc.filename, 36) }}</span>
+                  <span class="filename">
+                    {{ truncate(typeof doc === 'string' ? doc : doc.filename, 36) }}
+                  </span>
                 </div>
                 <div class="d-flex gap-2">
                   <a
@@ -92,10 +98,13 @@
 
         <!-- Detail-Blöcke -->
         <div class="row g-4">
+          <!-- Allgemein -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-info-circle me-2"></i>Allgemein</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle"></i> Allgemein
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li
                     v-for="key in ['marke','typ','laufendeNummer','inventarnummer','fauInventarnummer','beschaffungsjahr','wannErsetzen','seriennummer']"
                     :key="key"
@@ -107,10 +116,14 @@
               </ul>
             </div>
           </div>
+
+          <!-- Hardware -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-cpu me-2"></i>Hardware</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-cpu"></i> Hardware
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li
                     v-for="key in ['cpu','ram','hddssd','grafikkarte','chipsatz','tpm','bios']"
                     :key="key"
@@ -124,11 +137,14 @@
           </div>
         </div>
 
+        <!-- Netzwerk & Remote -->
         <div class="row g-4 mt-2">
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-wifi me-2"></i>Netzwerk &amp; Remote</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-wifi"></i> Netzwerk & Remote
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li
                     v-for="key in ['dnsName','ipAdresse','macAdresse','dhcp','remote']"
                     :key="key"
@@ -140,14 +156,18 @@
               </ul>
             </div>
           </div>
+
+          <!-- System & Kategorie -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-windows me-2"></i>System &amp; Kategorie</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-windows"></i> System & Kategorie
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li class="list-group-item">
                   <strong>Betriebssystem:</strong>
                   <span class="ms-2">
-                    <i class="bi bi-windows"></i>
+                    <i :class="osIcon(computer.betriebssystem?.name)"></i>
                     {{ displayValue(stripQuotes(computer.betriebssystem?.name)) }}
                   </span>
                 </li>
@@ -159,7 +179,7 @@
                   </span>
                 </li>
                 <li
-                    v-for="key in ['version','abstraktionsebene','artDerArbeit']"
+                    v-for="key in ['version','kernel','abstraktionsebene','artDerArbeit']"
                     :key="key"
                     class="list-group-item"
                 >
@@ -171,11 +191,14 @@
           </div>
         </div>
 
+        <!-- Nutzer & Betreuung -->
         <div class="row g-4 mt-2">
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-person me-2"></i>Nutzer &amp; Betreuung</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-person"></i> Nutzer & Betreuung
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li
                     v-for="key in ['benutzer','idmKennung','betreuer','raumnummer','studPCs','studienzuschuss']"
                     :key="key"
@@ -187,10 +210,14 @@
               </ul>
             </div>
           </div>
+
+          <!-- Aufgaben & Notizen -->
           <div class="col-md-6">
             <div class="section-card">
-              <h5 class="section-title"><i class="bi bi-calendar3 me-2"></i>Aufgaben &amp; Notizen</h5>
-              <ul class="list-group list-group-flush">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-calendar3"></i> Aufgaben & Notizen
+              </h5>
+              <ul class="list-group-flush list-group">
                 <li
                     v-for="key in ['startdatum','abgabe','todo','ablauf','info']"
                     :key="key"
@@ -207,20 +234,21 @@
         <!-- Upload-Card -->
         <div class="row mt-4">
           <div class="col-12">
-            <div class="section-card bg-light upload-card">
-              <h5 class="section-title"><i class="bi bi-cloud-upload me-2"></i>Neue Dokumente hochladen</h5>
-              <form @submit.prevent="uploadDocs" class="d-flex align-items-center gap-2">
+            <div class="section-card upload-card">
+              <h5 class="section-title d-flex align-items-center gap-2">
+                <i class="bi bi-cloud-upload"></i> Neue Dokumente hochladen
+              </h5>
+              <form @submit.prevent="uploadDocs" class="d-flex flex-wrap gap-2">
                 <input
                     type="file"
                     ref="fileInput"
                     multiple
                     class="form-control form-control-sm"
-                    style="max-width: 330px"
                     @change="onFileChange"
                     accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx"
                 />
                 <button
-                    class="btn btn-sm btn-success d-flex align-items-center"
+                    class="btn btn-sm btn-success"
                     type="submit"
                     :disabled="!files.length"
                 >
@@ -232,25 +260,25 @@
         </div>
 
         <!-- Action-Buttons -->
-        <div class="d-flex gap-3 mt-4">
+        <div class="d-flex gap-2 mt-4 flex-wrap">
           <router-link
               :to="`/computer/${computer._id}/edit`"
-              class="btn btn-gradient d-flex align-items-center gap-2"
+              class="btn btn-gradient"
           >
-            <i class="bi bi-pencil-square"></i> Bearbeiten
+            <i class="bi bi-pencil-square me-1"></i> Bearbeiten
           </router-link>
           <router-link
               to="/computer"
-              class="btn btn-outline-gradient d-flex align-items-center gap-2"
+              class="btn btn-outline-gradient"
           >
-            <i class="bi bi-arrow-left"></i> Zurück zur Liste
+            <i class="bi bi-arrow-left me-1"></i> Zurück zur Liste
           </router-link>
         </div>
       </div>
 
       <!-- Fallback: nicht gefunden -->
-      <div v-else class="alert alert-secondary">
-        <i class="bi bi-question-circle me-2"></i>Computer nicht gefunden.
+      <div v-else class="alert alert-secondary mt-4">
+        <i class="bi bi-question-circle me-2"></i> Computer nicht gefunden.
       </div>
     </div>
   </div>
@@ -260,8 +288,8 @@
 import { ref, onMounted, nextTick } from 'vue'
 import JsBarcode from 'jsbarcode'
 import { useRoute } from 'vue-router'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 
 const route = useRoute()
 const toast = useToastStore()
@@ -275,68 +303,72 @@ const files = ref([])
 const fileInput = ref(null)
 const id = route.params.id
 
+// Barcode-Download PNG
 const downloadBarcode = () => {
-  const svgEl = barcodeSvg.value;
-  if (!svgEl) return;
-
-  // 1. SVG serialisieren
-  const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(svgEl);
-  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  // 2. Bild laden
-  const img = new Image();
+  const svgEl = barcodeSvg.value
+  if (!svgEl) return
+  const serializer = new XMLSerializer()
+  const svgString = serializer.serializeToString(svgEl)
+  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const img = new Image()
   img.onload = () => {
-    // 3. Canvas in höherer Auflösung anlegen
-    const scale = 4;                         // 4× Auflösung
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width * scale;
-    canvas.height = img.height * scale;
-    const ctx = canvas.getContext('2d');
+    const scale = 4
+    const canvas = document.createElement('canvas')
+    canvas.width = img.width * scale
+    canvas.height = img.height * scale
+    const ctx = canvas.getContext('2d')
+    ctx.scale(scale, scale)
+    ctx.drawImage(img, 0, 0)
+    URL.revokeObjectURL(url)
+    const pngUrl = canvas.toDataURL('image/png')
+    const a = document.createElement('a')
+    a.href = pngUrl
+    a.download = `${computer.value.seriennummer}@${scale}x.png`
+    a.click()
+  }
+  img.src = url
+}
 
-    // 4. Canvas skalieren, dann zeichnen
-    ctx.scale(scale, scale);
-    ctx.drawImage(img, 0, 0);
-
-    URL.revokeObjectURL(url);
-
-    // 5. PNG exportieren
-    const pngUrl = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = pngUrl;
-    a.download = `${computer.value.seriennummer}@${scale}x.png`;
-    a.click();
-  };
-  img.src = url;
-};
-
+// Barcode-Download SVG
 const downloadBarcodeSvg = () => {
-  const svgEl = barcodeSvg.value;
-  if (!svgEl) return;
+  const svgEl = barcodeSvg.value
+  if (!svgEl) return
+  const serializer = new XMLSerializer()
+  const svgString = serializer.serializeToString(svgEl)
+  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${computer.value.seriennummer}.svg`
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
 
-  const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(svgEl);
-  const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${computer.value.seriennummer}.svg`;
-  a.click();
-
-  // Optional: URL wieder freigeben
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-};
-
-
-// Status UI‑Mapping
+// Status-Mappings
 const statusLabel = s =>
-    ({ in_betrieb: 'In Betrieb', bald_ersetzen: 'Bald ersetzen', ausser_betrieb: 'Außer Betrieb' }[s] || s)
+    ({
+      in_betrieb:     'In Betrieb',
+      bald_ersetzen:  'Bald ersetzen',
+      ausser_betrieb: 'Außer Betrieb',
+      unbekannt:      'Unbekannt'
+    }[s] || s)
+
 const statusClass = s =>
-    ({ in_betrieb: 'bg-success text-white', bald_ersetzen: 'bg-warning text-dark', ausser_betrieb: 'bg-danger text-white' }[s] || 'bg-secondary')
+    ({
+      in_betrieb:     'bg-success text-white',
+      bald_ersetzen:  'bg-warning text-dark',
+      ausser_betrieb: 'bg-danger text-white',
+      unbekannt:      'bg-secondary text-white'
+    }[s] || 'bg-secondary')
+
 const statusIcon = s =>
-    ({ in_betrieb: 'bi bi-check-circle', bald_ersetzen: 'bi bi-exclamation-circle', ausser_betrieb: 'bi bi-x-octagon' }[s] || 'bi bi-circle')
+    ({
+      in_betrieb:     'bi bi-check-circle',
+      bald_ersetzen:  'bi bi-exclamation-circle',
+      ausser_betrieb: 'bi bi-x-octagon',
+      unbekannt:      'bi bi-question-circle'
+    }[s] || 'bi bi-circle')
 
 // Dokumente laden
 const loadDocs = async () => {
@@ -348,7 +380,7 @@ const loadDocs = async () => {
   }
 }
 
-// Upload und Delete
+// Upload & Delete
 const onFileChange = e => files.value = Array.from(e.target.files)
 
 const uploadDocs = async () => {
@@ -389,65 +421,54 @@ function truncate(str, len = 32) {
 function iconForFile(doc) {
   const filename = typeof doc === 'string' ? doc : doc.filename
   const ext = (filename || '').split('.').pop().toLowerCase()
-  if (['pdf'].includes(ext)) return 'bi bi-file-earmark-pdf text-danger'
+  if (['pdf'].includes(ext))   return 'bi bi-file-earmark-pdf text-danger'
   if (['jpg','jpeg','png'].includes(ext)) return 'bi bi-file-image text-info'
   if (['doc','docx'].includes(ext)) return 'bi bi-file-earmark-word text-primary'
   if (['xls','xlsx'].includes(ext)) return 'bi bi-file-earmark-excel text-success'
   return 'bi bi-file-earmark'
 }
 
+function osIcon(osName = '') {
+  const name = osName.toLowerCase()
+  if (name.includes('windows')) return 'bi bi-windows'
+  if (name.includes('ubuntu'))  return 'bi bi-ubuntu'
+  if (name.includes('macos')|| name.includes('ios') || name.includes('ipad')) return 'bi bi-apple'
+  if (name.includes('linux'))  return 'bi bi-laptop'
+  return 'bi bi-pc-display'
+}
+
 const fieldLabels = {
   seriennummer:        'Seriennummer',
-  marke:               'Marke',
-  typ:                 'Typ',
-  cpu:                 'CPU',
-  ram:                 'RAM',
-  hddssd:              'HDD/SSD',
-  grafikkarte:         'Grafikkarte',
-  chipsatz:            'Chipsatz',
-  tpm:                 'TPM',
-  bios:                'BIOS',
-  remote:              'Remote',
-  betriebssystem:      'Betriebssystem',
-  version:             'Version',
-  abstraktionsebene:   'Abstraktionsebene',
-  dnsName:             'DNS-Name',
-  ipAdresse:           'IP-Adresse',
-  macAdresse:          'MAC-Adresse',
-  dhcp:                'DHCP',
-  benutzer:            'Benutzer',
-  idmKennung:          'IdM-Kennung',
-  betreuer:            'Betreuer',
-  artDerArbeit:        'Art der Arbeit',
-  startdatum:          'Startdatum',
-  abgabe:              'Abgabe',
-  raumnummer:          'Raumnummer',
-  kategorie:           'Kategorie',
-  laufendeNummer:      'Laufende Nummer',
-  studPCs:             'StudPCs',
-  inventarnummer:      'Inventarnummer',
-  fauInventarnummer:   'FAU-Inventarnummer',
-  beschaffungsjahr:    'Beschaffungsjahr',
-  wannErsetzen:        'Wann ersetzen',
-  studienzuschuss:     'Studienzuschuss',
-  info:                'Info',
-  todo:                'ToDo',
-  ablauf:              'Ablauf'
+  marke:               'Marke', typ: 'Typ',
+  cpu:                 'CPU', ram: 'RAM',
+  hddssd:              'HDD/SSD', grafikkarte: 'Grafikkarte',
+  chipsatz:            'Chipsatz', tpm: 'TPM', bios: 'BIOS',
+  remote:              'Remote', betriebssystem: 'Betriebssystem',
+  version:             'Version', abstraktionsebene: 'Abstraktionsebene',
+  dnsName:             'DNS-Name', ipAdresse: 'IP-Adresse',
+  macAdresse:          'MAC-Adresse', dhcp: 'DHCP',
+  benutzer:            'Benutzer', idmKennung: 'IdM-Kennung',
+  betreuer:            'Betreuer', artDerArbeit: 'Art der Arbeit',
+  startdatum:          'Startdatum', abgabe: 'Abgabe',
+  raumnummer:          'Raumnummer', kategorie: 'Kategorie',
+  laufendeNummer:      'Laufende Nummer', studPCs: 'StudPCs',
+  inventarnummer:      'Inventarnummer', fauInventarnummer: 'FAU-Inventarnummer',
+  beschaffungsjahr:    'Beschaffungsjahr', wannErsetzen: 'Wann ersetzen',
+  studienzuschuss:     'Studienzuschuss', info: 'Info',
+  todo:                'ToDo', ablauf: 'Ablauf', kernel: 'Kernel',
+  status:               'Status'
 }
 
 function displayValue(val) {
-  if (val === null || val === undefined || val === '') return '–'
-  return val
+  return (val === null || val === undefined || val === '') ? '–' : val
 }
 
 function stripQuotes(str) {
-  if (!str || typeof str !== 'string') return str
-  return str.replace(/^['"](.+)['"]$/, '$1')
+  return (!str || typeof str !== 'string') ? str : str.replace(/^['"](.+)['"]$/, '$1')
 }
 
 onMounted(async () => {
   isLoading.value = true
-  error.value     = ''
   try {
     const res = await http.get(`/computer/${id}`)
     computer.value = res.data
@@ -462,104 +483,124 @@ onMounted(async () => {
   if (computer.value?.seriennummer && barcodeSvg.value) {
     JsBarcode(barcodeSvg.value, computer.value.seriennummer, {
       format: "CODE128",
-      width: 2.5,             // etwas breitere Striche
-      height: 60,             // höhere Bars für mehr Präsenz
+      width: 2.5,
+      height: 60,
       displayValue: true,
-      fontOptions: "bold",    // fette Schrift
-      fontSize: 14,           // größere Schrift
-      textAlign: "center",    // zentrierter Text
-      textPosition: "bottom", // Text unter den Bars
-      textMargin: 8,          // Abstand Text ↔ Bars
-      margin: 12,             // Außenabstand um den Barcode
-      lineColor: "#333",      // dunkles Grau statt Schwarz
-      background: "#fff"      // weißer Hintergrund
+      fontOptions: "bold",
+      fontSize: 14,
+      textAlign: "center",
+      textPosition: "bottom",
+      textMargin: 8,
+      margin: 12,
+      lineColor: "#333",
+      background: "#fff"
     })
   }
 })
-
 </script>
 
 <style scoped>
 .computer-detail-wrapper {
-  max-width: 1050px;
+  max-width: 960px;
   margin: 0 auto;
+  padding: var(--space-lg) 0;
 }
+
 .card {
-  background: #fafdff;
+  background: var(--clr-card-bg);
+  box-shadow: var(--shadow-light);
+  border: none;
+  border-radius: var(--radius-lg);
 }
+
 .text-gradient {
-  background: linear-gradient(90deg,#388bfd 10%,#38d6ae 90%);
+  background: linear-gradient(
+      135deg,
+      var(--clr-primary-start),
+      var(--clr-primary-end)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .section-card {
-  background: #f8fafc;
-  border-radius: 1.1rem;
-  box-shadow: 0 2px 12px #3a7bd510;
-  padding: 1.1rem 1.1rem 0.5rem 1.1rem;
-  margin-bottom: 8px;
-  min-height: 220px;
+  background: var(--clr-bg);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-light);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
 }
+
 .section-title {
   font-weight: 600;
-  color: #388bfd;
-  margin-bottom: 0.6rem;
-  font-size: 1.13rem;
-  letter-spacing: 0.03em;
+  font-size: var(--fs-lg);
+  color: var(--clr-primary-start);
+  margin-bottom: var(--space-sm);
 }
+
 .list-group-item {
   background: transparent;
   border: none;
-  padding: 0.48rem 0.1rem;
-  font-size: 1.01rem;
-}
-.badge {
-  font-size: 0.95em;
-  font-weight: 500;
-  padding: 0.37em 0.8em;
-  border-radius: 0.8em;
-  background: #f0f4fa;
-}
-.btn-gradient {
-  background: linear-gradient(90deg,#50d285,#22a6b3 90%);
-  color: #fff;
-  border: none;
-  border-radius: 1.2em;
-  padding: 7px 22px;
-  font-weight: 600;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.18s;
-}
-.btn-gradient:hover {
-  background: linear-gradient(90deg,#22a6b3,#50d285 90%);
-  color: #fff;
-}
-.btn-outline-gradient {
-  border: 2px solid #50d285;
-  color: #50d285;
-  background: transparent;
-  border-radius: 1.2em;
-  padding: 7px 22px;
-  font-weight: 600;
-}
-.btn-outline-gradient:hover {
-  background: linear-gradient(90deg,#22a6b3,#50d285 90%);
-  color: #fff;
-  border: 2px solid #22a6b3;
-}
-.status-badge.bg-success { background: #50d285 !important; color: #fff !important; }
-.status-badge.bg-warning { background: #ffc107 !important; color: #111 !important; }
-.status-badge.bg-danger  { background: #ff6b6b !important; color: #fff !important; }
-.filename { font-size: 1.03em; word-break: break-all; }
-.upload-card {
-  background-color: #e9ecef;
-  padding: 1rem;
-}
-/* Barcode zentrieren und nicht zu groß werden lassen */
-svg[ref="barcodeSvg"] {
-  display: block;
-  margin: 0.5rem auto;
-  max-width: 100%;
+  padding: var(--space-xs) 0;
 }
 
+.badge {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn-gradient {
+  background: linear-gradient(
+      90deg,
+      var(--clr-primary-start),
+      var(--clr-primary-end)
+  );
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  font-weight: 600;
+  transition: filter 0.2s, transform 0.1s;
+}
+
+.btn-gradient:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.btn-outline-gradient {
+  background: transparent;
+  border: 1px solid var(--clr-primary-start);
+  color: var(--clr-primary-start);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-outline-gradient:hover {
+  background: var(--clr-card-bg);
+  color: var(--clr-text);
+}
+
+.upload-card {
+  background: var(--clr-bg);
+}
+
+.filename {
+  font-size: var(--fs-md);
+  word-break: break-all;
+}
+
+@media (max-width: 768px) {
+  .section-card {
+    padding: var(--space-sm);
+  }
+  .btn-gradient,
+  .btn-outline-gradient {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

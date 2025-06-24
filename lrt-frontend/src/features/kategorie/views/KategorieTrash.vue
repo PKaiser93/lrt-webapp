@@ -1,8 +1,8 @@
 <template>
   <div class="kategorie-wrapper container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
-      <h2 class="mb-0 text-gradient fw-bold">
-        <i class="bi bi-trash3 me-2"></i> Gelöschte Kategorien
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+      <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
+        <i class="bi bi-trash3"></i> Gelöschte Kategorien
       </h2>
       <button
           class="btn btn-danger d-flex align-items-center gap-2 shadow-sm rounded-pill"
@@ -12,10 +12,10 @@
       </button>
     </div>
 
-    <div class="card shadow-sm rounded-4 border-0">
+    <div class="card shadow-sm rounded-4">
       <div class="card-body p-0">
-        <table class="table table-hover align-middle mb-0 table-striped">
-          <thead class="table-light">
+        <table class="table mb-0">
+          <thead>
           <tr>
             <th style="min-width:130px;">Bezeichnung</th>
             <th>Beschreibung</th>
@@ -33,8 +33,12 @@
             </td>
             <td>
                 <span
-                    class="badge shadow-sm px-2 d-inline-flex align-items-center gap-1"
-                    :style="{ backgroundColor: k.farbe, color: colorForBadge(k.farbe) }"
+                    class="badge d-inline-flex align-items-center gap-1"
+                    :style="{
+                    backgroundColor: k.farbe,
+                    color: colorForBadge(k.farbe),
+                    border: '1px solid var(--clr-border)'
+                  }"
                 >
                   <i class="bi bi-droplet-half"></i>
                   {{ k.farbe }}
@@ -57,14 +61,14 @@
             <td class="text-end pe-4">
               <div class="d-inline-flex gap-1">
                 <button
-                    class="btn btn-sm btn-outline-success d-flex align-items-center"
+                    class="btn btn-outline-success btn-sm"
                     @click="restore(k._id)"
                     title="Wiederherstellen"
                 >
                   <i class="bi bi-arrow-counterclockwise"></i>
                 </button>
                 <button
-                    class="btn btn-sm btn-outline-danger d-flex align-items-center"
+                    class="btn btn-outline-danger btn-sm"
                     @click="deleteSingle(k._id)"
                     title="Endgültig löschen"
                 >
@@ -76,8 +80,9 @@
           </tbody>
           <tbody v-else>
           <tr>
-            <td colspan="5" class="text-center text-muted py-5">
-              <i class="bi bi-emoji-frown me-2"></i>Keine gelöschten Kategorien vorhanden.
+            <td colspan="5" class="text-center text-secondary py-5">
+              <i class="bi bi-emoji-frown fs-3 mb-2 d-block"></i>
+              Keine gelöschten Kategorien vorhanden.
             </td>
           </tr>
           </tbody>
@@ -88,9 +93,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useToastStore } from '@/stores/toast'
-import http from '@/api/http'
+import { ref, onMounted } from 'vue'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 
 const toast = useToastStore()
 const kategorien = ref([])
@@ -136,7 +141,6 @@ const deleteSingle = async (id) => {
   }
 }
 
-// Dynamisch kontrastierende Farbe für Badge
 function colorForBadge(hex) {
   if (!hex) return '#333'
   let c = hex.replace('#', '')
@@ -154,37 +158,71 @@ onMounted(load)
 
 <style scoped>
 .kategorie-wrapper {
-  background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.07);
-  margin-top: 30px;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
 }
+
 .text-gradient {
-  background: linear-gradient(90deg, #ff9360 10%, #388bfd 80%);
+  background: linear-gradient(90deg, var(--clr-primary-start), var(--clr-primary-end));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .card {
-  border-radius: 1.3rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
+
+/* kompakte Tabelle mit euren globalen Abständen */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table thead th {
+  background: var(--clr-card-bg);
+  border-bottom: 2px solid var(--clr-border);
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 600;
+  text-align: left;
+}
+.table tbody td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--clr-border);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr:hover {
+  background: rgba(79,147,255,0.05);
+}
+
+/* Buttons kompakt */
+.btn-outline-success,
+.btn-outline-danger {
+  padding: 0.35rem 0.6rem;
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-sm);
+}
+
+/* Badges im globalen Stil */
 .badge {
-  border-radius: 0.8rem;
-  font-size: 0.99em;
-  padding: 0.6em 1.2em;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  padding: var(--space-xs) var(--space-sm);
 }
-.table-hover > tbody > tr:hover {
-  background: #f0f4fa !important;
-}
-.btn {
-  border-radius: 0.8rem !important;
-}
-.d-inline-flex.gap-1 > *:not(:last-child) {
-  margin-right: .35rem;
-}
+
 @media (max-width: 700px) {
   .kategorie-wrapper {
-    padding: 12px 2px !important;
+    padding: var(--space-sm);
+  }
+  .table thead th,
+  .table tbody td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--fs-xs);
   }
 }
 </style>

@@ -1,4 +1,4 @@
-import http from '@/api/http'
+import http from '@/shared/api/http'
 
 export function fetchKategorien(params) {
     // Holt alle Kategorien (ggf. mit Query-Params)

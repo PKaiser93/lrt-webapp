@@ -20,6 +20,7 @@ const ComputerSchema = new mongoose.Schema({
     betriebssystem: { type: mongoose.Schema.Types.ObjectId, ref: 'Betriebssystem' },
     version: String,
     abstraktionsebene: String,
+    kernel: String,
 
     // Netzwerkinformationen
     dnsName: String,
@@ -56,8 +57,8 @@ const ComputerSchema = new mongoose.Schema({
     // Status
     status: {
         type: String,
-        enum: ['in_betrieb', 'bald_ersetzen', 'ausser_betrieb'],
-        default: 'in_betrieb'
+        enum: ['in_betrieb', 'bald_ersetzen', 'ausser_betrieb', 'unbekannt'],
+        default: 'unbekannt'
     },
     documents: [String] // Optional: Array aller Dateinamen
 }, { timestamps: true });

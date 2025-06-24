@@ -1,14 +1,18 @@
 <template>
   <div class="kategorie-wrapper container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
       <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
-        <i class="bi bi-tags me-2"></i>Kategorien
+        <i class="bi bi-tags"></i>
+        Kategorien
       </h2>
-      <div class="d-flex gap-2 flex-wrap">
+      <div class="d-flex flex-wrap gap-2">
         <button class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm" @click="openForm()">
           <i class="bi bi-plus-circle"></i>
         </button>
-        <router-link to="/kategorie/trash" class="btn btn-outline-gradient d-flex align-items-center gap-2 shadow-sm">
+        <router-link
+            to="/kategorie/trash"
+            class="btn btn-outline-gradient d-flex align-items-center gap-2 shadow-sm"
+        >
           <i class="bi bi-trash3"></i>
         </router-link>
       </div>
@@ -21,10 +25,10 @@
         @saved="saveKategorie"
     />
 
-    <div class="card shadow-sm rounded-4 border-0">
-      <div class="card-body p-0">
-        <table class="table table-hover align-middle mb-0 table-striped">
-          <thead class="table-light">
+    <div class="card shadow-sm rounded-4">
+      <div class="card-body p-0 kategorien-card-body">
+        <table class="table mb-0">
+          <thead>
           <tr>
             <th style="min-width:130px;">Bezeichnung</th>
             <th>Beschreibung</th>
@@ -35,8 +39,10 @@
           <tbody v-if="kategorien.length">
           <tr v-for="k in kategorien" :key="k._id">
             <td class="fw-semibold">
-              <i class="bi bi-tag-fill me-2 text-primary"></i>
-              {{ k.bezeichnung }}
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-tag-fill text-primary"></i>
+                {{ k.bezeichnung }}
+              </div>
             </td>
             <td class="text-muted small">
               <span v-if="k.beschreibung">{{ k.beschreibung }}</span>
@@ -44,37 +50,40 @@
             </td>
             <td>
                 <span
-                    class="badge shadow-sm px-2 d-inline-flex align-items-center gap-1"
-                    :style="{ backgroundColor: k.farbe, color: colorForBadge(k.farbe), border: '1px solid #eef1f7' }"
+                    class="badge d-inline-flex align-items-center gap-1"
+                    :style="{
+                    backgroundColor: k.farbe,
+                    color: colorForBadge(k.farbe),
+                    border: '1px solid var(--clr-border)'
+                  }"
                 >
                   <i class="bi bi-droplet-half"></i>
                   {{ k.farbe }}
                 </span>
             </td>
             <td class="text-end pe-4">
-              <div class="d-inline-flex gap-1">
-                <button
-                    @click="openForm(k)"
-                    class="btn btn-sm btn-outline-primary d-flex align-items-center"
-                    title="Bearbeiten"
-                >
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button
-                    @click="softDelete(k._id)"
-                    class="btn btn-sm btn-outline-danger d-flex align-items-center"
-                    title="Löschen"
-                >
-                  <i class="bi bi-trash3"></i>
-                </button>
-              </div>
+              <button
+                  @click="openForm(k)"
+                  class="btn btn-outline-primary btn-sm me-1"
+                  title="Bearbeiten"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button
+                  @click="softDelete(k._id)"
+                  class="btn btn-outline-danger btn-sm"
+                  title="Löschen"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
             </td>
           </tr>
           </tbody>
           <tbody v-else>
           <tr>
-            <td colspan="4" class="text-center text-muted py-5">
-              <i class="bi bi-emoji-frown me-2"></i>Keine Kategorien vorhanden
+            <td colspan="4" class="text-center text-secondary py-5">
+              <i class="bi bi-emoji-frown fs-3 mb-2 d-block"></i>
+              Keine Kategorien vorhanden
             </td>
           </tr>
           </tbody>
@@ -86,42 +95,41 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 import KategorieFormModal from '@/features/kategorie/components/KategorieForm.vue'
 
-const toast = useToastStore();
-
-const showForm = ref(false);
-const editItem = ref(null);
+const toast = useToastStore()
+const showForm = ref(false)
+const editItem = ref(null)
+const kategorien = ref([])
 
 function openForm(item = null) {
-  editItem.value = item;
-  showForm.value = true;
+  editItem.value = item
+  showForm.value = true
 }
 function closeForm() {
-  showForm.value = false;
-  editItem.value = null;
+  showForm.value = false
+  editItem.value = null
 }
+
 async function saveKategorie(data) {
   try {
     if (data._id) {
-      await http.patch(`/kategorie/${data._id}`, data);
-      toast.show('Kategorie aktualisiert', 'success');
+      await http.patch(`/kategorie/${data._id}`, data)
+      toast.show('Kategorie aktualisiert', 'success')
     } else {
-      await http.post('/kategorie', data);
-      toast.show('Kategorie angelegt', 'success');
+      await http.post('/kategorie', data)
+      toast.show('Kategorie angelegt', 'success')
     }
-    closeForm();
-    await load();
+    closeForm()
+    await load()
   } catch {
-    toast.show('Fehler beim Speichern', 'danger');
+    toast.show('Fehler beim Speichern', 'danger')
   }
 }
 
-const kategorien = ref([])
-
-const load = async () => {
+async function load() {
   try {
     kategorien.value = (await http.get('/kategorie')).data
   } catch {
@@ -129,26 +137,25 @@ const load = async () => {
   }
 }
 
-const softDelete = async (id) => {
+async function softDelete(id) {
   if (!confirm('Wirklich löschen?')) return
   try {
     await http.patch(`/kategorie/${id}/soft-delete`)
-    toast.show('Kategorie verschoben in den Papierkorb', 'success')
+    toast.show('Kategorie in den Papierkorb verschoben', 'success')
     await load()
   } catch {
     toast.show('Fehler beim Löschen', 'danger')
   }
 }
 
-// Dynamisch kontrastierende Farbe für Badge
 function colorForBadge(hex) {
-  if (!hex) return "#333"
-  let c = hex.replace("#", "")
+  if (!hex) return '#333'
+  let c = hex.replace('#','')
   if (c.length === 3) c = c.split('').map(x=>x+x).join('')
-  const rgb = parseInt(c, 16)
-  const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = rgb & 0xff
-  const luminance = 0.2126*r + 0.7152*g + 0.0722*b
-  return luminance > 140 ? "#111" : "#fff"
+  const rgb = parseInt(c,16)
+  const r = (rgb>>16)&0xff, g = (rgb>>8)&0xff, b = rgb&0xff
+  const lum = 0.2126*r + 0.7152*g + 0.0722*b
+  return lum>140 ? '#111' : '#fff'
 }
 
 onMounted(load)
@@ -156,67 +163,71 @@ onMounted(load)
 
 <style scoped>
 .kategorie-wrapper {
-  background: #f8fafc;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.07);
-  margin-top: 30px;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
 }
+
 .text-gradient {
-  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  background: linear-gradient(90deg, var(--clr-primary-start), var(--clr-primary-end));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
 }
-.card {
-  border-radius: 1.3rem;
+
+/* spezielles Padding für den Card-Body */
+.kategorien-card-body {
+  padding: 0;
 }
-.badge {
-  border-radius: 0.8rem;
-  font-size: 0.99em;
-  padding: 0.6em 1.2em;
-  font-weight: 500;
-  box-shadow: 0 2px 8px #ff936018;
-  letter-spacing: .01em;
+
+/* Tabelle: kompakt, klare Linien */
+.table {
+  width: 100%;
+  border-collapse: collapse;
 }
-.table-hover > tbody > tr:hover {
-  background: #f0f4fa !important;
-}
-.btn {
-  border-radius: 0.8rem !important;
-}
-.btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
+.table thead th {
+  background: var(--clr-card-bg);
+  border-bottom: 2px solid var(--clr-border);
+  padding: var(--space-sm) var(--space-md);
   font-weight: 600;
-  border: none;
-  border-radius: 1.2em;
-  padding: 8px 22px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s;
+  text-align: left;
 }
-.btn-gradient:hover, .btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
+.table tbody td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--clr-border);
+  vertical-align: middle;
 }
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
-  font-weight: 500;
-  border-radius: 1.2em;
-  transition: background 0.15s, color 0.15s;
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
-.btn-outline-gradient:hover, .btn-outline-gradient:focus {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
+.table tbody tr:hover {
+  background: rgba(79,147,255,0.05);
 }
-.d-inline-flex.gap-1 > *:not(:last-child) {
-  margin-right: .35rem;
+
+/* compact action buttons */
+.btn-outline-primary,
+.btn-outline-danger {
+  padding: 0.35rem 0.6rem;
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-sm);
 }
+
+/* badge styling */
+.badge {
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+
 @media (max-width: 700px) {
   .kategorie-wrapper {
-    padding: 12px 2px !important;
+    padding: var(--space-sm);
+  }
+  .table thead th,
+  .table tbody td {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--fs-xs);
   }
 }
 </style>

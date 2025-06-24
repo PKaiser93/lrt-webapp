@@ -27,7 +27,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useToastStore } from '@/stores/toast'
+import { useToastStore } from '@/shared/stores/toast'
 
 const toastStore = useToastStore()
 const toasts = computed(() => toastStore.toasts)

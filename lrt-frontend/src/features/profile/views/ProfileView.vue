@@ -16,7 +16,7 @@
             {{ profile?.firstName || '' }} {{ profile?.lastName || '' }}
             <span v-if="profile?.isAdmin" class="badge badge-admin">Admin</span>
           </h2>
-          <div class="meta-info text-muted d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start">
+          <div class="meta-info text-secondary d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start">
             <span><i class="bi bi-person me-1"></i><strong>{{ profile?.username }}</strong></span>
             <span><i class="bi bi-envelope me-1"></i>{{ profile?.email }}</span>
           </div>
@@ -46,7 +46,7 @@
           <!-- Nutzerinformationen -->
           <div class="col-12 col-md-6">
             <div class="section-card p-3">
-              <h5 class="section-title mb-3"><i class="bi bi-info-circle me-2"></i>Nutzer­informationen</h5>
+              <h5 class="section-title mb-3"><i class="bi bi-info-circle me-2"></i>Nutzerinformationen</h5>
               <dl class="row mb-0">
                 <dt class="col-5">Benutzername</dt>
                 <dd class="col-7">{{ profile.username }}</dd>
@@ -64,7 +64,7 @@
           <!-- Persönliche Daten -->
           <div class="col-12 col-md-6">
             <div class="section-card p-3">
-              <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Persön­lich</h5>
+              <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Persönlich</h5>
               <dl class="row mb-0">
                 <dt class="col-5">Vorname</dt>
                 <dd class="col-7">{{ profile.firstName || '–' }}</dd>
@@ -101,8 +101,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 import ProfileEditModal from '@/features/profile/components/ProfileEditModal.vue'
 import ChangePasswordModal from '@/features/profile/components/ChangePasswordModal.vue'
 
@@ -117,7 +117,7 @@ async function fetchProfile() {
   try {
     const res = await http.get('/profile')
     profile.value = res.data
-  } catch (err) {
+  } catch {
     toast.show('Profil konnte nicht geladen werden', 'danger')
     profile.value = null
   } finally {
@@ -135,100 +135,106 @@ onMounted(fetchProfile)
 
 <style scoped>
 .profile-wrapper {
-  background: #f8fafc;
-  border-radius: 1rem;
-  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.05);
-  margin-top: 2rem;
+  background: var(--clr-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  margin-top: var(--space-lg);
+  padding-bottom: var(--space-lg);
 }
 .profile-header {
   overflow: hidden;
 }
 .bg-gradient-header {
-  background: linear-gradient(120deg, #fafdff 30%, #e7f1fa 100%);
+  background: linear-gradient(
+      120deg,
+      var(--clr-bg-light) 30%,
+      var(--clr-card-bg) 100%
+  );
 }
 .avatar-circle {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(56, 139, 253,0.2) 50%, #fff 100%);
+  background: linear-gradient(
+      135deg,
+      rgba(56, 139, 253, 0.2) 50%,
+      #fff 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  color: #388bfd;
-  box-shadow: 0 4px 16px rgba(56, 139, 253, 0.2);
+  font-size: 2.5rem;
+  color: var(--clr-primary-start);
+  box-shadow: var(--shadow-strong);
 }
 .text-gradient {
-  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  background: linear-gradient(
+      90deg,
+      var(--clr-primary-start) 10%,
+      var(--clr-primary-end) 90%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .action-buttons .btn {
-  min-width: 0;
-  width: auto;
-  font-size: 0.95rem;
+  font-size: var(--fs-sm);
 }
 .btn-gradient {
-  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
+  background: linear-gradient(90deg, var(--clr-primary-start), var(--clr-primary-end) 70%);
   color: #fff;
-  font-weight: 600;
   border: none;
-  border-radius: 1.2rem;
-  padding: 0.6rem 1.4rem;
-  transition: background 0.3s, box-shadow 0.3s;
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-md);
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
 }
 .btn-gradient:hover {
-  background: linear-gradient(90deg, #00d2ff, #3a7bd5 70%);
+  background: linear-gradient(90deg, var(--clr-primary-end), var(--clr-primary-start) 70%);
 }
 .btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
+  background: transparent;
+  border: 2px solid var(--clr-primary-start);
+  color: var(--clr-primary-start);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-md);
   font-weight: 500;
-  border-radius: 1.2rem;
-  padding: 0.5rem 1.2rem;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  transition: background 0.2s, color 0.2s;
 }
 .btn-outline-gradient:hover {
-  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
+  background: var(--clr-primary-start);
   color: #fff;
 }
 .badge-admin {
   background: rgba(56, 139, 253, 0.15);
-  color: #1464c7;
-  font-size: 0.9rem;
+  color: var(--clr-primary-start);
+  font-size: var(--fs-xs);
   text-transform: uppercase;
-  border-radius: 1rem;
-  padding: 0.25em 0.8em;
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+.profile-details {
+  background: var(--clr-card-bg);
+  margin-bottom: var(--space-lg);
+}
+.section-card {
+  background: var(--clr-bg-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-light);
+}
+.section-title {
+  font-size: var(--fs-md);
+  color: var(--clr-primary-end);
+  font-weight: 600;
 }
 .meta-info span {
   display: inline-flex;
   align-items: center;
 }
-.profile-details {
-  background: #fff;
-  margin-bottom: 2rem;
-}
-.section-card {
-  background: #f8fafc;
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px rgba(58, 123, 213, 0.08);
-}
-.section-title {
-  font-size: 1rem;
-  color: #3a7bd5;
-  font-weight: 600;
-}
-.dl dt {
-  font-weight: 600;
-}
 .badge.bg-primary-soft {
   background: #e7f4ff;
-}
-.badge.bg-primary-soft.text-primary {
-  color: #2c7be5;
+  color: var(--clr-primary-start);
 }
 @media (max-width: 768px) {
   .meta-info {

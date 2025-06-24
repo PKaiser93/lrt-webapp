@@ -5,12 +5,13 @@
       <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
         <i class="bi bi-mortarboard-fill me-2"></i>Studenten
       </h2>
-      <!-- Neu anlegen Button mit Gradient‑Style -->
+      <!-- Neu anlegen Button mit Label -->
       <button
           class="btn btn-gradient d-flex align-items-center gap-2 shadow-sm"
           @click="openForm()"
       >
         <i class="bi bi-person-plus"></i>
+        Neu anlegen
       </button>
     </div>
 
@@ -23,7 +24,7 @@
 
     <div v-else>
       <!-- Wenn es Student*innen gibt, Tabelle anzeigen -->
-      <div v-if="students.length" class="table-responsive shadow-sm rounded-4">
+      <div v-if="students.length" class="table-responsive shadow-sm rounded-4 mb-4">
         <table class="table table-striped table-hover align-middle mb-0">
           <thead class="table-light">
           <tr>
@@ -85,7 +86,7 @@
         </table>
       </div>
 
-      <!-- Empty State, wenn keine Student*innen da sind -->
+      <!-- Empty State -->
       <EmptyState
           v-else
           icon="bi bi-emoji-frown"
@@ -106,10 +107,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 import StudentEditModal from './StudentEditModal.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import EmptyState from '@/shared/components/EmptyState.vue'
 
 const toast    = useToastStore()
 const students = ref([])
@@ -117,53 +118,44 @@ const loading  = ref(false)
 const showForm = ref(false)
 const editForm = ref(null)
 
-// Hier speichern wir einmal alle OS nach ihrer ID
+// OS‑Map für Icons
 const osMap = {}
 
-// Lifecycle
+// Daten laden
 async function fetchStudents() {
   loading.value = true
   try {
-    // 1) Alle Betriebssysteme holen und in osMap speichern
     const osRes = await http.get('/betriebssystem')
-    osRes.data.forEach(os => {
-      osMap[os._id] = os.name
-    })
+    osRes.data.forEach(o => (osMap[o._id] = o.name))
 
-    // 2) Studenten laden
     const res = await http.get('/studenten')
     students.value = res.data
 
-    // 3) Rechner‑Objekt nachladen und OS ID→Name mappen
+    // rechnerObjekt & OS‑Mapping
     for (const s of students.value) {
       if (s.rechner && /^[0-9a-f]{24}$/.test(s.rechner)) {
-        s.computerObj = await http
-            .get(`/computer/${s.rechner}`)
-            .then(r => r.data)
-            .catch(() => null)
+        s.computerObj = await http.get(`/computer/${s.rechner}`).then(r => r.data).catch(() => null)
       }
       if (s.betriebssystem && typeof s.betriebssystem === 'string') {
         const name = osMap[s.betriebssystem]
-        if (name) {
-          s.betriebssystem = { name }
-        } else {
-          delete s.betriebssystem
-        }
+        if (name) s.betriebssystem = { name }
+        else delete s.betriebssystem
       }
     }
   } catch (err) {
-    toast.show(err.response?.data?.error || 'Fehler beim Laden der Studenten', 4000)
+    toast.show(err.response?.data?.error || 'Fehler beim Laden der Studenten', 'danger')
   } finally {
     loading.value = false
   }
 }
 
+// Form‑Handling
 function openForm() {
   editForm.value = null
   showForm.value = true
 }
-function editStudent(stud) {
-  editForm.value = { ...stud }
+function editStudent(s) {
+  editForm.value = { ...s }
   showForm.value = true
 }
 function closeForm() {
@@ -174,26 +166,23 @@ async function onSaved() {
   closeForm()
   await fetchStudents()
 }
-
 async function delStudent(id) {
   if (!confirm('Wirklich löschen?')) return
   try {
     await http.delete(`/studenten/${id}`)
-    toast.show('Student*in gelöscht', 3000)
+    toast.show('Student*in gelöscht', 'success')
     await fetchStudents()
   } catch (err) {
-    toast.show(err.response?.data?.error || 'Fehler beim Löschen', 4000)
+    toast.show(err.response?.data?.error || 'Fehler beim Löschen', 'danger')
   }
 }
-
-// OS‑Name → Icon‑Klasse
-function getOSIcon(osName) {
-  if (!osName || typeof osName !== 'string') return 'bi bi-laptop'
-  const n = osName.toLowerCase()
+function getOSIcon(name) {
+  if (!name) return 'bi bi-laptop'
+  const n = name.toLowerCase()
   if (n.includes('windows')) return 'bi bi-windows'
   if (n.includes('ubuntu'))  return 'bi bi-ubuntu'
   if (n.includes('linux'))   return 'bi bi-hdd-network'
-  if (n.includes('mac') || n.includes('ios') || n.includes('ipad')) return 'bi bi-apple'
+  if (n.includes('mac'))     return 'bi bi-apple'
   if (n.includes('android')) return 'bi bi-android'
   return 'bi bi-laptop'
 }
@@ -208,71 +197,33 @@ onMounted(fetchStudents)
   box-shadow: 0 8px 32px rgba(44, 62, 80, 0.07);
   margin-top: 30px;
 }
+
+.mb-4:last-of-type {
+  margin-bottom: 1.5rem; /* etwas mehr Abstand nach unten */
+}
+
 .text-gradient {
-  background: linear-gradient(90deg,#388bfd 10%,#38d6ae 90%);
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.btn-gradient {
+  background: linear-gradient(90deg, #3a7bd5, #00d2ff 70%);
+  color: #fff;
+  border: none;
+}
+
 .table-responsive {
   border-radius: 1.3rem;
   overflow: hidden;
 }
-.table thead th {
-  font-weight: 600;
-  border-top: none;
-  user-select: none;
+
+.table-light th {
   background: #f1f5fa;
 }
-.table-striped > tbody > tr:nth-of-type(odd) {
-  background: #f8fafc;
-}
-.table-hover > tbody > tr:hover {
-  background: #e0f2fe !important;
-}
-.btn {
-  border-radius: 0.75rem !important;
-}
-.btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  border-radius: 1.2em;
-  padding: 8px 22px;
-  box-shadow: 0 2px 10px #00d2ff12;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.btn-gradient:hover,
-.btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
-}
-.btn-outline-gradient {
-  border: 2px solid #3a7bd5;
-  color: #3a7bd5;
-  background: #fafdff;
-  font-weight: 500;
-  border-radius: 14px;
-  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
-  box-shadow: 0 1px 6px #00d2ff11;
-}
-.btn-outline-gradient:hover,
-.btn-outline-gradient:focus {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  box-shadow: 0 2px 10px #00d2ff22;
-}
-.badge {
-  border-radius: 0.75rem;
-  font-size: 0.97em;
-  padding: 0.55em 1em;
-  box-shadow: 0 2px 8px rgba(56,143,253,0.06);
-  background: #e0f2fe;
-}
-.modal-content {
-  border-radius: 1.3rem;
-}
-@media (max-width: 700px) {
-  .studentlist-wrapper { padding: 12px 3px !important; }
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
 }
 </style>

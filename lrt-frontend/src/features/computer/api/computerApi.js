@@ -1,4 +1,4 @@
-import http from '@/api/http';
+import http from '@/shared/api/http';
 
 export function fetchComputers(params = {}) {
     return http.get('/computer', { params });

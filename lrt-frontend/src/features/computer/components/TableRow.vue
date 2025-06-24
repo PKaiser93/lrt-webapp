@@ -5,9 +5,9 @@ const { comp, deletingId } = defineProps({
 });
 const emit = defineEmits(['delete']);
 
-// Fallback-Farbe, falls keine gesetzt
+// Fallback‑Farbe, falls keine gesetzt
 function kategorieColor(kategorie) {
-  return (kategorie && kategorie.farbe) ? kategorie.farbe : '#e0f2fe';
+  return (kategorie && kategorie.farbe) ? kategorie.farbe : 'var(--clr-border)';
 }
 </script>
 
@@ -22,30 +22,38 @@ function kategorieColor(kategorie) {
     <td class="text-center align-middle">
       <span
           v-if="comp.kategorie"
-          class="badge kategorie-badge"
-          :style="{ backgroundColor: kategorieColor(comp.kategorie), color: '#fff', boxShadow: '0 2px 8px ' + kategorieColor(comp.kategorie) + '33' }"
+          class="badge"
+          :style="{
+          backgroundColor: kategorieColor(comp.kategorie),
+          color: '#fff'
+        }"
       >
         {{ comp.kategorie.bezeichnung || comp.kategorie }}
       </span>
     </td>
     <td class="text-center align-middle">
-      <div class="d-inline-flex gap-1">
+      <div class="d-inline-flex gap-sm">
+        <!-- Details -->
         <router-link
             :to="`/computer/${comp._id}`"
-            class="btn btn-sm btn-icon btn-outline-secondary rounded-circle"
-            title="Details anzeigen"
+            class="btn btn-outline btn-sm"
+            title="Details"
         >
           <i class="bi bi-eye"></i>
         </router-link>
+
+        <!-- Bearbeiten -->
         <router-link
             :to="`/computer/${comp._id}/edit`"
-            class="btn btn-sm btn-icon btn-outline-primary rounded-circle"
+            class="btn btn-outline btn-sm"
             title="Bearbeiten"
         >
           <i class="bi bi-pencil"></i>
         </router-link>
+
+        <!-- Löschen -->
         <button
-            class="btn btn-sm btn-icon btn-outline-danger rounded-circle"
+            class="btn btn-outline btn-sm"
             :disabled="deletingId === comp._id"
             @click="emit('delete', comp._id)"
             title="Löschen"
@@ -59,19 +67,5 @@ function kategorieColor(kategorie) {
 </template>
 
 <style scoped>
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.kategorie-badge {
-  border-radius: 0.75rem;
-  font-size: 0.97em;
-  padding: 0.55em 1.15em;
-  font-weight: 600;
-  /* Dynamische Farbe wird per style gesetzt */
-}
+/* keine weiteren styles nötig, alles kommt aus main.css */
 </style>

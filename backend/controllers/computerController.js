@@ -139,6 +139,8 @@ const FIELD_MAP = {
     betreuer: 'betreuer',
     raum: 'raumnummer',
     raumnummer: 'raumnummer',
+    kernel: 'kernel',
+    status: 'status'
 };
 const INT_FIELDS = [
     'ram', 'beschaffungsjahr', 'inventarnummer', 'laufendeNummer', 'studPCs', 'studienzuschuss'
@@ -194,7 +196,7 @@ exports.advancedSearchComputers = asyncHandler(async (req, res) => {
         const orFields = [
             'dnsName', 'benutzer', 'cpu', 'marke', 'typ', 'seriennummer', 'grafikkarte',
             'chipsatz', 'tpm', 'bios', 'remote', 'version', 'abstraktionsebene', 'ipAdresse',
-            'macAdresse', 'betreuer', 'artDerArbeit', 'raumnummer', 'fauInventarnummer', 'info', 'todo', 'ablauf'
+            'macAdresse', 'betreuer', 'artDerArbeit', 'raumnummer', 'fauInventarnummer', 'info', 'todo', 'ablauf', 'kernel', 'status'
         ];
         filter['$or'] = orFields.map(f => ({ [f]: { $regex: textRegex } }));
     }
@@ -307,9 +309,20 @@ exports.bulkImport = asyncHandler(async (req, res) => {
 
 // --- ALLE (ohne Filter, Vorsicht bei sehr vielen Daten!) ---
 exports.listAll = asyncHandler(async (req, res) => {
-    const list = await Computer.find({ deleted: { $ne: true } })
+    const filter = { deleted: { $ne: true } }
+
+    // 1. Gesamtanzahl der Dokumente ermitteln
+    const total = await Computer.countDocuments(filter)
+
+    // 2. Die eigentlichen Datensätze laden
+    const items = await Computer.find(filter)
         .populate('kategorie')
         .populate('betriebssystem')
-        .lean();
-    res.status(200).json(list);
-});
+        .lean()
+
+    // 3. beides zurückgeben
+    res.status(200).json({
+        items,
+        total
+    })
+})

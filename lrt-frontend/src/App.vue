@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import TopBar from '@/components/TopBar.vue'
-import Toasts  from '@/components/Toasts.vue'  // <-- hier einbinden
-import FooterBar from '@/components/FooterBar.vue'
+import TopBar from '@/shared/components/TopBar.vue'
+import Toasts  from '@/shared/components/Toasts.vue'  // <-- hier einbinden
+import FooterBar from '@/shared/components/FooterBar.vue'
 </script>

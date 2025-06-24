@@ -99,8 +99,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import http from '@/api/http'
-import { useToastStore } from '@/stores/toast'
+import http from '@/shared/api/http'
+import { useToastStore } from '@/shared/stores/toast'
 
 const emit = defineEmits(['close'])
 const toast = useToastStore()

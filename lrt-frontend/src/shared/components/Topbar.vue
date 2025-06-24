@@ -1,7 +1,7 @@
 <template>
-  <nav class="navbar navbar-expand-lg glass-topbar py-2 shadow-lg position-sticky top-0 z-3">
+  <nav class="navbar navbar-expand-lg glass-topbar shadow position-sticky top-0 z-3">
     <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
-      <!-- Brand mit Gradient-Leiste -->
+      <!-- Brand -->
       <div class="d-flex align-items-center brand-highlight pe-3">
         <router-link
             class="navbar-brand d-flex align-items-center gap-2"
@@ -12,7 +12,7 @@
         </router-link>
       </div>
 
-      <!-- Burger für mobile -->
+      <!-- Mobile Toggle -->
       <button
           class="navbar-toggler border-0"
           type="button"
@@ -25,11 +25,10 @@
         <i class="bi bi-list fs-3"></i>
       </button>
 
-      <!-- Main Nav -->
+      <!-- Nav Links -->
       <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
         <ul class="navbar-nav align-items-center gap-2 ms-auto">
           <template v-if="auth.isAuthenticated">
-            <!-- Direktlinks -->
             <li class="nav-item">
               <router-link class="nav-link" to="/computer">
                 <i class="bi bi-pc-display-horizontal me-1"></i>Computer
@@ -60,7 +59,6 @@
                 <i class="bi bi-trash3 me-1"></i>Papierkorb
               </router-link>
             </li>
-            <!-- Admin Dashboard -->
             <li class="nav-item" v-if="auth.user?.isAdmin">
               <router-link class="nav-link" to="/admin">
                 <i class="bi bi-bar-chart-line me-1"></i>Dashboard
@@ -75,34 +73,28 @@
                   id="userDropdown"
                   role="button"
                   data-bs-toggle="dropdown"
+                  data-bs-display="static"
                   aria-expanded="false"
               >
-                <i class="bi bi-person-circle me-1"></i>
-                {{ auth.user?.username }}
+                <i class="bi bi-person-circle me-1"></i> {{ auth.user.username }}
               </a>
-              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-glass" aria-labelledby="userDropdown">
+              <ul class="dropdown-menu dropdown-menu-end dropdown-glass" aria-labelledby="userDropdown">
                 <li>
                   <router-link class="dropdown-item" to="/profile">
                     <i class="bi bi-person me-1"></i>Profil
                   </router-link>
                 </li>
-                <li v-if="auth.user?.isAdmin">
+                <li v-if="auth.user.isAdmin">
                   <router-link class="dropdown-item" to="/settings">
                     <i class="bi bi-gear me-1"></i>Einstellungen
                   </router-link>
                 </li>
-                <!-- Hier die neuen Links -->
-                <li v-if="auth.user?.isAdmin">
+                <li v-if="auth.user.isAdmin">
                   <router-link class="dropdown-item" to="/documentation">
                     <i class="bi bi-journal-text me-1"></i>Dokumentation
                   </router-link>
                 </li>
-<!--                <li v-if="auth.user?.isAdmin">
-                  <router-link class="dropdown-item" to="/api-docs">
-                    <i class="bi bi-code-slash me-1"></i>API Docs
-                  </router-link>
-                </li>-->
-                <hr class="dropdown-divider">
+                <li><hr class="dropdown-divider"></li>
                 <li>
                   <button @click="handleLogout" class="dropdown-item text-danger">
                     <i class="bi bi-box-arrow-right me-1"></i>Logout
@@ -123,13 +115,37 @@
       </div>
     </div>
   </nav>
+
+  <!-- Maintenance‑Banner für Admins -->
+  <div
+      v-if="auth.user?.isAdmin && settings.maintenanceMode"
+      class="maintenance-banner-admin d-flex align-items-center justify-content-center gap-2"
+  >
+    <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+    <span class="fw-semibold">
+      Wartungsmodus aktiv – Anwendung nur im Read‑Only.
+    </span>
+  </div>
+
+  <!-- Guest‑Banner -->
+  <div
+      v-else-if="!auth.isAuthenticated && settings.maintenanceMode"
+      class="maintenance-banner-guest d-flex align-items-center justify-content-center gap-2"
+  >
+    <i class="bi bi-tools-fill"></i>
+    <span class="banner-text">
+      Wartungsarbeiten – bitte später erneut anmelden.
+    </span>
+  </div>
 </template>
 
 <script setup>
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/shared/stores/auth'
+import { useSettingsStore } from '@/shared/stores/settings'
 import { useRouter } from 'vue-router'
 
-const auth   = useAuthStore()
+const auth = useAuthStore()
+const settings = useSettingsStore()
 const router = useRouter()
 
 function handleLogout() {
@@ -140,118 +156,91 @@ function handleLogout() {
 
 <style scoped>
 .glass-topbar {
-  background: rgba(245, 249, 255, 0.93);
-  backdrop-filter: blur(18px) saturate(170%);
-  border-bottom: 2.2px solid #e4eefa;
-  box-shadow: 0 8px 32px 0 rgba(56,139,253,0.13), 0 2.5px 8px rgba(44,100,204,0.12);
-  border-radius: 0 0 22px 22px;
-  transition: background 0.21s, box-shadow 0.22s;
-  position: sticky;
-  top: 0; z-index: 1090;
-  min-height: 66px;
-  animation: glass-fade-in 0.5s;
+  background: rgba(var(--clr-bg-rgb), 0.9);
+  backdrop-filter: blur(var(--space-sm)) saturate(170%);
+  border-bottom: 1px solid var(--clr-border);
+  box-shadow: var(--shadow-light);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  transition: background 0.2s, box-shadow 0.2s;
+  z-index: 1090;
 }
-@keyframes glass-fade-in {
-  from { opacity: 0; filter: blur(8px);}
-  to   { opacity: 1; filter: blur(0);}
-}
+
+/* Branding */
 .brand-highlight {
-  border-left: 6px solid #388bfd;
-  padding-left: 0.9rem;
-  background: linear-gradient(90deg,rgba(56,139,253,0.10) 5%,transparent 65%);
-  border-radius: 0 14px 14px 0;
-  margin-right: 14px;
+  border-left: 0.375rem solid var(--clr-primary-start);
+  background: linear-gradient(90deg, rgba(var(--clr-primary-start-rgb),0.1) 5%, transparent 65%);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-right: var(--space-md);
 }
 .logo-text {
-  color: #2673c9;
-  letter-spacing: 0.2px;
-  font-size: 1.44rem;
-  text-shadow: 0 2px 10px #b7c8fa15;
-  background: linear-gradient(90deg, #2673c9 40%, #388bfd 90%);
+  font-size: 1.5rem;
+  background: linear-gradient(90deg, var(--clr-primary-start) 40%, var(--clr-primary-end) 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
 }
-.navbar-brand {
-  font-weight: 700;
-  font-size: 1.28rem;
-  padding: 0.08rem 0.5rem;
-  border-radius: 11px;
-  transition: background 0.13s;
-}
-.navbar-brand:hover {
-  background: #e7f1fa;
-}
-.navbar-nav .nav-link {
-  color: #2359aa !important;
+
+/* Nav‐Links */
+.navbar-brand { padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-md); }
+.navbar-brand:hover { background: var(--clr-card-bg); }
+.nav-link {
+  color: var(--clr-text) !important;
   font-weight: 500;
-  border-radius: 10px;
-  padding: 0.45rem 1.13rem;
-  font-size: 1.12rem;
-  transition: background 0.13s, color 0.13s, box-shadow 0.16s;
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-md);
+  transition: background 0.2s, color 0.2s;
 }
-.navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
-  background: linear-gradient(90deg,#e7f1fa 75%,#cfe6ff 100%);
-  color: #12569b !important;
-  box-shadow: 0 1.5px 12px #388bfd16;
+.nav-link:hover,
+.nav-link.active { background: var(--clr-card-bg); }
+
+/* Dropdown styling */
+.dropdown-glass {
+  background: rgba(var(--clr-card-bg-rgb), 0.95);
+  border: 1px solid var(--clr-border);
+  box-shadow: var(--shadow-strong);
+  border-radius: var(--radius-md);
 }
-.dropdown-menu-glass {
-  background: rgba(252, 253, 255, 0.97);
-  border: 1.6px solid #e6ebf2;
-  box-shadow: 0 10px 30px rgba(56, 139, 253, 0.11);
-  border-radius: 0.95rem;
-  min-width: 210px;
-  font-size: 1rem;
+.dropdown-item { border-radius: var(--radius-sm); transition: background 0.2s; }
+.dropdown-item:hover { background: var(--clr-bg); }
+
+/* Ensure nothing is clipped */
+.glass-topbar,
+.navbar,
+.container-fluid,
+.navbar-collapse {
+  overflow: visible !important;
 }
-.dropdown-item {
-  color: #1e61af;
-  border-radius: 0.53rem;
-  padding: 0.54rem 1.2rem;
+
+/* Position dropdown directly below navbar */
+.nav-item.dropdown { position: static; }
+.dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  right: 0 !important;
+  margin-top: 0 !important;
+  z-index: 3000 !important;
 }
-.dropdown-item:hover, .dropdown-item:focus {
-  background: #e4effb !important;
-  color: #12335a !important;
+
+/* Banners */
+.maintenance-banner-admin {
+  background: linear-gradient(90deg, #ffc107, #ff9800);
+  color: var(--clr-text);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-light);
+  position: sticky;
+  top: calc(1rem + var(--space-sm));
+  z-index: 1080;
 }
-.dropdown-item.text-danger {
-  color: #e02424 !important;
+.maintenance-banner-guest {
+  background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+  color: #0d47a1;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--fs-sm);
+  position: sticky;
+  top: calc(1rem + var(--space-sm));
+  z-index: 1080;
+  border-bottom: 2px solid #90caf9;
 }
-.dropdown-item.text-danger:hover {
-  background: #fbeaea !important;
-}
-.navbar-toggler {
-  background: transparent;
-  outline: none;
-}
-.navbar-toggler:focus {
-  box-shadow: none;
-}
-.avatar-circle {
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg,#388bfd 60%,#39e6b5 100%);
-  color: #fff;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 1.13rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 13px #388bfd24;
-  margin-left: 2px;
-  border: 2.2px solid #f1f5fa;
-  transition: border 0.13s;
-}
-.avatar-circle:hover {
-  border: 2.2px solid #388bfd;
-}
-@media (max-width: 900px) {
-  .brand-highlight { border-left-width: 4px; padding-left: 0.6rem;}
-  .glass-topbar { border-radius: 0 0 15px 15px; }
-  .navbar-brand { font-size: 1.1rem;}
-  .logo-text { font-size: 1.08rem;}
-  .avatar-circle { width: 30px; height: 30px; font-size: 1rem; }
-}
-@media (max-width: 650px) {
-  .brand-highlight { border-radius: 0 8px 8px 0; }
-  .glass-topbar { border-radius: 0 0 9px 9px;}
-}
+.banner-text { line-height: 1.2; }
 </style>

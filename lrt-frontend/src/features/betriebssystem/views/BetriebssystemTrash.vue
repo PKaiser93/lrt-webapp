@@ -11,36 +11,34 @@ function restoreItem(id) {
 </script>
 
 <template>
-  <div class="os-list-container shadow-lg">
-    <div class="os-list-header d-flex justify-content-between align-items-center flex-wrap mb-2">
-      <div>
-        <h2 class="gradient-text mb-1 d-flex align-items-center">
-          <i class="bi bi-trash3 me-2"></i>
-          Gelöschte Betriebssysteme
-        </h2>
-        <div class="subtitle mb-2">Hier kannst du gelöschte Betriebssysteme wiederherstellen</div>
-      </div>
-    </div>
+  <div class="os-list-container">
+    <header class="os-list-header mb-3">
+      <h2 class="fs-lg fw-bold gradient-text d-flex align-items-center gap-2">
+        <i class="bi bi-trash3"></i>
+        Gelöschte Betriebssysteme
+      </h2>
+      <p class="text-secondary fs-md">Hier kannst du gelöschte Betriebssysteme wiederherstellen</p>
+    </header>
 
-    <div class="table-responsive rounded-4 shadow-sm mt-3">
-      <table class="table table-hover align-middle mb-0 os-table">
-        <thead>
+    <div class="table-responsive card p-0 overflow-hidden">
+      <table class="table mb-0 os-table">
+        <thead class="bg-light">
         <tr>
-          <th style="width:60px"><i class="bi bi-hash"></i></th>
-          <th><i class="bi bi-ubuntu me-2"></i>Name</th>
-          <th style="width:180px" class="text-end">Aktion</th>
+          <th class="text-center" style="width: 4rem"><i class="bi bi-hash"></i></th>
+          <th><i class="bi bi-ubuntu me-1"></i>Name</th>
+          <th class="text-end" style="width: 8rem">Aktion</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="(bs, i) in store.trash" :key="bs._id">
-          <td>{{ i + 1 }}</td>
+          <td class="text-center">{{ i + 1 }}</td>
           <td>
-            <i class="bi bi-hdd-network me-2 text-primary"></i>
+            <i class="bi bi-hdd-network me-1 text-primary"></i>
             {{ bs.name }}
           </td>
           <td class="text-end">
             <button
-                class="btn btn-gradient d-inline-flex align-items-center gap-2 px-4 py-2"
+                class="btn btn-primary btn-sm"
                 @click="restoreItem(bs._id)"
                 title="Wiederherstellen"
             >
@@ -49,8 +47,8 @@ function restoreItem(id) {
           </td>
         </tr>
         <tr v-if="!store.trash.length">
-          <td colspan="3" class="py-5 text-center text-secondary fs-5">
-            <i class="bi bi-emoji-laughing text-primary fs-2 mb-2 d-block"></i>
+          <td colspan="3" class="py-5 text-center text-secondary">
+            <i class="bi bi-emoji-laughing fs-2 mb-2 d-block text-primary"></i>
             Nichts im Papierkorb!
           </td>
         </tr>
@@ -62,74 +60,60 @@ function restoreItem(id) {
 
 <style scoped>
 .os-list-container {
-  background: #fafdff;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px 0 rgba(32,78,118,.09), 0 1.5px 8px rgba(0,210,255,0.08);
-  padding: 32px 20px 30px;
-  margin-top: 36px;
   max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: var(--space-lg) auto;
+  padding: var(--space-lg);
 }
+
 .os-list-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
+
 .gradient-text {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 60%);
+  background: linear-gradient(
+      135deg,
+      var(--clr-primary-start),
+      var(--clr-primary-end)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-  font-weight: bold;
 }
-.subtitle {
-  color: #3a7bd5bb;
-  font-size: 1rem;
-  margin-left: 3px;
+
+.table-responsive {
+  background: var(--clr-card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
 }
-.btn-gradient {
-  background: linear-gradient(90deg,#3a7bd5,#00d2ff 70%);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  border-radius: 14px;
-  padding: 8px 20px;
-  box-shadow: 0 2px 12px #00d2ff13;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.btn-gradient:hover, .btn-gradient:focus {
-  background: linear-gradient(90deg,#00d2ff,#3a7bd5 70%);
-  color: #fff;
-  box-shadow: 0 4px 18px #3a7bd525;
-}
-.os-table th, .os-table td {
-  vertical-align: middle !important;
-  font-size: 1.08em;
-}
-.os-table th {
-  font-weight: 600;
-  user-select: none;
-  border-top: none;
-  background: linear-gradient(90deg,#eaf6fb,#e3f5ff 100%);
-}
-.os-table tbody tr:hover {
-  background: #e3f6ff !important;
-  transition: background 0.1s;
-}
+
+.os-table th,
 .os-table td {
-  background: none !important;
+  vertical-align: middle;
+  padding: var(--space-sm) var(--space-md);
 }
-@media (max-width: 700px) {
+
+.os-table thead th {
+  border-bottom: 2px solid var(--clr-border);
+  font-weight: 600;
+}
+
+.os-table tbody tr:hover {
+  background: var(--clr-bg);
+}
+
+.btn-primary {
+  /* aus main.css */
+}
+
+/* Responsive Anpassung */
+@media (max-width: 576px) {
   .os-list-container {
-    padding: 13px 4px 15px;
+    padding: var(--space-md);
   }
-  .os-table th, .os-table td {
-    font-size: 0.96em;
+  .os-table th,
+  .os-table td {
+    font-size: var(--fs-sm);
   }
 }
 </style>
