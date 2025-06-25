@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm install --production    # <-- IM CONTAINER bauen!
+RUN apk add --no-cache mongodb-tools
 
 COPY . .
 

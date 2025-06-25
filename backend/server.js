@@ -106,11 +106,6 @@ app.use('/api/admin/metrics', require('./routes/metricsRoutes'));
 // 5) Statisches SPA‑Bundle
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 6) SPA‑Fallback (React/Vue Router unterstützt History API)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Route nicht gefunden' });
