@@ -9,9 +9,17 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
-    "backend/**/*.{js,mjs}": ["eslint --fix", "prettier --write"],
-    "lrt-frontend/**/*.{js,vue}": ["eslint --fix", "prettier --write"],
-    "*.{json,md}": ["prettier --write"]
+    "backend/**/*.{js,mjs}": [
+      "npx --prefix backend eslint --fix",
+      "npx --prefix backend prettier --write"
+    ],
+    "lrt-frontend/**/*.{js,vue}": [
+      "npx --prefix lrt-frontend eslint --fix",
+      "npx --prefix lrt-frontend prettier --write"
+    ],
+    "*.{json,md}": [
+      "npx prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
