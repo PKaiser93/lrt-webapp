@@ -1,3 +1,5 @@
+const path          = require('path');
+
 const express       = require('express');
 const mongoose      = require('mongoose');
 const cors          = require('cors');
@@ -5,7 +7,7 @@ const morgan        = require('morgan');
 const helmet        = require('helmet');
 const rateLimit     = require('express-rate-limit');
 const compression   = require('compression');
-const path          = require('path');
+
 const connectDB     = require('./config/db');
 const loadUser      = require('./middleware/loadUser');
 const maintenance   = require('./middleware/maintenance');
@@ -25,58 +27,56 @@ app.use(compression());
 
 // Simple request logger
 app.use((req, res, next) => {
-    // console.log(`[${req.method}] ${req.url}`);
-    next();
+  // console.log(`[${req.method}] ${req.url}`);
+  next();
 });
 
 // Rate limiting for API
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: { error: 'Zu viele Anfragen – bitte warte kurz!' }
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: 'Zu viele Anfragen – bitte warte kurz!' },
 });
 if (process.env.NODE_ENV === 'production') {
-    app.use('/api/', limiter);
+  app.use('/api/', limiter);
 }
 
 // Login rate limiting
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10,
-    message: { error: 'Zu viele Login-Versuche!' }
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Zu viele Login-Versuche!' },
 });
 app.use('/api/auth/login', loginLimiter);
 
 // CORS
 const allowedOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',')
-    : ['http://localhost:5173'];
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:5173'];
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (!allowedOrigins.includes(origin)) {
-            return callback(new Error(`CORS policy: ${origin} not allowed`), false);
-        }
-        return callback(null, true);
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (!allowedOrigins.includes(origin)) {
+      return callback(new Error(`CORS policy: ${origin} not allowed`), false);
     }
+    return callback(null, true);
+  },
 }));
 
 // Healthcheck
 app.get('/api/health', async (req, res) => {
-    const dbState = mongoose.connection.readyState;
-    const dbStatus = ['disconnected','connected','connecting','disconnecting'][dbState] || 'unknown';
-    res.json({
-        status: 'ok',
-        db: dbStatus,
-        uptime: process.uptime(),
-        timestamp: new Date().toISOString()
-    });
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = ['disconnected','connected','connecting','disconnecting'][dbState] || 'unknown';
+  res.json({
+    status: 'ok',
+    db: dbStatus,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Body parser
 app.use(express.json({ limit: '50mb' }));
-
-var  foo=42; console.log("FooBar",foo)
 
 // 1) Load user (sets req.user if token valid)
 app.use(loadUser);
@@ -108,31 +108,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 6) SPA‑Fallback (React/Vue Router unterstützt History API)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).json({ error: 'Route nicht gefunden' });
+  res.status(404).json({ error: 'Route nicht gefunden' });
 });
 
 // Error handler
-app.use((err, req, res, next) => {
-    console.error('FEHLER:', err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
+app.use((err, req, res, _next) => {
+  console.error('FEHLER:', err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // Connect DB and start server
 (async () => {
-    await connectDB();
-    const port = process.env.PORT || 3000;
-    app.listen(port, () =>
-        console.log(`🚀 Server läuft auf Port ${port}`)
-    );
+  await connectDB();
+  const port = process.env.PORT || 3000;
+  app.listen(port, () =>
+    console.log(`🚀 Server läuft auf Port ${port}`),
+  );
 })();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', err => {
-    console.error('❗️ Unhandled Rejection:', err);
-    process.exit(1);
+  console.error('❗️ Unhandled Rejection:', err);
+  process.exit(1);
 });

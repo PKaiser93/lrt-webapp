@@ -1,22 +1,22 @@
-const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
-require('dotenv').config()
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 
-const User = require('../models/User')
+const User = require('../models/User');
 
 async function seed() {
-    await mongoose.connect(process.env.MONGO_URI)
+  await mongoose.connect(process.env.MONGO_URI);
 
-    const hash = await bcrypt.hash('SZ6.fe01', 10)
+  const hash = await bcrypt.hash('SZ6.fe01', 10);
 
-    await User.create({
-        username: 'patrick',
-        password: hash,
-        isAdmin: true
-    })
+  await User.create({
+    username: 'patrick',
+    password: hash,
+    isAdmin: true,
+  });
 
-    console.log('✅ Neuer User gespeichert')
-    process.exit()
+  console.log('✅ Neuer User gespeichert');
+  process.exit();
 }
 
-seed()
+seed();

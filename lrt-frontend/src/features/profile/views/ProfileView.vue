@@ -17,18 +17,18 @@
             <span v-if="profile?.isAdmin" class="badge badge-admin">Admin</span>
           </h2>
           <div class="meta-info text-secondary d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start">
-            <span><i class="bi bi-person me-1"></i><strong>{{ profile?.username }}</strong></span>
-            <span><i class="bi bi-envelope me-1"></i>{{ profile?.email }}</span>
+            <span><i class="bi bi-person me-1"></i><strong> {{ profile?.username }}</strong></span>
+            <span><i class="bi bi-envelope me-1"></i> {{ profile?.email }}</span>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="action-buttons d-flex gap-2">
           <button class="btn btn-gradient" @click="showEdit = true">
-            <i class="bi bi-pencil"></i> Bearbeiten
+            <i class="bi bi-pencil"></i> &nbsp; Bearbeiten
           </button>
           <button class="btn btn-outline-gradient" @click="showPassword = true">
-            <i class="bi bi-key"></i> Passwort ändern
+            <i class="bi bi-key"></i> &nbsp; Passwort ändern
           </button>
         </div>
       </div>
@@ -43,6 +43,18 @@
     <div v-else-if="profile" class="profile-details card shadow-sm rounded-4 border-0">
       <div class="card-body p-4">
         <div class="row gx-4 gy-3">
+          <!-- Persönliche Daten -->
+          <div class="col-12 col-md-6">
+            <div class="section-card p-3">
+              <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Persönlich</h5>
+              <dl class="row mb-0">
+                <dt class="col-5">Vorname</dt>
+                <dd class="col-7">{{ profile.firstName || '–' }}</dd>
+                <dt class="col-5">Nachname</dt>
+                <dd class="col-7">{{ profile.lastName || '–' }}</dd>
+              </dl>
+            </div>
+          </div>
           <!-- Nutzerinformationen -->
           <div class="col-12 col-md-6">
             <div class="section-card p-3">
@@ -61,18 +73,6 @@
               </dl>
             </div>
           </div>
-          <!-- Persönliche Daten -->
-          <div class="col-12 col-md-6">
-            <div class="section-card p-3">
-              <h5 class="section-title mb-3"><i class="bi bi-person-lines-fill me-2"></i>Persönlich</h5>
-              <dl class="row mb-0">
-                <dt class="col-5">Vorname</dt>
-                <dd class="col-7">{{ profile.firstName || '–' }}</dd>
-                <dt class="col-5">Nachname</dt>
-                <dd class="col-7">{{ profile.lastName || '–' }}</dd>
-              </dl>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -83,18 +83,18 @@
       Profil konnte nicht geladen werden.
     </div>
 
+    <!-- Change Password Modal -->
+    <ChangePasswordModal
+        v-if="showPassword"
+        @close="showPassword = false"
+    />
+
     <!-- Profile Edit Modal -->
     <ProfileEditModal
         v-if="showEdit"
         :initial-profile="profile"
         @close="showEdit = false"
         @saved="onProfileSaved"
-    />
-
-    <!-- Change Password Modal -->
-    <ChangePasswordModal
-        v-if="showPassword"
-        @close="showPassword = false"
     />
   </div>
 </template>

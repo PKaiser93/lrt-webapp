@@ -1,8 +1,9 @@
 // routes/adminRoutes.js
 const express = require('express');
+
 const router = express.Router();
 const admin = require('../controllers/adminController');
-const {requireAuth, requireAdmin} = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 router.get('/ping', (req, res) => res.send('pong'));
 // Statistiken
@@ -22,9 +23,9 @@ router.patch('/users/toggle-admin/:id', requireAuth, requireAdmin, admin.toggleA
 router.get('/backup/last',          requireAuth, requireAdmin, admin.getBackup);
 router.post('/backup',          requireAuth, requireAdmin, admin.backupDatabase);
 
-router.get   ('/settings',               admin.getSettings)
-router.patch ('/settings/maintenance',   requireAuth, requireAdmin, admin.updateMaintenance)
-router.patch ('/settings/flag/:name',    requireAuth, requireAdmin, admin.updateFlag)
+router.get   ('/settings',               admin.getSettings);
+router.patch ('/settings/maintenance',   requireAuth, requireAdmin, admin.updateMaintenance);
+router.patch ('/settings/flag/:name',    requireAuth, requireAdmin, admin.updateFlag);
 
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router  = express.Router();
 const priv    = require('../controllers/privacyController');
 const { requireAuth, requireAdmin } = require('../middleware/auth');

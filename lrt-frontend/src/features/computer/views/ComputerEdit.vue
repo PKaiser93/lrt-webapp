@@ -50,8 +50,14 @@
                 <input v-model="form.marke" required class="form-control" />
               </div>
               <div>
-                <label class="form-label">Typ *</label>
-                <input v-model="form.typ" required class="form-control" />
+                <label class="form-label">Typ</label>
+                <select v-model="form.typ" required class="form-select">
+                  <option value="PC">PC</option>
+                  <option value="Notebook">Notebook</option>
+                  <option value="Workstation">Workstation</option>
+                  <option value="Macbook Pro">Macbook Pro</option>
+                  <option value="iPad Pro">iPad Pro</option>
+                </select>
               </div>
               <div>
                 <label class="form-label">Seriennummer *</label>

@@ -46,7 +46,7 @@
                       v-model="form.email"
                       type="email"
                       class="form-control"
-                      placeholder="beispiel@domain.de"
+                      placeholder="vorname.nachname@fau.de"
                       required
                   />
                 </div>

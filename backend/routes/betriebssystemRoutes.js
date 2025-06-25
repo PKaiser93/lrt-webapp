@@ -5,10 +5,11 @@
  *   description: Verwaltung der Betriebssysteme
  */
 
-const express = require('express')
-const router = express.Router()
-const bs = require('../controllers/betriebssystemController')
-const { requireAuth, requireAdmin } = require('../middleware/auth')
+const express = require('express');
+
+const router = express.Router();
+const bs = require('../controllers/betriebssystemController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -26,7 +27,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth')
  *               items:
  *                 $ref: '#/components/schemas/Betriebssystem'
  */
-router.get('/', bs.listAll)
+router.get('/', bs.listAll);
 
 /**
  * @swagger
@@ -54,7 +55,7 @@ router.get('/', bs.listAll)
  *       403:
  *         $ref: '#/components/responses/Forbidden'
  */
-router.post('/', requireAuth, requireAdmin, bs.create)
+router.post('/', requireAuth, requireAdmin, bs.create);
 
 /**
  * @swagger
@@ -86,7 +87,7 @@ router.post('/', requireAuth, requireAdmin, bs.create)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch('/:id', requireAuth, requireAdmin, bs.update)
+router.patch('/:id', requireAuth, requireAdmin, bs.update);
 
 /**
  * @swagger
@@ -108,7 +109,7 @@ router.patch('/:id', requireAuth, requireAdmin, bs.update)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch('/:id/soft-delete', requireAuth, requireAdmin, bs.softDelete)
+router.patch('/:id/soft-delete', requireAuth, requireAdmin, bs.softDelete);
 
 /**
  * @swagger
@@ -130,7 +131,7 @@ router.patch('/:id/soft-delete', requireAuth, requireAdmin, bs.softDelete)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.patch('/:id/restore', requireAuth, requireAdmin, bs.restore)
+router.patch('/:id/restore', requireAuth, requireAdmin, bs.restore);
 
 /**
  * @swagger
@@ -158,7 +159,7 @@ router.patch('/:id/restore', requireAuth, requireAdmin, bs.restore)
  *       403:
  *         $ref: '#/components/responses/Forbidden'
  */
-router.post('/bulk-import', requireAuth, requireAdmin, bs.bulkImport)
+router.post('/bulk-import', requireAuth, requireAdmin, bs.bulkImport);
 
 /**
  * @swagger
@@ -176,7 +177,7 @@ router.post('/bulk-import', requireAuth, requireAdmin, bs.bulkImport)
  *       403:
  *         $ref: '#/components/responses/Forbidden'
  */
-router.delete('/hard-delete-all', requireAuth, requireAdmin, bs.hardDeleteAll)
+router.delete('/hard-delete-all', requireAuth, requireAdmin, bs.hardDeleteAll);
 
 /**
  * @swagger
@@ -200,7 +201,7 @@ router.delete('/hard-delete-all', requireAuth, requireAdmin, bs.hardDeleteAll)
  *       403:
  *         $ref: '#/components/responses/Forbidden'
  */
-router.get('/trash/list', requireAuth, requireAdmin, bs.listTrash)
+router.get('/trash/list', requireAuth, requireAdmin, bs.listTrash);
 
 /**
  * @swagger
@@ -222,6 +223,6 @@ router.get('/trash/list', requireAuth, requireAdmin, bs.listTrash)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.delete('/:id', requireAuth, requireAdmin, bs.deleteSingle)
+router.delete('/:id', requireAuth, requireAdmin, bs.deleteSingle);
 
-module.exports = router
+module.exports = router;

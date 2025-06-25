@@ -6,7 +6,7 @@
         <i class="bi bi-speedometer2"></i> Admin Dashboard
       </h1>
       <button class="btn btn-primary" @click="createBackup">
-        <i class="bi bi-hdd-stack-fill"></i> Backup jetzt
+        <i class="bi bi-hdd-stack-fill"></i> &nbsp; Backup jetzt
       </button>
     </div>
 
@@ -27,18 +27,18 @@
               <h5 class="mb-0">System Health</h5>
             </div>
             <p>
-              <strong>Status:</strong>
+              <strong>Status: </strong>
               <span :class="health.status === 'ok' ? 'text-success' : 'text-danger'">
                 {{ health.status.toUpperCase() }}
               </span>
             </p>
             <p>
-              <strong>DB:</strong>
+              <strong>DB: </strong>
               <span :class="health.db === 'connected' ? 'text-success' : 'text-danger'">
                 {{ health.db }}
               </span>
             </p>
-            <p><strong>Uptime:</strong> {{ formattedUptime }}</p>
+            <p><strong>Uptime: </strong> {{ formattedUptime }}</p>
             <small class="text-muted">Letzte Prüfung: {{ health.timestamp }}</small>
           </div>
         </div>
@@ -73,7 +73,7 @@
               <h5 class="mb-0">API Monitoring</h5>
             </div>
             <p><strong>Requests:</strong> {{ metrics.totalRequests }}</p>
-            <p><strong>Ø Latenz:</strong> {{ overallAvg }} ms</p>
+            <p><strong>Ø Latenz:</strong> {{ overallAvg }} ms</p>
             <small class="text-muted">Routen: {{ metrics.routes.length }}</small>
           </div>
         </div>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- KPI Cards -->
-    <div class="row g-4 mb-4">
+    <div class="row g-5 mb-5">
       <StatCard icon="bi-pc-display" title="Computer" :value="stats.computer" color="primary" />
       <StatCard icon="bi-window" title="Betriebssysteme" :value="stats.betriebssysteme" color="info" />
       <StatCard icon="bi-tags" title="Kategorien" :value="stats.kategorien" color="success" />
@@ -117,24 +117,24 @@
                 <i class="bi bi-people-fill"></i> Users
               </h5>
               <button class="btn btn-primary btn-sm" @click="showAddUser = true">
-                <i class="bi bi-person-plus-fill"></i> Neu
+                <i class="bi bi-person-plus-fill"></i> &nbsp; Neu
               </button>
             </div>
             <div class="table-responsive">
               <table class="table table-striped align-middle mb-0">
                 <thead>
                 <tr>
-                  <th>Username</th>
-                  <th>E‑Mail</th>
-                  <th>Admin</th>
-                  <th class="text-end">Aktionen</th>
+                  <th><i class="bi bi-person"></i> Username</th>
+                  <th><i class="bi bi-envelope"></i> E‑Mail</th>
+                  <th><i class="bi bi-person-gear"></i> Admin</th>
+                  <th class="text-end"><i class="bi bi-three-dots"></i> Aktionen</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="u in users" :key="u._id">
                   <td>{{ u.username }}</td>
                   <td>{{ u.email }}</td>
-                  <td>
+                  <td class="text-center">
                     <i
                         :class="u.isAdmin
                           ? 'bi bi-check-circle-fill text-success'
