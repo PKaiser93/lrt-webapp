@@ -1,2 +1,1 @@
-npm run lint:backend
-npm run lint:frontend
+npx lint-staged --config ./package.json

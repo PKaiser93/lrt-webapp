@@ -1,0 +1,32 @@
+{
+  "name": "lrt-webapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "node lint-staged-fix.js"
+    ]
+  },
+  "scripts": {
+    "test:unit": "vitest run --coverage",
+    "lint": "eslint src --ext .js,.ts,.jsx,.tsx",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky",
+    "build:backend": "cd backend && npm install --production && npm run build",
+    "build:frontend": "cd lrt-frontend && npm install --production && npm run build"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "https://lrt063.e-technik.uni-erlangen.de/patrick/lrt-webapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2"
+  }
+}

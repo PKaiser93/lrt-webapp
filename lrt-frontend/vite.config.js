@@ -22,10 +22,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Damit Top-Level-Await unterstützt wird
     target: 'esnext',
-    // Baue direkt in das public-Verzeichnis deines Backends
-    outDir: '../backend/public',
+    outDir: 'dist',
     emptyOutDir: true,
   },
 });

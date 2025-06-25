@@ -1,0 +1,157 @@
+src/App.vue:14:    <!-- 🔔 Toast-Container -->
+src/App.vue:15:    <Toasts />
+src/App.vue:21:import Toasts  from '@/shared/components/Toasts.vue'  // <-- hier einbinden
+src/features/privacy/views/PrivacyRequests.vue:78:import { useToastStore } from '@/shared/stores/toast';
+src/features/privacy/views/PrivacyRequests.vue:80:const toast = useToastStore();
+src/features/privacy/views/PrivacyRequests.vue:94:    toast.show('Fehler beim Laden', 'danger');
+src/features/privacy/views/PrivacyRequests.vue:103:    toast.show(`Status auf "${to}" gesetzt`, 'success');
+src/features/privacy/views/PrivacyRequests.vue:106:    toast.show('Fehler beim Aktualisieren', 'danger');
+src/features/betriebssystem/views/BetriebssystemList.vue:73:import { useToastStore } from '@/shared/stores/toast';
+src/features/betriebssystem/views/BetriebssystemList.vue:76:const toastStore = useToastStore();
+src/features/betriebssystem/views/BetriebssystemList.vue:94:    toastStore.show('Betriebssystem gelöscht', 'success');
+src/features/betriebssystem/views/BetriebssystemList.vue:97:    toastStore.show(store.error || 'Fehler beim Löschen', 'danger');
+src/features/betriebssystem/views/BetriebssystemList.vue:104:      toastStore.show('Betriebssystem gespeichert', 'success');
+src/features/betriebssystem/views/BetriebssystemList.vue:107:      toastStore.show('Betriebssystem neu angelegt', 'success');
+src/features/betriebssystem/views/BetriebssystemList.vue:112:    toastStore.show(store.error || 'Fehler beim Speichern', 'danger');
+src/features/student/views/StudentList.vue:114:import { useToastStore } from '@/shared/stores/toast'
+src/features/student/views/StudentList.vue:118:const toast      = useToastStore()
+src/features/student/views/StudentList.vue:152:    toast.show(err.response?.data?.error || 'Fehler beim Laden der Studenten', 'danger')
+src/features/student/views/StudentList.vue:191:    toast.show('Student*in gelöscht', 'success')
+src/features/student/views/StudentList.vue:194:    toast.show(e.response?.data?.error || 'Fehler beim Löschen', 'danger')
+src/features/admin/views/AdminSettings.vue:76:import { useToastStore }     from '@/shared/stores/toast'
+src/features/admin/views/AdminSettings.vue:79:const toast    = useToastStore()
+src/features/admin/views/AdminSettings.vue:90:    toast.show('Wartungsmodus aktualisiert', 'success')
+src/features/admin/views/AdminSettings.vue:92:    toast.show('Fehler beim Umschalten', 'danger')
+src/features/admin/views/AdminSettings.vue:99:    toast.show(`Feature-Flag "${flag.label}" aktualisiert`, 'success')
+src/features/admin/views/AdminSettings.vue:101:    toast.show('Fehler beim Umschalten', 'danger')
+src/features/admin/views/AdminDashboard.vue:267:import { useToastStore } from '@/shared/stores/toast.js'
+src/features/admin/views/AdminDashboard.vue:285:// toast
+src/features/admin/views/AdminDashboard.vue:286:const toast = useToastStore()
+src/features/admin/views/AdminDashboard.vue:326:    toast.show('Backup erfolgreich erstellt', 'success')
+src/features/admin/views/AdminDashboard.vue:329:    toast.show('Backup fehlgeschlagen', 'danger')
+src/features/admin/views/AdminDashboard.vue:412:  toast.show(`"${u.username}" ist ${u.isAdmin ? 'Admin' : 'kein Admin'}`, 'info')
+src/features/admin/views/AdminDashboard.vue:419:  toast.show('Passwort zurückgesetzt', 'success')
+src/features/admin/views/AdminDashboard.vue:423:  toast.show('Kopiert', 'info')
+src/features/admin/views/AdminDashboard.vue:431:  toast.show('User angelegt', 'success')
+src/features/kategorie/views/KategorieTrash.vue:98:import { useToastStore } from '@/shared/stores/toast'
+src/features/kategorie/views/KategorieTrash.vue:100:const toast = useToastStore()
+src/features/kategorie/views/KategorieTrash.vue:108:    toast.show('Fehler beim Laden des Papierkorbs', 'danger')
+src/features/kategorie/views/KategorieTrash.vue:115:    toast.show('Kategorie wiederhergestellt', 'success')
+src/features/kategorie/views/KategorieTrash.vue:118:    toast.show('Fehler beim Wiederherstellen', 'danger')
+src/features/kategorie/views/KategorieTrash.vue:126:    toast.show(res.data.message, 'success')
+src/features/kategorie/views/KategorieTrash.vue:129:    toast.show('Fehler beim endgültigen Löschen', 'danger')
+src/features/kategorie/views/KategorieTrash.vue:137:    toast.show('Kategorie dauerhaft gelöscht', 'success')
+src/features/kategorie/views/KategorieTrash.vue:140:    toast.show('Fehler beim endgültigen Löschen', 'danger')
+src/features/kategorie/views/KategorieList.vue:93:import { useToastStore } from '@/shared/stores/toast'
+src/features/kategorie/views/KategorieList.vue:96:const toast = useToastStore()
+src/features/kategorie/views/KategorieList.vue:114:      toast.show('Kategorie aktualisiert', 'success')
+src/features/kategorie/views/KategorieList.vue:117:      toast.show('Kategorie angelegt', 'success')
+src/features/kategorie/views/KategorieList.vue:122:    toast.show('Fehler beim Speichern', 'danger')
+src/features/kategorie/views/KategorieList.vue:130:    toast.show('Fehler beim Laden der Kategorien', 'danger')
+src/features/kategorie/views/KategorieList.vue:138:    toast.show('Kategorie in den Papierkorb verschoben', 'success')
+src/features/kategorie/views/KategorieList.vue:141:    toast.show('Fehler beim Löschen', 'danger')
+src/features/profile/components/ProfileEditModal.vue:112:import { useToastStore } from '@/shared/stores/toast'
+src/features/profile/components/ProfileEditModal.vue:114:const toast = useToastStore()
+src/features/profile/components/ProfileEditModal.vue:133:    toast.show('Profil gespeichert', 'success')
+src/features/profile/components/ProfileEditModal.vue:137:    toast.show(msg, 'danger')
+src/features/profile/components/ChangePasswordModal.vue:103:import { useToastStore } from '@/shared/stores/toast'
+src/features/profile/components/ChangePasswordModal.vue:106:const toast = useToastStore()
+src/features/profile/components/ChangePasswordModal.vue:128:    toast.show('Passwort geändert', 'success')
+src/features/profile/views/ProfileView.vue:105:import { useToastStore } from '@/shared/stores/toast'
+src/features/profile/views/ProfileView.vue:109:const toast = useToastStore()
+src/features/profile/views/ProfileView.vue:121:    toast.show('Profil konnte nicht geladen werden', 'danger')
+src/features/papierkorb/views/TrashPage.vue:56:import { useToastStore } from '@/shared/stores/toast'
+src/features/papierkorb/views/TrashPage.vue:60:const toast = useToastStore()
+src/features/papierkorb/views/TrashPage.vue:145:    toast.show(`${ type === 'computer' ? 'Computer'
+src/features/papierkorb/views/TrashPage.vue:150:    toast.show('Fehler beim Wiederherstellen', 'danger')
+src/features/papierkorb/views/TrashPage.vue:164:    toast.show('Endgültig gelöscht!', 'success')
+src/features/papierkorb/views/TrashPage.vue:167:    toast.show('Fehler beim Löschen', 'danger')
+src/features/papierkorb/views/TrashPage.vue:181:    toast.show('Papierkorb geleert!', 'success')
+src/features/papierkorb/views/TrashPage.vue:184:    toast.show('Fehler beim Leeren', 'danger')
+src/features/ticket/views/TicketList.vue:175:import { useToastStore } from '@/shared/stores/toast'
+src/features/ticket/views/TicketList.vue:182:const toast = useToastStore()
+src/features/ticket/views/TicketList.vue:197:    toast.show('Benutzerliste konnte nicht geladen werden', 'danger')
+src/features/ticket/views/TicketList.vue:207:    toast.show('Fehler beim Laden der Tickets', 'danger')
+src/features/ticket/views/TicketList.vue:217:    toast.show('Ticket gelöscht', 'success')
+src/features/ticket/views/TicketList.vue:220:    toast.show('Fehler beim Löschen', 'danger')
+src/features/ticket/views/TicketList.vue:265:    toast.show('Status aktualisiert', 'success')
+src/features/ticket/views/TicketList.vue:268:    toast.show('Fehler beim Umschalten', 'danger')
+src/features/ticket/views/TicketDetail.vue:138:import { useToastStore } from '@/shared/stores/toast'
+src/features/ticket/views/TicketDetail.vue:142:const toast = useToastStore()
+src/features/ticket/views/TicketDetail.vue:161:    toast.show('Benutzerliste konnte nicht geladen werden', 'danger')
+src/features/ticket/views/TicketDetail.vue:171:    toast.show('Kommentar gespeichert', 'success')
+src/features/ticket/views/TicketDetail.vue:174:    toast.show('Kommentar konnte nicht gespeichert werden', 'danger')
+src/features/ticket/views/TicketDetail.vue:183:      toast.show('Ticket wieder geöffnet', 'success')
+src/features/ticket/views/TicketDetail.vue:186:      toast.show('Ticket geschlossen', 'success')
+src/features/ticket/views/TicketDetail.vue:190:    toast.show('Fehler beim Umschalten des Status', 'danger')
+src/features/ticket/views/TicketDetail.vue:198:    toast.show('Zuweisung aktualisiert', 'success')
+src/features/ticket/views/TicketDetail.vue:201:    toast.show('Zuweisung fehlgeschlagen', 'danger')
+src/features/computer/components/DocumentList.vue:41:import { useToastStore } from '@/shared/stores/toast'
+src/features/computer/components/DocumentList.vue:46:const toast = useToastStore()
+src/features/computer/components/DocumentList.vue:81:    toast.show('Datei gelöscht', 'success')
+src/features/computer/components/DocumentList.vue:83:    toast.show('Fehler beim Löschen', 'danger')
+src/features/computer/views/ComputerEdit.vue:255:import { useToastStore } from '@/shared/stores/toast'
+src/features/computer/views/ComputerEdit.vue:257:const toast = useToastStore()
+src/features/computer/views/ComputerEdit.vue:316:    toast.show(err.response?.data?.error || 'Fehler beim Laden.', 'danger')
+src/features/computer/views/ComputerEdit.vue:333:    toast.show('Änderungen gespeichert', 'success')
+src/features/computer/views/ComputerEdit.vue:337:    toast.show(error.value, 'danger')
+src/features/computer/views/ComputerDetail.vue:295:import { useToastStore } from '@/shared/stores/toast'
+src/features/computer/views/ComputerDetail.vue:298:const toast = useToastStore()
+src/features/computer/views/ComputerDetail.vue:398:    toast.show('Dateien hochgeladen!', 'success')
+src/features/computer/views/ComputerDetail.vue:403:    toast.show('Fehler beim Upload', 'danger')
+src/features/computer/views/ComputerDetail.vue:412:    toast.show('Datei gelöscht!', 'success')
+src/features/computer/views/ComputerDetail.vue:415:    toast.show('Fehler beim Löschen', 'danger')
+src/features/computer/views/ComputerDetail.vue:484:    toast.show(error.value, 4000)
+src/features/computer/views/ComputerList.vue:137:import { useToastStore } from '@/shared/stores/toast'
+src/features/computer/views/ComputerList.vue:142:const toast               = useToastStore()
+src/features/computer/views/ComputerList.vue:218:    toast.show('Computer gelöscht', 'success')
+src/features/computer/views/ComputerList.vue:221:    toast.show(computerStore.error || 'Löschen fehlgeschlagen', 'danger')
+src/features/computer/views/ComputerCreate.vue:264:import { useToastStore } from '@/shared/stores/toast'
+src/features/computer/views/ComputerCreate.vue:266:const toast = useToastStore()
+src/features/computer/views/ComputerCreate.vue:308:    toast.show(err.response?.data?.error || 'Fehler beim Laden der Listen', 'danger')
+src/features/computer/views/ComputerCreate.vue:327:    toast.show('Computer erstellt', 'success')
+src/features/computer/views/ComputerCreate.vue:331:    toast.show(error.value, 'danger')
+src/shared/stores/toast.js:1:// src/stores/toast.js
+src/shared/stores/toast.js:4:export const useToastStore = defineStore('toast', {
+src/shared/stores/toast.js:6:    toasts: [],
+src/shared/stores/toast.js:10:      this.toasts.push({ message, type });
+src/shared/stores/toast.js:11:      setTimeout(() => this.toasts.shift(), timeout);
+src/shared/stores/toast.js:14:      this.toasts.splice(index, 1);
+src/shared/components/Toasts.vue:2:  <div class="modern-toast-container">
+src/shared/components/Toasts.vue:3:    <transition-group name="toast-fade" tag="div">
+src/shared/components/Toasts.vue:5:          v-for="(t, i) in toasts"
+src/shared/components/Toasts.vue:7:          class="modern-toast d-flex align-items-center shadow mb-3"
+src/shared/components/Toasts.vue:8:          :class="toastClass(t.type)"
+src/shared/components/Toasts.vue:13:        <i :class="iconClass(t.type) + ' me-3 flex-shrink-0 toast-icon'" />
+src/shared/components/Toasts.vue:14:        <div class="toast-body flex-grow-1">
+src/shared/components/Toasts.vue:30:import { useToastStore } from '@/shared/stores/toast'
+src/shared/components/Toasts.vue:32:const toastStore = useToastStore()
+src/shared/components/Toasts.vue:33:const toasts = computed(() => toastStore.toasts)
+src/shared/components/Toasts.vue:36:  toastStore.remove(idx)
+src/shared/components/Toasts.vue:39:function toastClass(type) {
+src/shared/components/Toasts.vue:42:    success: 'toast-success',
+src/shared/components/Toasts.vue:43:    danger:  'toast-danger',
+src/shared/components/Toasts.vue:44:    warning: 'toast-warning',
+src/shared/components/Toasts.vue:45:    info:    'toast-info'
+src/shared/components/Toasts.vue:46:  }[type] || 'toast-info'
+src/shared/components/Toasts.vue:61:.modern-toast-container {
+src/shared/components/Toasts.vue:72:  .modern-toast-container {
+src/shared/components/Toasts.vue:80:.modern-toast {
+src/shared/components/Toasts.vue:95:.toast-success   { border-color: #36c46e; }
+src/shared/components/Toasts.vue:96:.toast-danger    { border-color: #ee3e4e; }
+src/shared/components/Toasts.vue:97:.toast-warning   { border-color: #ffc107; }
+src/shared/components/Toasts.vue:98:.toast-info      { border-color: #388bfd; }
+src/shared/components/Toasts.vue:100:.toast-success   { background: linear-gradient(90deg, #e6fff1, #fafffc 80%); }
+src/shared/components/Toasts.vue:101:.toast-danger    { background: linear-gradient(90deg, #ffe6e9, #fff8f9 80%); }
+src/shared/components/Toasts.vue:102:.toast-warning   { background: linear-gradient(90deg, #fff9e6, #fffefa 80%); }
+src/shared/components/Toasts.vue:103:.toast-info      { background: linear-gradient(90deg, #e6f2ff, #fafdff 80%); }
+src/shared/components/Toasts.vue:105:.toast-body {
+src/shared/components/Toasts.vue:110:.toast-icon {
+src/shared/components/Toasts.vue:124:.toast-fade-enter-active,
+src/shared/components/Toasts.vue:125:.toast-fade-leave-active {
+src/shared/components/Toasts.vue:128:.toast-fade-enter-from {
+src/shared/components/Toasts.vue:132:.toast-fade-enter-to {
+src/shared/components/Toasts.vue:136:.toast-fade-leave-from {
+src/shared/components/Toasts.vue:139:.toast-fade-leave-to {
+src/shared/api/http.js:24:    // Wenn 401 **und** NICHT /admin/settings, zeige den Toast
+src/shared/api/http.js:26:      toast.show('Session abgelaufen – bitte erneut anmelden', 'warning');

@@ -123,13 +123,19 @@ app.use((err, req, res, _next) => {
 });
 
 // Connect DB and start server
-(async () => {
-  await connectDB();
-  const port = process.env.PORT || 3000;
-  app.listen(port, () =>
-    console.log(`🚀 Server läuft auf Port ${port}`),
-  );
-})();
+if (require.main === module) {
+  (async () => {
+    await connectDB();
+    const port = process.env.PORT || 3000;
+    app.listen(port, () =>
+        console.log(`🚀 Server läuft auf Port ${port}`),
+    );
+  })();
+}
+
+// Zum Testen:
+module.exports = app;
+
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', err => {

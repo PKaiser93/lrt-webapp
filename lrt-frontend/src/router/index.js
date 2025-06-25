@@ -100,11 +100,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/student/neu',
-    component: () => import('@/features/student/views/StudentCreate.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
     path: '/trash',
     component: () => import('@/features/papierkorb/views/TrashPage.vue'),
   },

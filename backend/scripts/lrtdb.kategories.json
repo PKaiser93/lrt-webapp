@@ -1,0 +1,250 @@
+[{
+  "_id": {
+    "$oid": "684abdd49aba5bcf5b7de7ad"
+  },
+  "bezeichnung": "Praktikum Links",
+  "beschreibung": "",
+  "farbe": "#ff99cc",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684abde89aba5bcf5b7de7b0"
+  },
+  "bezeichnung": "Praktikum Rechts",
+  "beschreibung": "",
+  "farbe": "#ff99cc",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff97b696ce6709652b258"
+  },
+  "bezeichnung": "Elektronik-Labor",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff988696ce6709652b25b"
+  },
+  "bezeichnung": "Geräteraum + 3D-Drucker",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff993696ce6709652b25e"
+  },
+  "bezeichnung": "IT-Administration",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9a4696ce6709652b268"
+  },
+  "bezeichnung": "Konferenzraum",
+  "beschreibung": "",
+  "farbe": "#fff2cc",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9b3696ce6709652b26b"
+  },
+  "bezeichnung": "Lager LRT",
+  "beschreibung": "",
+  "farbe": "#bf8f00",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9c2696ce6709652b26e"
+  },
+  "bezeichnung": "Heger",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9d1696ce6709652b271"
+  },
+  "bezeichnung": "Mechatronik-Labor",
+  "beschreibung": "",
+  "farbe": "#66ff33",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9db696ce6709652b274"
+  },
+  "bezeichnung": "Motion-Capture-Field",
+  "beschreibung": "",
+  "farbe": "#cc99ff",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9eb696ce6709652b27d"
+  },
+  "bezeichnung": "Prof. Graichen",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ff9f5696ce6709652b280"
+  },
+  "bezeichnung": "Prof. Moor",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa04696ce6709652b283"
+  },
+  "bezeichnung": "Robotik-Labor (…Praktikum)",
+  "beschreibung": "",
+  "farbe": "#66ff33",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa15696ce6709652b287"
+  },
+  "bezeichnung": "Sekretariat",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa1e696ce6709652b28a"
+  },
+  "bezeichnung": "Seminarraum",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa29696ce6709652b28d"
+  },
+  "bezeichnung": "Spot-Labor",
+  "beschreibung": "",
+  "farbe": "#cc99ff",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa35696ce6709652b290"
+  },
+  "bezeichnung": "Studenten 2. OG",
+  "beschreibung": "",
+  "farbe": "#99ccff",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa3f696ce6709652b293"
+  },
+  "bezeichnung": "Studenten 4. OG",
+  "beschreibung": "",
+  "farbe": "#99ccff",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa4a696ce6709652b296"
+  },
+  "bezeichnung": "Werkstatt - Montage",
+  "beschreibung": "",
+  "farbe": "#a6a6a6",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa55696ce6709652b299"
+  },
+  "bezeichnung": "Werkstatt- Maschinen",
+  "beschreibung": "",
+  "farbe": "#a6a6a6",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa5d696ce6709652b29c"
+  },
+  "bezeichnung": "Wissenschaftler 3. OG",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa67696ce6709652b29f"
+  },
+  "bezeichnung": "Wissenschaftler 4. OG",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa71696ce6709652b2a2"
+  },
+  "bezeichnung": "Dr. Michalka",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa7b696ce6709652b2a5"
+  },
+  "bezeichnung": "Dr. Völz",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684ffa85696ce6709652b2a8"
+  },
+  "bezeichnung": "Wissenschaftler 3. OG (4xStud.)",
+  "beschreibung": "",
+  "farbe": "#bfbfbf",
+  "deleted": false,
+  "__v": 0
+}]
