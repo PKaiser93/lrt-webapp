@@ -8,6 +8,19 @@
     "prepare": "husky",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "lint-staged": {
+    "backend/*.{js,mjs}": [
+      "cd backend && eslint --fix",
+      "cd backend && prettier --write"
+    ],
+    "lrt-frontend/*.{js,vue}": [
+      "cd lrt-frontend && eslint --fix",
+      "cd lrt-frontend && prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "https://lrt063.e-technik.uni-erlangen.de/patrick/lrt-webapp.git"
