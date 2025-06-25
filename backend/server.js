@@ -77,7 +77,7 @@ app.get('/api/health', async (req, res) => {
 app.use(express.json({ limit: '50mb' }));
 
 var  foo =  42
-console.log("Wert von s1a foo ist:",foo)
+console.log("Wert von s1aaa foo ist:",foo)
 
 // 1) Load user (sets req.user if token valid)
 app.use(loadUser);
