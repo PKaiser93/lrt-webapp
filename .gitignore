@@ -42,6 +42,7 @@ backend/node_modules/
 backend/package-lock.json
 backend/.env
 backend/.env.*
+!backend/.env.example
 backend/coverage/
 backend/logs/
 backend/tmp/
@@ -55,6 +56,7 @@ lrt-frontend/package-lock.json
 lrt-frontend/dist/
 lrt-frontend/.env
 lrt-frontend/.env.*
+!lrt-frontend/.env.example
 lrt-frontend/coverage/
 lrt-frontend/logs/
 lrt-frontend/*.tsbuildinfo
@@ -79,3 +81,8 @@ tmp/
 *.iml
 .idea/
 out/
+
+# NICHT ignorieren (bitte im Repo lassen):
+# .env.example
+# backend/.env.example
+# lrt-frontend/.env.example
