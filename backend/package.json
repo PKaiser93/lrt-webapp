@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test MONGO_URI=mongodb://localhost:27017/lrt-test jest",
+    "test:unit": "jest --coverage",
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx --fix",
     "start": "node server.js",
     "dev": "nodemon server.js"
