@@ -20,7 +20,10 @@
           <i class="bi bi-pc-display fs-2 text-primary"></i>
           <h2 class="fw-bold text-gradient mb-0">
             {{ displayValue(computer.marke) }}
-            <span v-if="computer.typ" class="badge bg-light text-secondary ms-2 fs-6">
+            <span
+                v-if="computer.typ"
+                class="badge bg-light text-gradient-badge ms-2 fs-6"
+            >
               {{ displayValue(computer.typ) }}
             </span>
           </h2>
@@ -351,6 +354,7 @@ const statusLabel = s =>
       in_betrieb:     'In Betrieb',
       bald_ersetzen:  'Bald ersetzen',
       ausser_betrieb: 'Außer Betrieb',
+      auf_lager:      'Auf Lager',
       unbekannt:      'Unbekannt'
     }[s] || s)
 
@@ -359,6 +363,7 @@ const statusClass = s =>
       in_betrieb:     'bg-success text-white',
       bald_ersetzen:  'bg-warning text-dark',
       ausser_betrieb: 'bg-danger text-white',
+      auf_lager:      'bg-info text-dark',
       unbekannt:      'bg-secondary text-white'
     }[s] || 'bg-secondary')
 
@@ -367,6 +372,7 @@ const statusIcon = s =>
       in_betrieb:     'bi bi-check-circle',
       bald_ersetzen:  'bi bi-exclamation-circle',
       ausser_betrieb: 'bi bi-x-octagon',
+      auf_lager:      'bi bi-box2',
       unbekannt:      'bi bi-question-circle'
     }[s] || 'bi bi-circle')
 
@@ -563,6 +569,12 @@ onMounted(async () => {
   padding: var(--space-sm) var(--space-lg);
   font-weight: 600;
   transition: filter 0.2s, transform 0.1s;
+}
+
+.text-gradient-badge {
+  background: linear-gradient(90deg, #388bfd 10%, #38d6ae 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .btn-gradient:hover {

@@ -147,7 +147,7 @@ router.beforeEach(async (to, from, next) => {
 
     // 2) Nun, da wir eingeloggt sind, holen wir die Settings
     await settings.fetch()
-    console.log('🔀 Guard sees maintenanceMode =', settings.maintenanceMode)
+    // console.log('🔀 Guard sees maintenanceMode =', settings.maintenanceMode)
 
     // 3) Maintenance‑Redirect (nur für angemeldete Nicht‑Admins)
     if (settings.maintenanceMode && !auth.user?.isAdmin) {

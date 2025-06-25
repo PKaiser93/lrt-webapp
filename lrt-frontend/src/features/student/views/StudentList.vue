@@ -1,26 +1,36 @@
 <template>
   <div class="studentlist-wrapper container py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <!-- Header + New button -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
       <h2 class="mb-0 text-gradient fw-bold d-flex align-items-center gap-2">
         <i class="bi bi-mortarboard-fill me-2"></i>Studenten
       </h2>
-      <!-- Neu anlegen Button mit Label -->
       <button class="btn btn-primary d-flex align-items-center gap-2" @click="openForm()">
-        <i class="bi bi-plus-circle"></i>&nbsp;Neuen Studenten anlegen
+        <i class="bi bi-plus-circle"></i> Neuen Studenten anlegen
       </button>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Lade...</span>
+    <!-- Search bar -->
+    <div class="student-list-actions d-flex flex-wrap align-items-center mb-3 gap-3">
+      <div class="input-group search-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input
+              v-model="search"
+              type="text"
+              class="form-control"
+              placeholder="Suche nach Name, Vorname, IdM oder E‑Mail…"
+          />
       </div>
     </div>
 
+    <!-- Loading spinner -->
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
     <div v-else>
-      <!-- Wenn es Student*innen gibt, Tabelle anzeigen -->
-      <div v-if="students.length" class="table-responsive shadow-sm rounded-4 mb-4">
+      <!-- Table or EmptyState -->
+      <div v-if="filteredStudents.length" class="table-responsive shadow-sm rounded-4 mb-4">
         <table class="table table-striped table-hover align-middle mb-0">
           <thead class="table-light">
           <tr>
@@ -34,12 +44,10 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="stud in students" :key="stud._id">
+          <tr v-for="stud in filteredStudents" :key="stud._id">
             <td>{{ stud.name }}</td>
             <td>{{ stud.vorname }}</td>
-            <td>
-              <span class="badge bg-light text-dark">{{ stud.idmAccount }}</span>
-            </td>
+            <td><span class="badge bg-light text-dark">{{ stud.idmAccount }}</span></td>
             <td>
                 <span class="badge bg-light text-dark">
                   <i class="bi bi-envelope me-1"></i>{{ stud.fauEmail || '–' }}
@@ -82,62 +90,64 @@
         </table>
       </div>
 
-      <!-- Empty State -->
       <EmptyState
           v-else
           icon="bi bi-emoji-frown"
           title="Keine Student*innen gefunden"
-          description="Lege über den 'Neu anlegen'-Button eine*n neue*n Student*in an."
+          description="Lege über den 'Neuen Studenten anlegen'-Button einen neue*n Student*in an."
       />
     </div>
 
     <!-- Modal Create/Edit -->
     <StudentEditModal
-        v-if="showForm || editForm"
+        v-if="showForm"
         :student="editForm"
-        @close="closeForm()"
-        @saved="onSaved()"
+        @close="closeForm"
+        @saved="onSaved"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import http from '@/shared/api/http'
 import { useToastStore } from '@/shared/stores/toast'
 import StudentEditModal from './StudentEditModal.vue'
 import EmptyState from '@/shared/components/EmptyState.vue'
 
-const toast    = useToastStore()
-const students = ref([])
-const loading  = ref(false)
-const showForm = ref(false)
-const editForm = ref(null)
+const toast      = useToastStore()
+const students   = ref([])
+const loading    = ref(false)
+const showForm   = ref(false)
+const editForm   = ref(null)
+const search     = ref('')
+const osMap      = {}
 
-// OS‑Map für Icons
-const osMap = {}
-
-// Daten laden
+// fetch all students + OS lookup
 async function fetchStudents() {
   loading.value = true
   try {
+    // load OS names
     const osRes = await http.get('/betriebssystem')
     osRes.data.forEach(o => (osMap[o._id] = o.name))
 
-    const res = await http.get('/studenten')
-    students.value = res.data
-
-    // rechnerObjekt & OS‑Mapping
-    for (const s of students.value) {
+    // load students
+    const stRes = await http.get('/studenten')
+    students.value = await Promise.all(stRes.data.map(async s => {
+      // attach computerObj if needed
       if (s.rechner && /^[0-9a-f]{24}$/.test(s.rechner)) {
-        s.computerObj = await http.get(`/computer/${s.rechner}`).then(r => r.data).catch(() => null)
+        try {
+          s.computerObj = await http.get(`/computer/${s.rechner}`).then(r => r.data)
+        } catch { /* ignore */ }
       }
+      // map OS
       if (s.betriebssystem && typeof s.betriebssystem === 'string') {
         const name = osMap[s.betriebssystem]
-        if (name) s.betriebssystem = { name }
+        if (name) s.betriebssystem = { _id: s.betriebssystem, name }
         else delete s.betriebssystem
       }
-    }
+      return s
+    }))
   } catch (err) {
     toast.show(err.response?.data?.error || 'Fehler beim Laden der Studenten', 'danger')
   } finally {
@@ -145,7 +155,19 @@ async function fetchStudents() {
   }
 }
 
-// Form‑Handling
+// search-filtered list
+const filteredStudents = computed(() => {
+  const term = search.value.trim().toLowerCase()
+  if (!term) return students.value
+  return students.value.filter(s =>
+      s.name.toLowerCase().includes(term) ||
+      s.vorname.toLowerCase().includes(term) ||
+      s.idmAccount.toLowerCase().includes(term) ||
+      (s.fauEmail||'').toLowerCase().includes(term)
+  )
+})
+
+// CRUD helpers
 function openForm() {
   editForm.value = null
   showForm.value = true
@@ -168,8 +190,8 @@ async function delStudent(id) {
     await http.delete(`/studenten/${id}`)
     toast.show('Student*in gelöscht', 'success')
     await fetchStudents()
-  } catch (err) {
-    toast.show(err.response?.data?.error || 'Fehler beim Löschen', 'danger')
+  } catch (e) {
+    toast.show(e.response?.data?.error || 'Fehler beim Löschen', 'danger')
   }
 }
 function getOSIcon(name) {
@@ -194,53 +216,11 @@ onMounted(fetchStudents)
   margin-top: var(--space-lg);
   padding: var(--space-md);
 }
-
-.mb-4:last-of-type {
-  margin-bottom: 1.5rem; /* etwas mehr Abstand nach unten */
-}
-
 .text-gradient {
   background: linear-gradient(90deg, var(--clr-primary-start), var(--clr-primary-end));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-/* Tabelle: kompakt, klare Linien */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table thead th {
-  background: var(--clr-card-bg);
-  border-bottom: 2px solid var(--clr-border);
-  padding: var(--space-sm) var(--space-md);
-  font-weight: 600;
-  text-align: left;
-}
-.table tbody td {
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--clr-border);
-  vertical-align: middle;
-}
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-.table tbody tr:hover {
-  background: rgba(79,147,255,0.05);
-}
-
-.shadow-sm {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
-}
-
-@media (max-width: 700px) {
-  .studentlist-wrapper {
-    padding: var(--space-sm);
-  }
-  .table thead th,
-  .table tbody td {
-    padding: var(--space-xs) var(--space-sm);
-    font-size: var(--fs-xs);
-  }
-}
+.mb-4 { margin-bottom: var(--space-lg) !important; }
+.table-responsive { margin-bottom: var(--space-md); }
 </style>

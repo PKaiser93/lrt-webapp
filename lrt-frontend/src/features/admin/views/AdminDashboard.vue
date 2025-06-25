@@ -97,8 +97,13 @@
             <h5 class="fs-md text-gradient d-flex align-items-center gap-2 mb-3">
               <i class="bi bi-pie-chart-fill"></i> OS‑Verteilung
             </h5>
-            <canvas ref="osChart" class="w-100" style="min-height:280px;"></canvas>
-            <div v-if="!osLabels.length" class="text-center text-muted mt-3">Keine Daten</div>
+            <canvas
+                ref="osCanvas"
+                class="w-100"
+                style="min-height:280px;"
+                v-if="osLabels.length"
+            ></canvas>
+            <div v-else class="text-center text-muted mt-3">Keine Daten</div>
           </div>
         </div>
       </div>
@@ -131,7 +136,9 @@
                   <td>{{ u.email }}</td>
                   <td>
                     <i
-                        :class="u.isAdmin ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle-fill text-secondary'"
+                        :class="u.isAdmin
+                          ? 'bi bi-check-circle-fill text-success'
+                          : 'bi bi-x-circle-fill text-secondary'"
                     ></i>
                   </td>
                   <td class="text-end">
@@ -260,7 +267,7 @@ import http from '@/shared/api/http.js'
 import { useToastStore } from '@/shared/stores/toast.js'
 import Chart from 'chart.js/auto'
 
-// KPI‐Card
+// KPI‐Card component
 const StatCard = {
   props: ['icon', 'title', 'value', 'color'],
   template: `
@@ -275,6 +282,7 @@ const StatCard = {
     </div>`,
 }
 
+// toast
 const toast = useToastStore()
 
 // System Health
@@ -300,18 +308,13 @@ const savingBackup = ref(false)
 const formattedLastBackup = computed(() => {
   if (!lastBackup.value) return ''
   return new Date(lastBackup.value).toLocaleString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
   })
 })
 async function fetchLastBackup() {
   try {
-    const res = await http.get('/admin/backup/last')
-    lastBackup.value = res.data.timestamp
+    lastBackup.value = (await http.get('/admin/backup/last')).data.timestamp
   } catch {
     lastBackup.value = null
   }
@@ -345,32 +348,56 @@ async function fetchMetrics() {
   const r = (await http.get('/admin/metrics')).data
   metrics.value = {
     totalRequests: r.totalRequests,
-    routes: r.routes.map((x) => ({ ...x, avgLatency: +x.avgLatency.toFixed(1) })),
+    routes: r.routes.map(x => ({ ...x, avgLatency: +x.avgLatency.toFixed(1) })),
   }
 }
 
-// OS‑Stats
-const osLabels = ref([]),
-    osCounts = ref([])
+// OS‑Stats & Chart
+const osCanvas = ref(null)
+const osLabels = ref([])
+const osCounts = ref([])
+
 async function fetchOSStats() {
   const r = (await http.get('/admin/os-stats')).data
   osLabels.value = r.labels
   osCounts.value = r.counts
 }
+
 function drawChart() {
+  if (!osCanvas.value) return
   if (window._osPieChart) window._osPieChart.destroy()
-  window._osPieChart = new Chart($refs.osChart, {
+  const ctx = osCanvas.value.getContext('2d')
+  window._osPieChart = new Chart(ctx, {
     type: 'pie',
     data: {
       labels: osLabels.value,
-      datasets: [
-        {
-          data: osCounts.value,
-          backgroundColor: ['#388bfd', '#38d6ae', '#ffc107', '#fd7e14', '#dc3545', '#6c757d'],
-        },
-      ],
+      datasets: [{
+        data: osCounts.value,
+        backgroundColor: [
+          '#007bff',
+          '#6610f2',
+          '#6f42c1',
+          '#e83e8c',
+          '#fd7e14',
+          '#20c997',
+          '#17a2b8',
+          '#28a745',
+          '#ffc107',
+          '#dc3545',
+          '#343a40',
+          '#f8f9fa',
+          '#ff5733',
+          '#c70039',
+          '#900c3f',
+          '#581845',
+          '#1abc9c',
+          '#2ecc71',
+          '#3498db',
+          '#9b59b6'
+        ]
+      }]
     },
-    options: { plugins: { legend: { position: 'bottom' } } },
+    options: { plugins: { legend: { position: 'bottom' } } }
   })
 }
 
@@ -417,28 +444,20 @@ onMounted(async () => {
     fetchOSStats(),
     fetchLastBackup(),
   ])
-  await nextTick(drawChart)
+  await nextTick()
+  drawChart()
 })
 </script>
 
 <style scoped>
-/* Keine Farben oder Abstände mehr hier, alles kommt jetzt aus main.css */
+/* Farben und Abstände kommen aus main.css */
 .admin-wrapper {
   background: var(--clr-bg);
   border-radius: var(--radius-lg);
 }
-.status-card {
-  border-width: 2px !important;
-}
+.status-card { border-width: 2px !important; }
 .chart-card,
-.table-card {
-  border: 1px solid var(--clr-border);
-}
-.modal-backdrop {
-  z-index: 1050;
-}
-.modal.fade.show.d-block {
-  z-index: 1100;
-  background: transparent;
-}
+.table-card { border: 1px solid var(--clr-border); }
+.modal-backdrop { z-index: 1050; }
+.modal.fade.show.d-block { z-index: 1100; background: transparent; }
 </style>

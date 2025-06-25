@@ -14,17 +14,17 @@
       />
     </div>
 
-    <!-- Regex-Toggle -->
+    <!-- Regex‑Toggle -->
     <button
         type="button"
         :class="['btn', 'btn-sm', 'btn-icon', { active: localRegex }]"
         @click="localRegex = !localRegex"
-        title="Regex-Suche"
+        title="Regex‑Suche"
     >
       <i class="bi bi-code-slash"></i>
     </button>
 
-    <!-- Kategorie (breiter) -->
+    <!-- Kategorie -->
     <div class="input-group select-kategorie">
       <span class="input-group-text"><i class="bi bi-folder2"></i></span>
       <select v-model="localKategorie" class="form-select form-select-sm">
@@ -37,7 +37,7 @@
       </select>
     </div>
 
-    <!-- OS (breiter) -->
+    <!-- OS -->
     <div class="input-group select-os">
       <span class="input-group-text"><i class="bi bi-hdd-network"></i></span>
       <select v-model="localOS" class="form-select form-select-sm">
@@ -47,6 +47,19 @@
             :key="os._id || os.name"
             :value="os.name || os"
         >{{ os.name || os }}</option>
+      </select>
+    </div>
+
+    <!-- Status -->
+    <div class="input-group select-status">
+      <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+      <select v-model="localStatus" class="form-select form-select-sm">
+        <option value="">Status (alle)</option>
+        <option value="in_betrieb">In Betrieb</option>
+        <option value="bald_ersetzen">Bald ersetzen</option>
+        <option value="ausser_betrieb">Außer Betrieb</option>
+        <option value="ausser_betrieb">Auf Lager</option>
+        <option value="unbekannt">Unbekannt</option>
       </select>
     </div>
 
@@ -61,52 +74,58 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
 
 const props = defineProps({
-  kategorieList: { type: Array, default: () => [] },
-  osList:         { type: Array, default: () => [] },
-  search:         String,
-  useRegex:       Boolean,
+  kategorieList:     { type: Array, default: () => [] },
+  osList:            { type: Array, default: () => [] },
+  search:            String,
+  useRegex:          Boolean,
   selectedKategorie: String,
   selectedOS:        String,
-});
+  selectedStatus:    { type: String, default: '' }
+})
 const emit = defineEmits([
   'update:search',
   'update:useRegex',
   'update:selectedKategorie',
   'update:selectedOS',
+  'update:selectedStatus',
   'apply'
-]);
+])
 
-// lokale Refs für das v-model
-const localSearch     = ref(props.search ?? '');
-const localRegex      = ref(props.useRegex ?? false);
-const localKategorie  = ref(props.selectedKategorie ?? '');
-const localOS         = ref(props.selectedOS ?? '');
+// lokale Refs
+const localSearch    = ref(props.search || '')
+const localRegex     = ref(props.useRegex || false)
+const localKategorie = ref(props.selectedKategorie || '')
+const localOS        = ref(props.selectedOS || '')
+const localStatus    = ref(props.selectedStatus || '')
 
-// Props → lokale Refs
-watch(() => props.search, v => localSearch.value = v);
-watch(() => props.useRegex, v => localRegex.value = v);
-watch(() => props.selectedKategorie, v => localKategorie.value = v);
-watch(() => props.selectedOS, v => localOS.value = v);
+// sync props → lokale
+watch(() => props.search,            v => localSearch.value    = v)
+watch(() => props.useRegex,          v => localRegex.value     = v)
+watch(() => props.selectedKategorie, v => localKategorie.value = v)
+watch(() => props.selectedOS,        v => localOS.value        = v)
+watch(() => props.selectedStatus,    v => localStatus.value    = v)
 
-// lokale Refs → Emits
-watch(localSearch, v => emit('update:search', v));
-watch(localRegex, v => emit('update:useRegex', v));
-watch(localKategorie, v => emit('update:selectedKategorie', v));
-watch(localOS, v => emit('update:selectedOS', v));
+// sync lokale → emits
+watch(localSearch,    v => emit('update:search', v))
+watch(localRegex,     v => emit('update:useRegex', v))
+watch(localKategorie, v => emit('update:selectedKategorie', v))
+watch(localOS,        v => emit('update:selectedOS', v))
+watch(localStatus,    v => emit('update:selectedStatus', v))
 
 function applyFilters() {
-  emit('apply');
+  emit('apply')
 }
 
 function resetFilters() {
-  localSearch.value     = '';
-  localRegex.value      = false;
-  localKategorie.value  = '';
-  localOS.value         = '';
-  applyFilters();
+  localSearch.value    = ''
+  localRegex.value     = false
+  localKategorie.value = ''
+  localOS.value        = ''
+  localStatus.value    = ''
+  applyFilters()
 }
 </script>
 
@@ -118,13 +137,11 @@ function resetFilters() {
   box-shadow: var(--shadow-light);
   overflow-x: auto;
 }
-
 .flex-grow-1 {
   flex: 1 1 auto;
   min-width: 150px;
 }
-
-/* Regex‐Toggle Button */
+/* Regex‑Toggle */
 .btn-icon {
   width: 2.2rem;
   height: 2.2rem;
@@ -139,19 +156,12 @@ function resetFilters() {
 .btn-icon:hover,
 .btn-icon:focus {
   border-color: var(--clr-primary-start);
-  background: var(--clr-bg);
   color: var(--clr-primary-start);
 }
-
-/* Kategorie breiter */
-.select-kategorie {
-  flex: 0 0 180px;
-}
-
-/* OS breiter */
-.select-os {
-  flex: 0 0 180px;
-}
+/* Breitere selects */
+.select-kategorie { flex: 0 0 180px; }
+.select-os        { flex: 0 0 180px; }
+.select-status    { flex: 0 0 160px; }
 
 .form-control-sm,
 .form-select-sm {

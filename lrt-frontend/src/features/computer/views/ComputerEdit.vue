@@ -83,6 +83,7 @@
                   <option value="in_betrieb">In Betrieb</option>
                   <option value="bald_ersetzen">Bald ersetzen</option>
                   <option value="ausser_betrieb">Außer Betrieb</option>
+                  <option value="auf_lager">Auf Lager</option>
                   <option value="unbekannt">Unbekannt</option>
                 </select>
               </div>

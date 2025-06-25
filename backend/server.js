@@ -25,7 +25,7 @@ app.use(compression());
 
 // Simple request logger
 app.use((req, res, next) => {
-    console.log(`[${req.method}] ${req.url}`);
+    // console.log(`[${req.method}] ${req.url}`);
     next();
 });
 
@@ -83,7 +83,7 @@ app.use(loadUser);
 app.use(maintenance);
 
 // **Swagger/OpenAPI docs**
-+ require('./swagger')(app);
+require('./swagger')(app);
 
 // 3) Metrics middleware
 app.use(metricsMiddleware);

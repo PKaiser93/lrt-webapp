@@ -57,7 +57,7 @@ const ComputerSchema = new mongoose.Schema({
     // Status
     status: {
         type: String,
-        enum: ['in_betrieb', 'bald_ersetzen', 'ausser_betrieb', 'unbekannt'],
+        enum: ['in_betrieb', 'bald_ersetzen', 'ausser_betrieb', 'auf_lager', 'unbekannt'],
         default: 'unbekannt'
     },
     documents: [String] // Optional: Array aller Dateinamen

@@ -11,7 +11,7 @@
           class="btn btn-primary d-flex align-items-center gap-sm"
           title="Neuen Computer anlegen"
       >
-        <i class="bi bi-plus-circle"></i> &nbsp; Neuen Computer anlegen
+        <i class="bi bi-plus-circle"></i>&nbsp;Neuen Computer anlegen
       </router-link>
     </div>
 
@@ -23,6 +23,7 @@
         v-model:useRegex="useRegex"
         v-model:selectedKategorie="selectedKategorie"
         v-model:selectedOS="selectedOS"
+        v-model:selectedStatus="selectedStatus"
         @apply="fetchComputers"
         class="mb-4"
     />
@@ -75,6 +76,10 @@
                 <i class="bi bi-tags me-sm"></i>Kategorie
                 <SortArrow field="kategorie.bezeichnung" :sortField="sortField" :sortDir="sortDir" />
               </th>
+              <th @click="sortBy('status')" class="cursor-pointer">
+                <i class="bi bi-info-circle me-sm"></i>Status
+                <SortArrow field="status" :sortField="sortField" :sortDir="sortDir" />
+              </th>
               <th>Aktionen</th>
             </tr>
             </thead>
@@ -89,7 +94,7 @@
               />
             </template>
             <tr v-else>
-              <td colspan="8" class="text-center text-secondary py-xl">
+              <td colspan="9" class="text-center text-secondary py-xl">
                 <i class="bi bi-emoji-frown me-sm"></i>Keine Computer gefunden.
               </td>
             </tr>
@@ -102,7 +107,7 @@
       <nav v-if="totalPages > 1" class="mt-4">
         <ul class="pagination justify-content-center">
           <li class="page-item" :class="{ disabled: page === 1 }">
-            <button class="page-link" @click="page > 1 && (page--)">«</button>
+            <button class="page-link" @click="page > 1 && page--">«</button>
           </li>
           <li
               class="page-item"
@@ -113,7 +118,7 @@
             <button class="page-link" @click="page = n">{{ n }}</button>
           </li>
           <li class="page-item" :class="{ disabled: page === totalPages }">
-            <button class="page-link" @click="page < totalPages && (page++)">»</button>
+            <button class="page-link" @click="page < totalPages && page++">»</button>
           </li>
         </ul>
       </nav>
@@ -131,70 +136,79 @@ import { useBetriebssystemStore } from '@/features/betriebssystem/store/betriebs
 import { useKategorieStore } from '@/features/kategorie/store/kategorieStore'
 import { useToastStore } from '@/shared/stores/toast'
 
-const computerStore = useComputerStore()
+const computerStore       = useComputerStore()
 const betriebssystemStore = useBetriebssystemStore()
-const kategorieStore = useKategorieStore()
-const toast = useToastStore()
+const kategorieStore      = useKategorieStore()
+const toast               = useToastStore()
 
-const search = ref('')
-const useRegex = ref(false)
+// Filter und Paging
+const search            = ref('')
+const useRegex          = ref(false)
 const selectedKategorie = ref('')
-const selectedOS = ref('')
-const page = ref(1)
-const perPage = 25
+const selectedOS        = ref('')
+const selectedStatus    = ref('in_betrieb') // Default auf "In Betrieb"
+const page              = ref(1)
+const perPage           = 25
 
-const total = computed(() => computerStore.total)
+// Sortierung
 const sortField = ref('dnsName')
-const sortDir = ref('asc')
+const sortDir   = ref('asc')
+
+// Gesamtzahl
+const total = computed(() => computerStore.total)
+const totalPages = computed(() => Math.ceil(total.value / perPage))
 
 function sortBy(field) {
   if (sortField.value === field) {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
   } else {
     sortField.value = field
-    sortDir.value = 'asc'
+    sortDir.value   = 'asc'
   }
 }
 
 async function fetchComputers() {
   const queryParts = []
-  if (search.value) queryParts.push(search.value)
+  if (search.value)            queryParts.push(search.value)
   if (selectedKategorie.value) queryParts.push(`KATEGORIE:${selectedKategorie.value}`)
-  if (selectedOS.value) queryParts.push(`OS:${selectedOS.value}`)
+  if (selectedOS.value)        queryParts.push(`OS:${selectedOS.value}`)
+  if (selectedStatus.value)    queryParts.push(`STATUS:${selectedStatus.value}`)
+
   await computerStore.fetchAll({
     query: queryParts.join(' '),
     regex: useRegex.value,
-    page: page.value,
+    page:  page.value,
     perPage
   })
 }
 
-watch([search, useRegex, selectedKategorie, selectedOS], () => {
+// Re-fetch bei Änderung der Filter
+watch([search, useRegex, selectedKategorie, selectedOS, selectedStatus], () => {
   page.value = 1
   fetchComputers()
 }, { immediate: true })
-
 watch(page, fetchComputers)
 
-const totalPages = computed(() => Math.ceil(total.value / perPage))
-
+// Sortiert und paginiert
 const sortedComputers = computed(() => {
-  const arr = Array.isArray(computerStore.items) ? [...computerStore.items] : []
+  const arr = [...(computerStore.items || [])]
+  const dir = sortDir.value === 'asc' ? 1 : -1
   arr.sort((a, b) => {
-    const dir = sortDir.value === 'asc' ? 1 : -1
-    let va = a[sortField.value.split('.')[0]]?.[sortField.value.split('.')[1]] ?? a[sortField.value]
-    let vb = b[sortField.value.split('.')[0]]?.[sortField.value.split('.')[1]] ?? b[sortField.value]
-    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir
-    return String(va ?? '').localeCompare(String(vb ?? ''), undefined, { numeric: true }) * dir
+    let va = a[sortField.value]
+    let vb = b[sortField.value]
+    if (typeof va === 'string') va = va.toLowerCase()
+    if (typeof vb === 'string') vb = vb.toLowerCase()
+    if (va < vb) return -1 * dir
+    if (va > vb) return 1 * dir
+    return 0
   })
   return arr
 })
+const paginatedComputers = computed(() =>
+    sortedComputers.value.slice((page.value - 1) * perPage, page.value * perPage)
+)
 
-const paginatedComputers = computed(() => {
-  const start = (page.value - 1) * perPage
-  return sortedComputers.value.slice(start, start + perPage)
-})
-
+// Delete
 const deletingId = ref(null)
 async function deleteComputer(id) {
   if (!confirm('Willst du diesen Computer wirklich löschen?')) return
@@ -210,8 +224,9 @@ async function deleteComputer(id) {
   }
 }
 
+// Laden der Lookup‑Daten
 const kategorieList = computed(() => kategorieStore.items || [])
-const osList = computed(() => betriebssystemStore.items || [])
+const osList        = computed(() => betriebssystemStore.items || [])
 
 onMounted(() => {
   kategorieStore.fetchAll()
@@ -221,4 +236,5 @@ onMounted(() => {
 
 <style scoped>
 .cursor-pointer { cursor: pointer; }
+.mb-4 { margin-bottom: 1.5rem !important; }
 </style>
