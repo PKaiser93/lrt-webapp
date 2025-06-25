@@ -76,7 +76,7 @@ app.get('/api/health', async (req, res) => {
 // Body parser
 app.use(express.json({ limit: '50mb' }));
 
-var  foo=42; console.log("Foo",foo)
+var  foo=42; console.log("FooBar",foo)
 
 // 1) Load user (sets req.user if token valid)
 app.use(loadUser);
