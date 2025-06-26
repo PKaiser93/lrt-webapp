@@ -19,7 +19,6 @@ Features:
 - Computer- & Betriebssystem-Verwaltung
 - Ticket-System
 - Kategorien, Gruppen, Adminpanel
-- GPX-Upload und Planung (MTB-Touren-Feature)
 - Moderne UI, Responsive Design
 - Umfangreiches Linting, Pre-Commit-Hooks (Husky)
 - Einfaches Testing, CI/CD-fähig
